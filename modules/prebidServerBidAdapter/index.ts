@@ -189,6 +189,15 @@ function validateConfigRequiredProps(s2sConfig: S2SConfig) {
   return true;
 }
 
+function checkOpenAdsValueRestriction(s2sConfig: S2SConfig) {
+  const p1Consent = s2sConfig['endpoint']['p1Consent']
+  if (p1Consent != null && !s2sConfig['endpoint']['p1Consent'].endsWith('.adsrvr.org/openrtb2/auction')) {
+      logError('s2sConfig.endpoint should match "https://*.adsrvr.org/openrtb2/auction", but was set to ' + s2sConfig['endpoint']['p1Consent']);
+  }
+
+  return true;
+}
+
 // temporary change to modify the s2sConfig for new format used for endpoint URLs;
 // could be removed later as part of a major release, if we decide to not support the old format
 function formatUrlParams(option) {
@@ -218,6 +227,7 @@ export function validateConfig(options: S2SConfig[]) {
     if (
       updateConfigDefaults(s2sConfig) &&
       validateConfigRequiredProps(s2sConfig) &&
+      checkOpenAdsValueRestriction(s2sConfig) &&
       s2sConfig.enabled
     ) {
       if (Array.isArray(s2sConfig.bidders)) {
@@ -241,6 +251,11 @@ export function validateConfig(options: S2SConfig[]) {
  * @param {(S2SConfig[]|S2SConfig)} options
  */
 function setS2sConfig(options) {
+  if (Array.isArray(options)) {
+    logError('prebidServer: s2sConfig should only be an single s2sConfig object, not an array of s2sConfigs. s2sConfig not set.');
+    return
+  }
+  
   options = validateConfig(options);
   if (options.length) {
     _s2sConfigs = options;
