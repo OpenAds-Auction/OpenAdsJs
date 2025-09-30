@@ -942,7 +942,17 @@ declare module './events' {
  * @param adUnits
  */
 function addAdUnits(adUnits: AdUnitDefinition | AdUnitDefinition[]) {
-  pbjsInstance.adUnits.push(...(Array.isArray(adUnits) ? adUnits : [adUnits]))
+  var adUnitsNormalized = Array.isArray(adUnits) ? adUnits : [adUnits]
+
+  adUnitsNormalized.forEach(adUnit => {
+    //scrub user defined ortb2Imp.ext.tid
+    if(adUnit.ortb2Imp?.ext?.tid){
+      delete adUnit.ortb2Imp.ext.tid
+    }
+
+    pbjsInstance.adUnits.push(adUnit)
+  })
+  
   events.emit(ADD_AD_UNITS);
 }
 

@@ -758,12 +758,11 @@ describe('S2S Adapter', function () {
         return JSON.parse(server.requests[0].requestBody);
       }
 
-      it('should not be set when transmitTid is not allowed, with ext.prebid.createtids: false', () => {
+      it('should always set transactionids', () => {
         config.setConfig({ s2sConfig: CONFIG, enableTIDs: false });
         const req = makeRequest();
-        expect(req.source?.tid).to.not.exist;
-        expect(req.imp[0].ext?.tid).to.not.exist;
-        expect(req.ext.prebid.createtids).to.equal(false);
+        expect(req.source.tid).to.eql(BID_REQUESTS[0].auctionId);
+        expect(req.imp[0].ext.tid).to.eql('mock-tid');
       });
 
       it('should be set to auction ID otherwise', () => {
