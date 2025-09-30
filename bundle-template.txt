@@ -10,7 +10,7 @@ if (!window.<%= prebid.globalVarName %> || !window.<%= prebid.globalVarName %>.l
 } else {
  try {
   if(window.<%= prebid.globalVarName %>.getConfig('debug')) {
-    console.warn('Attempted to load a copy of Prebid.js that clashes with the existing \'<%= prebid.globalVarName %>\' instance. Load aborted.');
+    console.warn('Attempted to load a copy of OpenAds.js that clashes with the existing \'<%= prebid.globalVarName %>\' instance. Load aborted.');
   }
  } catch (e) {}
 }

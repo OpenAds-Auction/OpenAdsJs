@@ -267,7 +267,7 @@ function decorateLog(args, prefix) {
     args.unshift(label('#aaa'));
   }
   args.unshift(label('#3b88c3'));
-  args.unshift('%cPrebid' + (bidder ? `%c${bidder}` : ''));
+  args.unshift('%cOpenAds' + (bidder ? `%c${bidder}` : ''));
   return args;
 
   function label(color) {
