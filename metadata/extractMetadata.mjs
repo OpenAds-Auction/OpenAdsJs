@@ -10,7 +10,7 @@ export default async () => {
   const page = await browser.newPage()
   await page.goto('http://localhost:9999/metadata/extractMetadata.html')
   const metadata = await page.evaluate(() => {
-    return pbjs._getModuleMetadata()
+    return oajs._getModuleMetadata()
   })
   await browser.close()
   return {

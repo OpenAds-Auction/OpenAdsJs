@@ -830,11 +830,11 @@ const adapterManager = {
         _analyticsRegistry[code] = { adapter, gvlid };
         GDPR_GVLIDS.register(MODULE_TYPE_ANALYTICS, code, gvlid);
       } else {
-        logError(`Prebid Error: Analytics adaptor error for analytics "${code}"
+        logError(`OpenAds Error: Analytics adaptor error for analytics "${code}"
         analytics adapter must implement an enableAnalytics() function`);
       }
     } else {
-      logError('Prebid Error: analyticsAdapter or analyticsCode not specified');
+      logError('OpenAds Error: analyticsAdapter or analyticsCode not specified');
     }
   },
   enableAnalytics(
@@ -853,7 +853,7 @@ const adapterManager = {
           entry.adapter.enableAnalytics(adapterConfig);
         }
       } else {
-        logError(`Prebid Error: no analytics adapter found in registry for '${adapterConfig.provider}'.`);
+        logError(`OpenAds Error: no analytics adapter found in registry for '${adapterConfig.provider}'.`);
       }
     });
   },

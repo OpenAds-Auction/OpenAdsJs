@@ -1,11 +1,11 @@
 import {expect} from 'chai';
 import {
-  PrebidServer as Adapter,
+  OpenAdsServer as Adapter,
   resetSyncedStatus,
   validateConfig,
   s2sDefaultConfig,
   processPBSRequest
-} from 'modules/prebidServerBidAdapter/index.js';
+} from 'modules/openadsServerBidAdapter/index.js';
 import adapterManager, {PBS_ADAPTER_NAME} from 'src/adapterManager.js';
 import * as utils from 'src/utils.js';
 import {deepAccess, deepClone, mergeDeep} from 'src/utils.js';
@@ -41,7 +41,7 @@ import {
   consolidateEids,
   extractEids,
   getPBSBidderConfig
-} from '../../../modules/prebidServerBidAdapter/bidderConfig.js';
+} from '../../../modules/openadsServerBidAdapter/bidderConfig.js';
 import {markWinningBid} from '../../../src/adRendering.js';
 
 let CONFIG = {
@@ -588,8 +588,8 @@ describe('s2s configuration', () => {
       }
     };
   })
-  it('sets prebid server adapter by default', () => {
-    expect(validateConfig(cfg1)[0].adapter).to.eql('prebidServer');
+  it('sets openads server adapter by default', () => {
+    expect(validateConfig(cfg1)[0].adapter).to.eql('openadsServer');
   });
   it('filters out disabled configs', () => {
     cfg1.enabled = false;
@@ -3928,7 +3928,7 @@ describe('S2S Adapter', function () {
         enabled: true,
         bidders: ['appnexus'],
         timeout: 1000,
-        adapter: 'prebidServer',
+        adapter: 'openadsServer',
         endpoint: {
           p1Consent: 'https://prebid.adnxs.com/pbs/v1/openrtb2/auction'
         }
@@ -3944,7 +3944,7 @@ describe('S2S Adapter', function () {
         bidders: ['appnexus'],
         timeout: 1000,
         enabled: true,
-        adapter: 'prebidServer'
+        adapter: 'openadsServer'
       };
 
       config.setConfig({ s2sConfig: options });
@@ -4169,7 +4169,7 @@ describe('S2S Adapter', function () {
       expect(requestBid.ext.prebid.floors).to.deep.equal({ enabled: false });
     });
 
-    it('should override prebid server default DEFAULT_S2S_CURRENCY', function () {
+    it('should override openads server default DEFAULT_S2S_CURRENCY', function () {
       config.setConfig({
         currency: { adServerCurrency: 'JPY' },
       });

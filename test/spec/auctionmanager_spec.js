@@ -22,7 +22,7 @@ import {AuctionIndex} from '../../src/auctionIndex.js';
 import {expect} from 'chai';
 import {deepClone} from '../../src/utils.js';
 import { IMAGE as ortbNativeRequest } from 'src/native.js';
-import {PrebidServer} from '../../modules/prebidServerBidAdapter/index.js';
+import {OpenAdsServer} from '../../modules/openadsServerBidAdapter/index.js';
 import { setConfig as setCurrencyConfig } from '../../modules/currency.js'
 
 import { REJECTION_REASON } from '../../src/constants.js';
@@ -543,7 +543,7 @@ describe('auctionmanager.js', function () {
           defaultVendor: 'appnexuspsp',
           bidders: ['appnexus'],
           timeout: 1000,
-          adapter: 'prebidServer'
+          adapter: 'openadsServer'
         }
       });
 
@@ -1415,7 +1415,7 @@ describe('auctionmanager.js', function () {
       });
 
       it('should NOT emit BID_TIMEOUT for bidders that replied through S2S', () => {
-        adapterManager.registerBidAdapter(new PrebidServer(), 'pbs');
+        adapterManager.registerBidAdapter(new OpenAdsServer(), 'pbs');
         config.setConfig({
           s2sConfig: {
             accountId: '1',

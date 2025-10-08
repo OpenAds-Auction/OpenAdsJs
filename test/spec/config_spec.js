@@ -314,7 +314,7 @@ describe('config API', function () {
 
   it('should log error for invalid priceGranularity', function () {
     setConfig({ priceGranularity: '' });
-    const error = 'Prebid Error: no value passed to `setPriceGranularity()`';
+    const error = 'OpenAds Error: no value passed to `setPriceGranularity()`';
     assert.ok(logErrorSpy.calledWith(error), 'expected error was logged');
   });
 
