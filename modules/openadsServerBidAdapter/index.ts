@@ -241,6 +241,7 @@ export function validateConfig(options: S2SConfig[]) {
       return true;
     } else {
       logWarn('openadsServer: s2s config is disabled', s2sConfig);
+      return false
     }
   })
 }
