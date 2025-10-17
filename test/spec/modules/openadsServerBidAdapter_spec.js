@@ -530,8 +530,8 @@ const RESPONSE_OPENRTB_NATIVE = {
           'ext': {
             'prebid': {
               'targeting': {
-                'hb_bidder': 'appnexus',
-                'hb_pb': '10.00'
+                'oa_bidder': 'appnexus',
+                'oa_pb': '10.00'
               },
               'type': 'native',
               'video': {
@@ -3182,8 +3182,8 @@ describe('S2S Adapter', function () {
         config.setConfig({ s2sConfig: CONFIG });
         const cacheResponse = utils.deepClone(RESPONSE_OPENRTB);
         const targetingTestData = {
-          hb_cache_path: '/cache',
-          hb_cache_host: 'prebid-cache.testurl.com'
+          oa_cache_path: '/cache',
+          oa_cache_host: 'prebid-cache.testurl.com'
         };
 
         cacheResponse.seatbid.forEach(item => {
@@ -3196,8 +3196,8 @@ describe('S2S Adapter', function () {
         const response = addBidResponse.firstCall.args[1];
         expect(response).to.have.property('adserverTargeting');
         expect(response.adserverTargeting).to.deep.equal({
-          'hb_cache_path': '/cache',
-          'hb_cache_host': 'prebid-cache.testurl.com'
+          'oa_cache_path': '/cache',
+          'oa_cache_host': 'prebid-cache.testurl.com'
         });
       });
     }
@@ -3443,8 +3443,8 @@ describe('S2S Adapter', function () {
       config.setConfig({ s2sConfig });
       const cacheResponse = utils.deepClone(RESPONSE_OPENRTB_VIDEO);
       const targetingTestData = {
-        hb_cache_path: '/cache',
-        hb_cache_host: 'prebid-cache.testurl.com'
+        oa_cache_path: '/cache',
+        oa_cache_host: 'prebid-cache.testurl.com'
       };
 
       cacheResponse.seatbid.forEach(item => {
@@ -3463,8 +3463,8 @@ describe('S2S Adapter', function () {
 
         expect(response).to.have.property('adserverTargeting');
         expect(response.adserverTargeting).to.deep.equal({
-          'hb_cache_path': '/cache',
-          'hb_cache_host': 'prebid-cache.testurl.com'
+          'oa_cache_path': '/cache',
+          'oa_cache_host': 'prebid-cache.testurl.com'
         });
       }
     });
@@ -3479,9 +3479,9 @@ describe('S2S Adapter', function () {
       const cacheResponse = utils.deepClone(RESPONSE_OPENRTB_VIDEO);
       cacheResponse.seatbid.forEach(item => {
         item.bid[0].ext.prebid.targeting = {
-          hb_uuid: 'a5ad3993',
-          hb_cache_host: 'prebid-cache.net',
-          hb_cache_path: '/cache'
+          oa_uuid: 'a5ad3993',
+          oa_cache_host: 'prebid-cache.net',
+          oa_cache_path: '/cache'
         }
       });
 
@@ -3513,9 +3513,9 @@ describe('S2S Adapter', function () {
           win: 'https://wurl.com?a=1&b=2'
         };
         item.bid[0].ext.prebid.targeting = {
-          hb_uuid: 'a5ad3993',
-          hb_cache_host: 'prebid-cache.net',
-          hb_cache_path: '/cache'
+          oa_uuid: 'a5ad3993',
+          oa_cache_host: 'prebid-cache.net',
+          oa_cache_path: '/cache'
         }
       });
 

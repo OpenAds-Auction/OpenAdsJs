@@ -297,7 +297,7 @@ function validateNativeMediaType(adUnit: AdUnit) {
     if (checkDeprecated(key => err(`ORTB native requests cannot specify "${key}"`))) {
       return validatedAdUnit;
     }
-    const legacyNativeKeys = Object.keys(NATIVE_KEYS).filter(key => NATIVE_KEYS[key].includes('hb_native_'));
+    const legacyNativeKeys = Object.keys(NATIVE_KEYS).filter(key => NATIVE_KEYS[key].includes('oa_native_'));
     const nativeKeys = Object.keys(native);
     const intersection = nativeKeys.filter(nativeKey => legacyNativeKeys.includes(nativeKey));
     if (intersection.length > 0) {
@@ -946,14 +946,14 @@ function addAdUnits(adUnits: AdUnitDefinition | AdUnitDefinition[]) {
   var adUnitsNormalized = Array.isArray(adUnits) ? adUnits : [adUnits]
 
   adUnitsNormalized.forEach(adUnit => {
-    //scrub user defined ortb2Imp.ext.tid
-    if(adUnit.ortb2Imp?.ext?.tid){
+    // scrub user defined ortb2Imp.ext.tid
+    if (adUnit.ortb2Imp?.ext?.tid) {
       delete adUnit.ortb2Imp.ext.tid
     }
 
     pbjsInstance.adUnits.push(adUnit)
   })
-  
+
   events.emit(ADD_AD_UNITS);
 }
 

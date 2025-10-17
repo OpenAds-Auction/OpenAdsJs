@@ -91,40 +91,40 @@ export const getHighestCpmBidsFromBidPool = hook('sync', function(bidsReceived, 
 /**
  * A descending sort function that will sort the list of objects based on the following two dimensions:
  *  - bids with a deal are sorted before bids w/o a deal
- *  - then sort bids in each grouping based on the hb_pb value
+ *  - then sort bids in each grouping based on the oa__pb value
  * eg: the following list of bids would be sorted like:
  *  [{
- *    "hb_adid": "vwx",
- *    "hb_pb": "28",
- *    "hb_deal": "7747"
+ *    "oa__adid": "vwx",
+ *    "oa__pb": "28",
+ *    "oa_deal": "7747"
  *  }, {
- *    "hb_adid": "jkl",
- *    "hb_pb": "10",
- *    "hb_deal": "9234"
+ *    "oa_adid": "jkl",
+ *    "oa_pb": "10",
+ *    "oa_deal": "9234"
  *  }, {
- *    "hb_adid": "stu",
- *    "hb_pb": "50"
+ *    "oa_adid": "stu",
+ *    "oa_pb": "50"
  *  }, {
- *    "hb_adid": "def",
- *    "hb_pb": "2"
+ *    "oa_adid": "def",
+ *    "oa_pb": "2"
  *  }]
  */
 export function sortByDealAndPriceBucketOrCpm(useCpm = false) {
   return function(a, b) {
-    if (a.adserverTargeting.hb_deal !== undefined && b.adserverTargeting.hb_deal === undefined) {
+    if (a.adserverTargeting.oa_deal !== undefined && b.adserverTargeting.oa_deal === undefined) {
       return -1;
     }
 
-    if ((a.adserverTargeting.hb_deal === undefined && b.adserverTargeting.hb_deal !== undefined)) {
+    if ((a.adserverTargeting.oa_deal === undefined && b.adserverTargeting.oa_deal !== undefined)) {
       return 1;
     }
 
-    // assuming both values either have a deal or don't have a deal - sort by the hb_pb param
+    // assuming both values either have a deal or don't have a deal - sort by the oa_pb param
     if (useCpm) {
       return b.cpm - a.cpm;
     }
 
-    return b.adserverTargeting.hb_pb - a.adserverTargeting.hb_pb;
+    return b.adserverTargeting.oa_pb - a.adserverTargeting.oa_pb;
   }
 }
 
@@ -188,12 +188,12 @@ export interface TargetingControlsConfig {
    */
   allBidsCustomTargeting?: boolean
   /**
-   * The value to set for 'hb_ver'. Set to false to disable.
+   * The value to set for 'oa_ver'. Set to false to disable.
    */
   version?: false | string;
 }
 
-const DEFAULT_HB_VER = '1.17.2';
+const DEFAULT_OA_VER = '1.17.2';
 
 declare module './config' {
   interface Config {
@@ -274,7 +274,7 @@ export function newTargeting(auctionManager) {
         if (!flatTargeting[code]) {
           flatTargeting[code] = {};
         }
-        // do not send just "hb_ver"
+        // do not send just "oa_ver"
         if (Object.keys(flatTargeting[code]).length === 1 && flatTargeting[code][TARGETING_KEYS.VERSION] != null) {
           delete flatTargeting[code][TARGETING_KEYS.VERSION];
         }
@@ -308,7 +308,7 @@ export function newTargeting(auctionManager) {
 
       Object.keys(targetingSet).forEach((adUnitCode) => {
         Object.keys(targetingSet[adUnitCode]).forEach((targetingKey) => {
-          if (targetingKey === 'hb_adid') {
+          if (targetingKey === 'oa_adid') {
             auctionManager.setStatusForBids(targetingSet[adUnitCode][targetingKey], BID_STATUS.BID_TARGETING_SET);
           }
         });
@@ -580,10 +580,10 @@ export function newTargeting(auctionManager) {
    * ```
    * [
    *    {
-   *      "div-gpt-ad-1460505748561-0": [{"hb_bidder": ["appnexusAst"]}]
+   *      "div-gpt-ad-1460505748561-0": [{"oa_bidder": ["appnexusAst"]}]
    *    },
    *    {
-   *      "div-gpt-ad-1460505748561-0": [{"hb_bidder_appnexusAs": ["appnexusAst", "other"]}]
+   *      "div-gpt-ad-1460505748561-0": [{"oa_bidder_appnexusAs": ["appnexusAst", "other"]}]
    *    }
    * ]
    * ```
@@ -591,8 +591,8 @@ export function newTargeting(auctionManager) {
    * ```
    * {
    *  "div-gpt-ad-1460505748561-0": {
-   *    "hb_bidder": "appnexusAst",
-   *    "hb_bidder_appnexusAs": "appnexusAst,other"
+   *    "oa_bidder": "appnexusAst",
+   *    "oa_bidder_appnexusAs": "appnexusAst,other"
    *  }
    * }
    * ```
@@ -733,7 +733,7 @@ export function newTargeting(auctionManager) {
   function getVersionTargeting(adUnitCodes) {
     let version = config.getConfig('targetingControls.version');
     if (version === false) return [];
-    return adUnitCodes.map(au => ({[au]: [{[TARGETING_KEYS.VERSION]: [version ?? DEFAULT_HB_VER]}]}));
+    return adUnitCodes.map(au => ({[au]: [{[TARGETING_KEYS.VERSION]: [version ?? DEFAULT_OA_VER]}]}));
   }
 
   function getAdUnitTargeting(adUnitCodes) {

@@ -69,12 +69,12 @@ describe('Native creative renderer', () => {
     it('uses empty strings for missing legacy assets', () => {
       const repl = getReplacer('123', {
         nativeKeys: {
-          'k': 'hb_native_k'
+          'k': 'oa_native_k'
         }
       });
       expectReplacements(repl, {
-        '##hb_native_k##': '',
-        'hb_native_k:123': ''
+        '##oa_native_k##': '',
+        'oa_native_k:123': ''
       })
     });
 
@@ -89,10 +89,10 @@ describe('Native creative renderer', () => {
         }
       });
       expectReplacements(repl, {
-        '##hb_native_asset_id_1##': 'v1',
-        '##hb_native_asset_id_2##': '',
-        '##hb_native_asset_link_id_1##': 'l1',
-        '##hb_native_asset_link_id_2##': ''
+        '##oa_native_asset_id_1##': 'v1',
+        '##oa_native_asset_id_2##': '',
+        '##oa_native_asset_link_id_1##': 'l1',
+        '##oa_native_asset_link_id_2##': ''
       });
     });
 
@@ -102,15 +102,15 @@ describe('Native creative renderer', () => {
           {key: 'k1', value: 'v1'}, {key: 'k2', value: 'v2'}
         ],
         nativeKeys: {
-          k1: 'hb_native_k1',
-          k2: 'hb_native_k2'
+          k1: 'oa_native_k1',
+          k2: 'oa_native_k2'
         }
       });
       expectReplacements(repl, {
-        '##hb_native_k1##': 'v1',
-        'hb_native_k1:123': 'v1',
-        '##hb_native_k2##': 'v2',
-        'hb_native_k2:123': 'v2'
+        '##oa_native_k1##': 'v1',
+        'oa_native_k1:123': 'v1',
+        '##oa_native_k2##': 'v2',
+        'oa_native_k2:123': 'v2'
       })
     });
 
@@ -122,8 +122,8 @@ describe('Native creative renderer', () => {
         privacy: 'privacy.url'
       };
       const expected = {
-        '##hb_native_linkurl##': 'link.url',
-        '##hb_native_privacy##': 'privacy.url'
+        '##oa_native_linkurl##': 'link.url',
+        '##oa_native_privacy##': 'privacy.url'
       };
       it('replaces placeholders', () => {
         const repl = getReplacer('123', {
@@ -139,8 +139,8 @@ describe('Native creative renderer', () => {
             {key: 'privacyLink', value: 'overridden'}
           ],
           nativeKeys: {
-            clickUrl: 'hb_native_linkurl',
-            privacyLink: 'hb_native_privacy'
+            clickUrl: 'oa_native_linkurl',
+            privacyLink: 'oa_native_privacy'
           }
         });
         expectReplacements(repl, expected);
@@ -150,8 +150,8 @@ describe('Native creative renderer', () => {
           ortb: {}
         });
         expectReplacements(repl, {
-          '##hb_native_linkurl##': '',
-          '##hb_native_privacy##': '',
+          '##oa_native_linkurl##': '',
+          '##oa_native_privacy##': '',
         })
       });
     });
@@ -177,14 +177,14 @@ describe('Native creative renderer', () => {
         it('replaces placeholder', () => {
           const repl = getReplacer('', {ortb});
           expectReplacements(repl, {
-            '##hb_native_asset_id_123##': 'val'
+            '##oa_native_asset_id_123##': 'val'
           })
         });
         it('replaces link placeholders', () => {
           ortb.assets[0].link = {url: 'link'};
           const repl = getReplacer('', {ortb});
           expectReplacements(repl, {
-            '##hb_native_asset_link_id_123##': 'link'
+            '##oa_native_asset_link_id_123##': 'link'
           })
         });
       });
@@ -214,7 +214,7 @@ describe('Native creative renderer', () => {
 
     it('replaces placeholders in head, if present', () => {
       getMarkup.returns(Promise.resolve(''))
-      win.document.head.innerHTML = '##hb_native_asset_id_1##';
+      win.document.head.innerHTML = '##oa_native_asset_id_1##';
       nativeData.ortb = {
         assets: [
           {id: 1, data: {value: 'repl'}}
@@ -331,7 +331,7 @@ describe('Native creative renderer', () => {
       });
 
       it('pass assetId if provided', () => {
-        getMarkup.returns(Promise.resolve('<div class="pb-click" hb_native_asset_id="123" id="target"></div>'));
+        getMarkup.returns(Promise.resolve('<div class="pb-click" oa_native_asset_id="123" id="target"></div>'));
         return runRender().then(() => {
           win.document.querySelector('#target').click();
           sinon.assert.calledWith(sendMessage, MESSAGE_NATIVE, {action: ACTION_CLICK, assetId: '123'})

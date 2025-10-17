@@ -103,14 +103,14 @@ describe('gamAdpod', function () {
       'pbCg': '',
       'size': '640x360',
       'adserverTargeting': {
-        'hb_bidder': 'appnexus',
-        'hb_adid': '28f24ced14586c',
-        'hb_pb': hbpb,
-        'hb_size': '640x360',
-        'hb_source': 'client',
-        'hb_format': 'video',
-        'hb_pb_cat_dur': priceIndustryDuration,
-        'hb_cache_id': uuid
+        'oa_bidder': 'appnexus',
+        'oa_adid': '28f24ced14586c',
+        'oa_pb': hbpb,
+        'oa_size': '640x360',
+        'oa_source': 'client',
+        'oa_format': 'video',
+        'oa_pb_cat_dur': priceIndustryDuration,
+        'oa_cache_id': uuid
       },
       'customCacheKey': `${priceIndustryDuration}_${uuid}`,
       'meta': {
@@ -166,8 +166,8 @@ describe('gamAdpod', function () {
       expect(queryParams).to.have.property('addtl_consent', 'moreConsent');
 
       const custParams = utils.parseQS(decodeURIComponent(queryParams.cust_params));
-      expect(custParams).to.have.property('hb_cache_id', '123');
-      expect(custParams).to.have.property('hb_pb_cat_dur', '15.00_395_15s,15.00_406_30s,10.00_395_15s');
+      expect(custParams).to.have.property('oa_cache_id', '123');
+      expect(custParams).to.have.property('oa_pb_cat_dur', '15.00_395_15s,15.00_406_30s,10.00_395_15s');
       uspDataHandlerStub.restore();
       gdprDataHandlerStub.restore();
     }
@@ -222,8 +222,8 @@ describe('gamAdpod', function () {
       expect(queryParams).to.have.property('cust_params');
 
       const custParams = utils.parseQS(decodeURIComponent(queryParams.cust_params));
-      expect(custParams).to.have.property('hb_cache_id', '123');
-      expect(custParams).to.have.property('hb_pb_cat_dur', '10.00_15s,15.00_15s,15.00_30s');
+      expect(custParams).to.have.property('oa_cache_id', '123');
+      expect(custParams).to.have.property('oa_pb_cat_dur', '10.00_15s,15.00_15s,15.00_30s');
     }
   });
 

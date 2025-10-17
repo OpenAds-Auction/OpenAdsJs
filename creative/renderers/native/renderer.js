@@ -16,21 +16,21 @@ export function getReplacer(adId, {assets = [], ortb, nativeKeys = {}}) {
   if (ortb) {
     Object.assign(repl,
       {
-        '##hb_native_linkurl##': ortb.link?.url,
-        '##hb_native_privacy##': ortb.privacy
+        '##oa_native_linkurl##': ortb.link?.url,
+        '##oa_native_privacy##': ortb.privacy
       },
       Object.fromEntries(
         (ortb.assets || []).flatMap(asset => {
           const type = Object.keys(ORTB_ASSETS).find(type => asset[type]);
           return [
-            type && [`##hb_native_asset_id_${asset.id}##`, asset[type][ORTB_ASSETS[type]]],
-            asset.link?.url && [`##hb_native_asset_link_id_${asset.id}##`, asset.link.url]
+            type && [`##oa_native_asset_id_${asset.id}##`, asset[type][ORTB_ASSETS[type]]],
+            asset.link?.url && [`##oa_native_asset_link_id_${asset.id}##`, asset.link.url]
           ].filter(e => e);
         })
       )
     );
   }
-  repl = Object.entries(repl).concat([[/##hb_native_asset_(link_)?id_\d+##/g]]);
+  repl = Object.entries(repl).concat([[/##oa_native_asset_(link_)?id_\d+##/g]]);
 
   return function (template) {
     return repl.reduce((text, [pattern, value]) => text.replaceAll(pattern, value || ''), template);
@@ -106,7 +106,7 @@ export function render({adId, native}, {sendMessage}, win, getMarkup = getAdMark
       win.postRenderAd({adId, ...native});
     }
     win.document.querySelectorAll('.pb-click').forEach(el => {
-      const assetId = el.getAttribute('hb_native_asset_id');
+      const assetId = el.getAttribute('oa_native_asset_id');
       el.addEventListener('click', () => sendMessage(MESSAGE_NATIVE, {action: ACTION_CLICK, assetId}));
     });
     sendMessage(MESSAGE_NATIVE, {action: ACTION_IMP});

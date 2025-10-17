@@ -38,9 +38,9 @@ describe('pbjs - ortb videoCacheKey based on ext.prebid', () => {
       ext: {
         prebid: {
           targeting: {
-            hb_uuid: 'id',
-            hb_cache_host: 'host',
-            hb_cache_path: '/path'
+            oa_uuid: 'id',
+            oa_cache_host: 'host',
+            oa_cache_path: '/path'
           }
         }
       }

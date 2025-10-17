@@ -512,7 +512,7 @@ describe('Unit: Prebid Module', function () {
       };
       sinon.assert.match(targeting, expected);
       Object.values(targeting).forEach(targetingMap => {
-        expect(targetingMap).to.have.keys(['foobar', 'custom_ad_id', 'hb_ver']);
+        expect(targetingMap).to.have.keys(['foobar', 'custom_ad_id', 'oa_ver']);
       })
     });
   });
@@ -1033,8 +1033,8 @@ describe('Unit: Prebid Module', function () {
           targeting[key] = value[0]
         });
         expect(targeting['pos1']).to.equal('750x350'); // non prebid targeting that was set should still be there
-        // Check that some of the keys with the hb_ prefix  have values with length > 1
-        const hasSomePrebidTargetingValues = Object.keys(targeting).some(target => target.startsWith('hb_') && targeting[target]?.length > 0);
+        // Check that some of the keys with the oa_ prefix  have values with length > 1
+        const hasSomePrebidTargetingValues = Object.keys(targeting).some(target => target.startsWith('oa_') && targeting[target]?.length > 0);
         expect(hasSomePrebidTargetingValues).to.equal(true);
       });
     });
@@ -1054,8 +1054,8 @@ describe('Unit: Prebid Module', function () {
         });
 
         expect(targeting['pos1']).to.equal('750x350'); // non prebid targeting that was set should still be there
-        // ensure that all of the keys with the hb_ prefix have values with length === 0, ignore other keys
-        const hasNoPrebidTargetingValues = Object.keys(targeting).every(targetKey => (targetKey.startsWith('hb_') && targeting[targetKey] === null) || !targetKey.startsWith('hb_'))
+        // ensure that all of the keys with the oa_ prefix have values with length === 0, ignore other keys
+        const hasNoPrebidTargetingValues = Object.keys(targeting).every(targetKey => (targetKey.startsWith('oa_') && targeting[targetKey] === null) || !targetKey.startsWith('oa_'))
         expect(hasNoPrebidTargetingValues).to.equal(true);
       });
     });
@@ -1638,10 +1638,10 @@ describe('Unit: Prebid Module', function () {
         transactionId: 'mock-tid',
         adUnitId: 'mock-au',
         adserverTargeting: {
-          'hb_bidder': BIDDER_CODE,
-          'hb_adid': bidId,
-          'hb_pb': bids[0].cpm,
-          'hb_size': '300x250',
+          'oa_bidder': BIDDER_CODE,
+          'oa_adid': bidId,
+          'oa_pb': bids[0].cpm,
+          'oa_size': '300x250',
         },
         bidder: bids[0].bidderCode,
       }, bids[0]);
@@ -2232,7 +2232,7 @@ describe('Unit: Prebid Module', function () {
             }
           })
         });
-        it('should NOT be copied to ortb2Imp.ext.tid, if not specified', async () => {
+        it('should be copied to ortb2Imp.ext.tid, if not specified', async () => {
           await runAuction({
             adUnits: [
               adUnit
@@ -2240,11 +2240,11 @@ describe('Unit: Prebid Module', function () {
           });
           const tid = auctionArgs.adUnits[0].transactionId;
           expect(tid).to.exist;
-          expect(auctionArgs.adUnits[0].ortb2Imp?.ext?.tid).to.not.exist;
+          expect(auctionArgs.adUnits[0].ortb2Imp.ext.tid).to.eql(tid);
         });
       });
 
-      it('should NOT set ortb2.ext.tid same as transactionId in adUnits', async function () {
+      it('should always set ortb2.ext.tid same as transactionId in adUnits', async function () {
         await runAuction({
           adUnits: [
             {
@@ -2260,9 +2260,11 @@ describe('Unit: Prebid Module', function () {
         });
 
         expect(auctionArgs.adUnits[0]).to.have.property('transactionId');
-        expect(auctionArgs.adUnits[0].ortb2Imp?.ext?.tid).to.not.exist;
+        expect(auctionArgs.adUnits[0]).to.have.property('ortb2Imp');
+        expect(auctionArgs.adUnits[0].transactionId).to.equal(auctionArgs.adUnits[0].ortb2Imp.ext.tid);
         expect(auctionArgs.adUnits[1]).to.have.property('transactionId');
-        expect(auctionArgs.adUnits[0].ortb2Imp?.ext?.tid).to.not.exist;
+        expect(auctionArgs.adUnits[1]).to.have.property('ortb2Imp');
+        expect(auctionArgs.adUnits[1].transactionId).to.equal(auctionArgs.adUnits[1].ortb2Imp.ext.tid);
       });
 
       it('should notify targeting of the latest auction for each adUnit', async function () {
@@ -3407,7 +3409,7 @@ describe('Unit: Prebid Module', function () {
   describe('setPriceGranularity', function () {
     it('should log error when not passed granularity', function () {
       const logErrorSpy = sinon.spy(utils, 'logError');
-      const error = 'Prebid Error: no value passed to `setPriceGranularity()`';
+      const error = 'OpenAds Error: no value passed to `setPriceGranularity()`';
 
       pbjs.setConfig({ priceGranularity: null });
       assert.ok(logErrorSpy.calledWith(error), 'expected error was logged');

@@ -265,7 +265,7 @@ describe('auctionmanager.js', function () {
       const noAcatBid = deepClone(DEFAULT_BID);
       noAcatBid.meta.primaryCatId = ''
       const expected = getDefaultExpected(noAcatBid);
-      delete expected.hb_acat;
+      delete expected.oa_acat;
       const response = getKeyValueTargetingPairs(noAcatBid.bidderCode, noAcatBid);
       assert.deepEqual(response, expected);
     });

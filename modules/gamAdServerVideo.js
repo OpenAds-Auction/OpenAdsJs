@@ -38,7 +38,7 @@ import {getGlobalVarName} from '../src/buildOptions.js';
  * defaults for all of the other required params.
  *
  * The cust_params property, if present, must be an object. It will be merged with the rest of the
- * standard Prebid targeting params (hb_adid, hb_bidder, etc).
+ * standard Prebid targeting params (oa_adid, oa_bidder, etc).
  *
  * @param {string} iu This param *must* be included, in order for us to create a valid request.
  * @param [string] description_url This field is required if you want Ad Exchange to bid on our ad unit...
@@ -219,7 +219,7 @@ function getDescriptionUrl(bid, components, prop) {
 }
 
 /**
- * Returns the encoded `cust_params` from the bid.adserverTargeting and adds the `hb_uuid`, and `hb_cache_id`. Optionally the options.params.cust_params
+ * Returns the encoded `cust_params` from the bid.adserverTargeting and adds the `oa_uuid`, and `oa_cache_id`. Optionally the options.params.cust_params
  * @param {Object} bid
  * @param {Object} options this is the options passed in from the `buildGamVideoUrl` function
  * @return {Object} Encoded key value pairs for cust_params
@@ -236,9 +236,9 @@ function getCustParams(bid, options, urlCustParams) {
 
   const prebidTargetingSet = Object.assign({},
     // Why are we adding standard keys here ? Refer https://github.com/prebid/Prebid.js/issues/3664
-    { hb_uuid: bid && bid.videoCacheKey },
-    // hb_cache_id became optional in prebid 5.0 after 4.x enabled the concept of optional keys. Discussion led to reversing the prior expectation of deprecating hb_uuid
-    { hb_cache_id: bid && bid.videoCacheKey },
+    { oa_uuid: bid && bid.videoCacheKey },
+    // oa_cache_id became optional in prebid 5.0 after 4.x enabled the concept of optional keys. Discussion led to reversing the prior expectation of deprecating oa_uuid
+    { oa_cache_id: bid && bid.videoCacheKey },
     allTargetingData,
     adserverTargeting,
   );
