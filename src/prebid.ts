@@ -97,6 +97,10 @@ declare module './prebidGlobal' {
      */
     version: string;
     /**
+     * OpenAds version.
+     */
+    oaVersion: string;
+    /**
      * Set this to true to delay processing of `que` / `cmd` until prerendering is complete
      * (applies only when the page is prerendering).
      */
@@ -109,7 +113,8 @@ pbjsInstance.bidderSettings = pbjsInstance.bidderSettings || {};
 pbjsInstance.libLoaded = true;
 // version auto generated from build
 pbjsInstance.version = 'v$prebid.version$';
-logInfo('Prebid.js v$prebid.version$ loaded');
+pbjsInstance.oaVersion = 'v$prebid.oaVersion$';
+logInfo('OpenAds.js v$prebid.oaVersion$ based on Prebid.js v$prebid.version$ loaded');
 
 // create adUnit array
 pbjsInstance.adUnits = pbjsInstance.adUnits || [];
