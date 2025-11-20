@@ -1893,8 +1893,8 @@ describe('S2S Adapter', function () {
           includewinners: true
         },
         channel: {
-          name: 'pbjs',
-          version: 'v$prebid.version$'
+          name: 'oajs',
+          version: 'v$prebid.oaVersion$'
         }
       })
     });
@@ -1930,8 +1930,8 @@ describe('S2S Adapter', function () {
           includewinners: true
         },
         channel: {
-          name: 'pbjs',
-          version: 'v$prebid.version$'
+          name: 'oajs',
+          version: 'v$prebid.oaVersion$'
         }
       });
     });
@@ -2709,7 +2709,7 @@ describe('S2S Adapter', function () {
       adapter.callBids(s2sBidRequest, bidRequests, addBidResponse, done, ajax);
 
       const parsedRequestBody = JSON.parse(server.requests[0].requestBody);
-      expect(parsedRequestBody.ext.prebid.channel).to.deep.equal({ name: 'pbjs', version: 'v$prebid.version$' });
+      expect(parsedRequestBody.ext.prebid.channel).to.deep.equal({ name: 'oajs', version: 'v$prebid.oaVersion$' });
     });
 
     it('extPrebid is now mergedDeep -> should include default channel as well', () => {
@@ -2724,9 +2724,9 @@ describe('S2S Adapter', function () {
 
       // extPrebid is now deep merged with
       expect(parsedRequestBody.ext.prebid.channel).to.deep.equal({
-        name: 'pbjs',
+        name: 'oajs',
         test: 1,
-        version: 'v$prebid.version$'
+        version: 'v$prebid.oaVersion$'
       });
     });
 

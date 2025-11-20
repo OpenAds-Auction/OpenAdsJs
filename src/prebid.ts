@@ -488,6 +488,7 @@ declare module './prebidGlobal' {
     setBidderConfig: typeof config.setBidderConfig;
     processQueue: typeof processQueue;
     triggerBilling: typeof triggerBilling;
+    generateTID: typeof generateTID;
   }
 }
 
@@ -951,14 +952,17 @@ function addAdUnits(adUnits: AdUnitDefinition | AdUnitDefinition[]) {
   var adUnitsNormalized = Array.isArray(adUnits) ? adUnits : [adUnits]
 
   adUnitsNormalized.forEach(adUnit => {
-    // scrub user defined ortb2Imp.ext.tid
-    if (adUnit.ortb2Imp?.ext?.tid) {
+    // only allow user provided TID if they were created by generateTID()
+    if (adUnit.ortb2Imp?.ext?.tid &&
+        !(adUnit.ortb2Imp.ext.tid).startsWith('oajs')
+    ) {
+      logWarn('Provided TID for AdUnit (code: "' + adUnit.code + '") is invalid and is ignored. ' +
+               'Use oajs.generateTID() to set user provided TIDs');
       delete adUnit.ortb2Imp.ext.tid
     }
 
     pbjsInstance.adUnits.push(adUnit)
   })
-
   events.emit(ADD_AD_UNITS);
 }
 
@@ -1260,5 +1264,15 @@ function triggerBilling({adId, adUnitCode}: {
     });
 }
 addApiMethod('triggerBilling', triggerBilling);
+
+/**
+ * Generates a random UUID to be used for TID sync across different libraries
+ */
+function generateTID () {
+  let tid = generateUUID();
+  tid = 'oajs' + tid.slice(4)
+  return tid;
+}
+addApiMethod('generateTID', generateTID);
 
 export default pbjsInstance;
