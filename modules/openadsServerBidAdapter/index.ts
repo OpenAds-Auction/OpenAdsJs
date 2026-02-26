@@ -190,7 +190,7 @@ function validateConfigRequiredProps(s2sConfig: S2SConfig) {
 function checkOpenAdsValueRestriction(s2sConfig: S2SConfig) {
   const p1Consent = s2sConfig['endpoint']['p1Consent']
   if (p1Consent != null && !s2sConfig['endpoint']['p1Consent'].endsWith('.adsrvr.org/openrtb2/auction')) {
-      logError('s2sConfig.endpoint should match "https://*.adsrvr.org/openrtb2/auction", but was set to ' + s2sConfig['endpoint']['p1Consent']);
+    logError('s2sConfig.endpoint should match "https://*.adsrvr.org/openrtb2/auction", but was set to ' + s2sConfig['endpoint']['p1Consent']);
   }
 
   return true;
@@ -253,7 +253,7 @@ function setS2sConfig(options) {
     logError('openadsServer: s2sConfig should only be an single s2sConfig object, not an array of s2sConfigs. s2sConfig not set.');
     return
   }
-  
+
   options = validateConfig(options);
   if (options.length) {
     _s2sConfigs = options;
