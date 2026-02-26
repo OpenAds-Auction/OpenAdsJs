@@ -149,12 +149,12 @@ function attachProperties(config, useDefaultValues = true) {
 
   function validatePriceGranularity(val) {
     if (!val) {
-      logError('Prebid Error: no value passed to `setPriceGranularity()`');
+      logError('OpenAds Error: no value passed to `setPriceGranularity()`');
       return false;
     }
     if (typeof val === 'string') {
       if (!hasGranularity(val)) {
-        logWarn('Prebid Warning: setPriceGranularity was called with invalid setting, using `medium` as default.');
+        logWarn('OpenAds Warning: setPriceGranularity was called with invalid setting, using `medium` as default.');
       }
     } else if (isPlainObject(val)) {
       if (!isValidPriceConfig(val)) {

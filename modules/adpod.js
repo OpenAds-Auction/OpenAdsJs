@@ -39,8 +39,8 @@ import {ADPOD} from '../src/mediaTypes.js';
 import {auctionManager} from '../src/auctionManager.js';
 import { TARGETING_KEYS } from '../src/constants.js';
 
-const TARGETING_KEY_PB_CAT_DUR = 'hb_pb_cat_dur';
-const TARGETING_KEY_CACHE_ID = 'hb_cache_id';
+const TARGETING_KEY_PB_CAT_DUR = 'oa_pb_cat_dur';
+const TARGETING_KEY_CACHE_ID = 'oa_cache_id';
 
 let queueTimeDelay = 50;
 let queueSizeLimit = 5;

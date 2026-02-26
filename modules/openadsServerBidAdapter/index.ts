@@ -44,11 +44,11 @@ let _s2sConfigs: S2SConfig[];
 
 type Endpoint = string | {
   /**
-   * Defines the auction endpoint or the cookie_sync endpoint for the Prebid Server cluster for non-consent requests or users who grant consent.
+   * Defines the auction endpoint or the cookie_sync endpoint for the OpenAds Server cluster for non-consent requests or users who grant consent.
    */
   p1Consent: string;
   /**
-   * Defines the auction endpoint or the cookie_sync endpoint for the Prebid Server cluster for users who do not grant consent.
+   * Defines the auction endpoint or the cookie_sync endpoint for the OpenAds Server cluster for users who do not grant consent.
    * (This is useful for a server configured to not accept any cookies to ensure compliance regulations.)
    */
   noP1Consent: string;
@@ -56,7 +56,7 @@ type Endpoint = string | {
 
 type S2SConfig = {
   /**
-   * Your Prebid Server account ID. This is obtained from whoever’s hosting your Prebid Server.
+   * Your OpenAds Server account ID. This is obtained from whoever’s hosting your OpenAds Server.
    */
   accountId: string;
   /**
@@ -68,7 +68,7 @@ type S2SConfig = {
    */
   bidders?: BidderCode[];
   /**
-   * Allow Prebid Server to bid on behalf of bidders that are not explicitly listed in the adUnit.
+   * Allow OpenAds Server to bid on behalf of bidders that are not explicitly listed in the adUnit.
    * Defaults to false.
    */
   allowUnknownBidderCodes?: boolean;
@@ -78,7 +78,7 @@ type S2SConfig = {
   enabled?: boolean;
   /**
    * Number of milliseconds allowed for the server-side auctions.
-   * This should be approximately 200ms-300ms less than your Prebid.js timeout to allow for all bids to be returned
+   * This should be approximately 200ms-300ms less than your OpenAds.js timeout to allow for all bids to be returned
    * in a timely manner. Defaults to 75% of bidderTimeout or `maxTimeout`, whichever is lesser.
    */
   timeout?: number;
@@ -87,19 +87,19 @@ type S2SConfig = {
    */
   maxTimeout?: number;
   /**
-   * Adapter to use to connect to Prebid Server. Defaults to ‘prebidServer’
+   * Adapter to use to connect to OpenAds Server. Defaults to ‘openadsServer’
    */
   adapter?: string;
   /**
-   * Defines the auction endpoint for the Prebid Server cluster.
+   * Defines the auction endpoint for the OpenAds Server cluster.
    */
   endpoint: Endpoint;
   /**
-   * Defines the cookie_sync endpoint for the Prebid Server cluster.
+   * Defines the cookie_sync endpoint for the OpenAds Server cluster.
    */
   syncEndpoint: Endpoint;
   /**
-   * Max number of userSync URLs that can be executed by Prebid Server cookie_sync per request.
+   * Max number of userSync URLs that can be executed by OpenAds Server cookie_sync per request.
    * If not defined, PBS will execute all userSync URLs included in the request.
    */
   userSyncLimit?: number;
@@ -120,16 +120,16 @@ type S2SConfig = {
    */
   coopSync?: boolean;
   /**
-   * Configures the default TTL in the Prebid Server adapter to use when Prebid Server does not return a bid TTL.
+   * Configures the default TTL in the OpenAds Server adapter to use when OpenAds Server does not return a bid TTL.
    * Defaults to 60.
    */
   defaultTTL?: number;
   /**
-   * Arguments will be added to resulting OpenRTB payload to Prebid Server in every impression object at request.imp[].ext.BIDDER
+   * Arguments will be added to resulting OpenRTB payload to OpenAds Server in every impression object at request.imp[].ext.BIDDER
    */
   adapterOptions?: { [bidder: BidderCode]: Record<string, unknown> };
   /**
-   * Arguments will be added to resulting OpenRTB payload to Prebid Server in request.ext.prebid.
+   * Arguments will be added to resulting OpenRTB payload to OpenAds Server in request.ext.prebid.
    */
   extPrebid?: Record<string, unknown>;
   /**
@@ -149,7 +149,7 @@ type S2SConfig = {
 export const s2sDefaultConfig: Partial<S2SConfig> = {
   bidders: Object.freeze([]) as any,
   syncTimeout: 1000,
-  adapter: 'prebidServer',
+  adapter: 'openadsServer',
   allowUnknownBidderCodes: false,
   adapterOptions: {},
   syncUrlModifier: {},
@@ -173,9 +173,7 @@ declare module '../../src/config' {
 }
 
 function updateConfigDefaults(s2sConfig: S2SConfig) {
-  if (s2sConfig.adapter == null) {
-    s2sConfig.adapter = 'prebidServer';
-  }
+  s2sConfig.adapter = 'openadsServer';
   return true;
 }
 
@@ -186,6 +184,15 @@ function validateConfigRequiredProps(s2sConfig: S2SConfig) {
       return false;
     }
   }
+  return true;
+}
+
+function checkOpenAdsValueRestriction(s2sConfig: S2SConfig) {
+  const p1Consent = s2sConfig['endpoint']['p1Consent']
+  if (p1Consent != null && !s2sConfig['endpoint']['p1Consent'].endsWith('.adsrvr.org/openrtb2/auction')) {
+    logError('s2sConfig.endpoint should match "https://*.adsrvr.org/openrtb2/auction", but was set to ' + s2sConfig['endpoint']['p1Consent']);
+  }
+
   return true;
 }
 
@@ -218,6 +225,7 @@ export function validateConfig(options: S2SConfig[]) {
     if (
       updateConfigDefaults(s2sConfig) &&
       validateConfigRequiredProps(s2sConfig) &&
+      checkOpenAdsValueRestriction(s2sConfig) &&
       s2sConfig.enabled
     ) {
       if (Array.isArray(s2sConfig.bidders)) {
@@ -232,7 +240,7 @@ export function validateConfig(options: S2SConfig[]) {
       }
       return true;
     } else {
-      logWarn('prebidServer: s2s config is disabled', s2sConfig);
+      logWarn('openadsServer: s2s config is disabled', s2sConfig);
     }
   })
 }
@@ -241,6 +249,11 @@ export function validateConfig(options: S2SConfig[]) {
  * @param {(S2SConfig[]|S2SConfig)} options
  */
 function setS2sConfig(options) {
+  if (Array.isArray(options)) {
+    logError('openadsServer: s2sConfig should only be an single s2sConfig object, not an array of s2sConfigs. s2sConfig not set.');
+    return
+  }
+
   options = validateConfig(options);
   if (options.length) {
     _s2sConfigs = options;
@@ -334,7 +347,7 @@ function doAllSyncs(bidders, s2sConfig) {
     return;
   }
 
-  // pull the syncs off the list in the order that prebid server sends them
+  // pull the syncs off the list in the order that openads server sends them
   const thisSync = bidders.shift();
 
   // if PBS reports this bidder doesn't have an ID, then call the sync and recurse to the next sync entry
@@ -347,7 +360,7 @@ function doAllSyncs(bidders, s2sConfig) {
 }
 
 /**
- * Modify the cookie sync url from prebid server to add new params.
+ * Modify the cookie sync url from openads server to add new params.
  *
  * @param {string} type the type of sync, "image", "redirect", "iframe"
  * @param {string} url the url to sync
@@ -465,12 +478,12 @@ declare module '../../src/events' {
 }
 
 /**
- * Bidder adapter for Prebid Server
+ * Bidder adapter for OpenAds Server
  */
-export function PrebidServer() {
-  const baseAdapter: any = Adapter('prebidServer');
+export function OpenAdsServer() {
+  const baseAdapter: any = Adapter('openadsServer');
 
-  /* Prebid executes this function when the page asks to send out bid requests */
+  /* OpenAds executes this function when the page asks to send out bid requests */
   baseAdapter.callBids = function(s2sBidRequest, bidRequests, addBidResponse, done, ajax) {
     const adapterMetrics = s2sBidRequest.metrics = useMetrics(bidRequests?.[0]?.metrics)
       .newMetrics()
@@ -523,9 +536,9 @@ export function PrebidServer() {
         onError(msg, error) {
           const {p1Consent = '', noP1Consent = ''} = s2sBidRequest?.s2sConfig?.endpoint || {};
           if (p1Consent === noP1Consent) {
-            logError(`Prebid server call failed: '${msg}'. Endpoint: "${p1Consent}"}`, error);
+            logError(`OpenAds server call failed: '${msg}'. Endpoint: "${p1Consent}"}`, error);
           } else {
-            logError(`Prebid server call failed: '${msg}'. Endpoints: p1Consent "${p1Consent}", noP1Consent "${noP1Consent}"}`, error);
+            logError(`OpenAds server call failed: '${msg}'. Endpoints: p1Consent "${p1Consent}", noP1Consent "${noP1Consent}"}`, error);
           }
           bidRequests.forEach(bidderRequest => events.emit(EVENTS.BIDDER_ERROR, { error, bidderRequest }));
           done(error.timedOut);
@@ -669,4 +682,4 @@ function getAtagData(response) {
   return response?.ext?.prebid?.analytics?.tags;
 }
 
-adapterManager.registerBidAdapter(new PrebidServer(), 'prebidServer');
+adapterManager.registerBidAdapter(new OpenAdsServer(), 'openadsServer');

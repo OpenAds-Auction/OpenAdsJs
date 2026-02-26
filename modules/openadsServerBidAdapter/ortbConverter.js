@@ -57,7 +57,7 @@ const PBS_CONVERTER = ortbConverter({
   },
   request(buildRequest, imps, proxyBidderRequest, context) {
     if (!imps.length) {
-      logError('Request to Prebid Server rejected due to invalid media type(s) in adUnit.');
+      logError('Request to OpenAds Server rejected due to invalid media type(s) in adUnit.');
     } else {
       const {s2sBidRequest} = context;
       const request = buildRequest(imps, proxyBidderRequest, context);
@@ -292,7 +292,7 @@ export function buildPBSRequest(s2sBidRequest, bidderRequests, adUnits, requeste
       if (bid.mediaTypes != null) {
         // TODO: support labels / conditional bids
         // for now, just warn about them
-        logWarn(`Prebid Server adapter does not (yet) support bidder-specific mediaTypes for the same adUnit. Size mapping configuration will be ignored for adUnit: ${adUnit.code}, bidder: ${bid.bidder}`);
+        logWarn(`OpenAds Server adapter does not (yet) support bidder-specific mediaTypes for the same adUnit. Size mapping configuration will be ignored for adUnit: ${adUnit.code}, bidder: ${bid.bidder}`);
       }
       actualBidRequests.set(bid.bidder, getBidRequest(bid.bid_id, bidderRequests));
     });

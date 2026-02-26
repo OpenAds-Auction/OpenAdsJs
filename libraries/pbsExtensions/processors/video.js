@@ -6,7 +6,7 @@ export function setBidResponseVideoCache(bidResponse, bid) {
     // else try 'bid.ext.prebid.targeting' as fallback
     let {cacheId: videoCacheKey, url: vastUrl} = bid?.ext?.prebid?.cache?.vastXml ?? {};
     if (!videoCacheKey || !vastUrl) {
-      const {hb_uuid: uuid, hb_cache_host: cacheHost, hb_cache_path: cachePath} = bid?.ext?.prebid?.targeting ?? {};
+      const {oa_uuid: uuid, oa_cache_host: cacheHost, oa_cache_path: cachePath} = bid?.ext?.prebid?.targeting ?? {};
       if (uuid && cacheHost && cachePath) {
         videoCacheKey = uuid;
         vastUrl = `https://${cacheHost}${cachePath}?uuid=${uuid}`;

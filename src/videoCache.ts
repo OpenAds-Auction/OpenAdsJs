@@ -245,7 +245,7 @@ export function storeBatch(batch) {
       cacheIds.forEach((cacheId, i) => {
         const {auctionInstance, bidResponse, afterBidAdded} = batch[i];
         if (cacheId.uuid === '') {
-          logWarn(`Supplied video cache key was already in use by Prebid Cache; caching attempt was rejected. Video bid must be discarded.`);
+          logWarn(`Supplied video cache key was already in use by OpenAds Cache; caching attempt was rejected. Video bid must be discarded.`);
         } else {
           assignVastUrlAndCacheId(bidResponse, getCacheUrl(cacheId.uuid), cacheId.uuid);
           addBidToAuction(auctionInstance, bidResponse);

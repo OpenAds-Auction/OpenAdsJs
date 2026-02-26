@@ -3538,7 +3538,7 @@
     },
     {
       "componentType": "bidder",
-      "componentName": "prebidServer",
+      "componentName": "openadsServer",
       "aliasOf": null,
       "gvlid": null,
       "disclosureURL": null

@@ -1,11 +1,11 @@
 import {expect} from 'chai';
 import {
-  PrebidServer as Adapter,
+  OpenAdsServer as Adapter,
   resetSyncedStatus,
   validateConfig,
   s2sDefaultConfig,
   processPBSRequest
-} from 'modules/prebidServerBidAdapter/index.js';
+} from 'modules/openadsServerBidAdapter/index.js';
 import adapterManager, {PBS_ADAPTER_NAME} from 'src/adapterManager.js';
 import * as utils from 'src/utils.js';
 import {deepAccess, deepClone, mergeDeep} from 'src/utils.js';
@@ -41,7 +41,7 @@ import {
   consolidateEids,
   extractEids,
   getPBSBidderConfig
-} from '../../../modules/prebidServerBidAdapter/bidderConfig.js';
+} from '../../../modules/openadsServerBidAdapter/bidderConfig.js';
 import {markWinningBid} from '../../../src/adRendering.js';
 
 let CONFIG = {
@@ -530,8 +530,8 @@ const RESPONSE_OPENRTB_NATIVE = {
           'ext': {
             'prebid': {
               'targeting': {
-                'hb_bidder': 'appnexus',
-                'hb_pb': '10.00'
+                'oa_bidder': 'appnexus',
+                'oa_pb': '10.00'
               },
               'type': 'native',
               'video': {
@@ -588,8 +588,8 @@ describe('s2s configuration', () => {
       }
     };
   })
-  it('sets prebid server adapter by default', () => {
-    expect(validateConfig(cfg1)[0].adapter).to.eql('prebidServer');
+  it('sets openads server adapter by default', () => {
+    expect(validateConfig(cfg1)[0].adapter).to.eql('openadsServer');
   });
   it('filters out disabled configs', () => {
     cfg1.enabled = false;
@@ -758,12 +758,11 @@ describe('S2S Adapter', function () {
         return JSON.parse(server.requests[0].requestBody);
       }
 
-      it('should not be set when transmitTid is not allowed, with ext.prebid.createtids: false', () => {
+      it('should always set transactionids', () => {
         config.setConfig({ s2sConfig: CONFIG, enableTIDs: false });
         const req = makeRequest();
-        expect(req.source?.tid).to.not.exist;
-        expect(req.imp[0].ext?.tid).to.not.exist;
-        expect(req.ext.prebid.createtids).to.equal(false);
+        expect(req.source.tid).to.eql(BID_REQUESTS[0].auctionId);
+        expect(req.imp[0].ext.tid).to.eql('mock-tid');
       });
 
       it('should be set to auction ID otherwise', () => {
@@ -1894,8 +1893,8 @@ describe('S2S Adapter', function () {
           includewinners: true
         },
         channel: {
-          name: 'pbjs',
-          version: 'v$prebid.version$'
+          name: 'oajs',
+          version: 'v$prebid.oaVersion$'
         }
       })
     });
@@ -1931,8 +1930,8 @@ describe('S2S Adapter', function () {
           includewinners: true
         },
         channel: {
-          name: 'pbjs',
-          version: 'v$prebid.version$'
+          name: 'oajs',
+          version: 'v$prebid.oaVersion$'
         }
       });
     });
@@ -2710,7 +2709,7 @@ describe('S2S Adapter', function () {
       adapter.callBids(s2sBidRequest, bidRequests, addBidResponse, done, ajax);
 
       const parsedRequestBody = JSON.parse(server.requests[0].requestBody);
-      expect(parsedRequestBody.ext.prebid.channel).to.deep.equal({ name: 'pbjs', version: 'v$prebid.version$' });
+      expect(parsedRequestBody.ext.prebid.channel).to.deep.equal({ name: 'oajs', version: 'v$prebid.oaVersion$' });
     });
 
     it('extPrebid is now mergedDeep -> should include default channel as well', () => {
@@ -2725,9 +2724,9 @@ describe('S2S Adapter', function () {
 
       // extPrebid is now deep merged with
       expect(parsedRequestBody.ext.prebid.channel).to.deep.equal({
-        name: 'pbjs',
+        name: 'oajs',
         test: 1,
-        version: 'v$prebid.version$'
+        version: 'v$prebid.oaVersion$'
       });
     });
 
@@ -3183,8 +3182,8 @@ describe('S2S Adapter', function () {
         config.setConfig({ s2sConfig: CONFIG });
         const cacheResponse = utils.deepClone(RESPONSE_OPENRTB);
         const targetingTestData = {
-          hb_cache_path: '/cache',
-          hb_cache_host: 'prebid-cache.testurl.com'
+          oa_cache_path: '/cache',
+          oa_cache_host: 'prebid-cache.testurl.com'
         };
 
         cacheResponse.seatbid.forEach(item => {
@@ -3197,8 +3196,8 @@ describe('S2S Adapter', function () {
         const response = addBidResponse.firstCall.args[1];
         expect(response).to.have.property('adserverTargeting');
         expect(response.adserverTargeting).to.deep.equal({
-          'hb_cache_path': '/cache',
-          'hb_cache_host': 'prebid-cache.testurl.com'
+          'oa_cache_path': '/cache',
+          'oa_cache_host': 'prebid-cache.testurl.com'
         });
       });
     }
@@ -3444,8 +3443,8 @@ describe('S2S Adapter', function () {
       config.setConfig({ s2sConfig });
       const cacheResponse = utils.deepClone(RESPONSE_OPENRTB_VIDEO);
       const targetingTestData = {
-        hb_cache_path: '/cache',
-        hb_cache_host: 'prebid-cache.testurl.com'
+        oa_cache_path: '/cache',
+        oa_cache_host: 'prebid-cache.testurl.com'
       };
 
       cacheResponse.seatbid.forEach(item => {
@@ -3464,8 +3463,8 @@ describe('S2S Adapter', function () {
 
         expect(response).to.have.property('adserverTargeting');
         expect(response.adserverTargeting).to.deep.equal({
-          'hb_cache_path': '/cache',
-          'hb_cache_host': 'prebid-cache.testurl.com'
+          'oa_cache_path': '/cache',
+          'oa_cache_host': 'prebid-cache.testurl.com'
         });
       }
     });
@@ -3480,9 +3479,9 @@ describe('S2S Adapter', function () {
       const cacheResponse = utils.deepClone(RESPONSE_OPENRTB_VIDEO);
       cacheResponse.seatbid.forEach(item => {
         item.bid[0].ext.prebid.targeting = {
-          hb_uuid: 'a5ad3993',
-          hb_cache_host: 'prebid-cache.net',
-          hb_cache_path: '/cache'
+          oa_uuid: 'a5ad3993',
+          oa_cache_host: 'prebid-cache.net',
+          oa_cache_path: '/cache'
         }
       });
 
@@ -3514,9 +3513,9 @@ describe('S2S Adapter', function () {
           win: 'https://wurl.com?a=1&b=2'
         };
         item.bid[0].ext.prebid.targeting = {
-          hb_uuid: 'a5ad3993',
-          hb_cache_host: 'prebid-cache.net',
-          hb_cache_path: '/cache'
+          oa_uuid: 'a5ad3993',
+          oa_cache_host: 'prebid-cache.net',
+          oa_cache_path: '/cache'
         }
       });
 
@@ -3929,7 +3928,7 @@ describe('S2S Adapter', function () {
         enabled: true,
         bidders: ['appnexus'],
         timeout: 1000,
-        adapter: 'prebidServer',
+        adapter: 'openadsServer',
         endpoint: {
           p1Consent: 'https://prebid.adnxs.com/pbs/v1/openrtb2/auction'
         }
@@ -3945,7 +3944,7 @@ describe('S2S Adapter', function () {
         bidders: ['appnexus'],
         timeout: 1000,
         enabled: true,
-        adapter: 'prebidServer'
+        adapter: 'openadsServer'
       };
 
       config.setConfig({ s2sConfig: options });
@@ -4170,7 +4169,7 @@ describe('S2S Adapter', function () {
       expect(requestBid.ext.prebid.floors).to.deep.equal({ enabled: false });
     });
 
-    it('should override prebid server default DEFAULT_S2S_CURRENCY', function () {
+    it('should override openads server default DEFAULT_S2S_CURRENCY', function () {
       config.setConfig({
         currency: { adServerCurrency: 'JPY' },
       });

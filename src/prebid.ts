@@ -97,6 +97,10 @@ declare module './prebidGlobal' {
      */
     version: string;
     /**
+     * OpenAds version.
+     */
+    oaVersion: string;
+    /**
      * Set this to true to delay processing of `que` / `cmd` until prerendering is complete
      * (applies only when the page is prerendering).
      */
@@ -109,7 +113,8 @@ pbjsInstance.bidderSettings = pbjsInstance.bidderSettings || {};
 pbjsInstance.libLoaded = true;
 // version auto generated from build
 pbjsInstance.version = 'v$prebid.version$';
-logInfo('Prebid.js v$prebid.version$ loaded');
+pbjsInstance.oaVersion = 'v$prebid.oaVersion$';
+logInfo('OpenAds.js v$prebid.oaVersion$ based on Prebid.js v$prebid.version$ loaded');
 
 // create adUnit array
 pbjsInstance.adUnits = pbjsInstance.adUnits || [];
@@ -297,7 +302,7 @@ function validateNativeMediaType(adUnit: AdUnit) {
     if (checkDeprecated(key => err(`ORTB native requests cannot specify "${key}"`))) {
       return validatedAdUnit;
     }
-    const legacyNativeKeys = Object.keys(NATIVE_KEYS).filter(key => NATIVE_KEYS[key].includes('hb_native_'));
+    const legacyNativeKeys = Object.keys(NATIVE_KEYS).filter(key => NATIVE_KEYS[key].includes('oa_native_'));
     const nativeKeys = Object.keys(native);
     const intersection = nativeKeys.filter(nativeKey => legacyNativeKeys.includes(nativeKey));
     if (intersection.length > 0) {
@@ -483,6 +488,7 @@ declare module './prebidGlobal' {
     setBidderConfig: typeof config.setBidderConfig;
     processQueue: typeof processQueue;
     triggerBilling: typeof triggerBilling;
+    generateTID: typeof generateTID;
   }
 }
 
@@ -891,6 +897,7 @@ export const startAuction = hook('async', function ({ bidsBackHandler, timeout: 
         tids[au.code] = tid;
       }
       au.transactionId = tid;
+      deepSetValue(au, 'ortb2Imp.ext.tid', tid);
     });
     const auction = auctionManager.createAuction({
       adUnits,
@@ -942,7 +949,20 @@ declare module './events' {
  * @param adUnits
  */
 function addAdUnits(adUnits: AdUnitDefinition | AdUnitDefinition[]) {
-  pbjsInstance.adUnits.push(...(Array.isArray(adUnits) ? adUnits : [adUnits]))
+  var adUnitsNormalized = Array.isArray(adUnits) ? adUnits : [adUnits]
+
+  adUnitsNormalized.forEach(adUnit => {
+    // only allow user provided TID if they were created by generateTID()
+    if (adUnit.ortb2Imp?.ext?.tid &&
+        !(adUnit.ortb2Imp.ext.tid).startsWith('oajs')
+    ) {
+      logWarn('Provided TID for AdUnit (code: "' + adUnit.code + '") is invalid and is ignored. ' +
+               'Use oajs.generateTID() to set user provided TIDs');
+      delete adUnit.ortb2Imp.ext.tid
+    }
+
+    pbjsInstance.adUnits.push(adUnit)
+  })
   events.emit(ADD_AD_UNITS);
 }
 
@@ -1244,5 +1264,15 @@ function triggerBilling({adId, adUnitCode}: {
     });
 }
 addApiMethod('triggerBilling', triggerBilling);
+
+/**
+ * Generates a random UUID to be used for TID sync across different libraries
+ */
+function generateTID () {
+  let tid = generateUUID();
+  tid = 'oajs' + tid.slice(4)
+  return tid;
+}
+addApiMethod('generateTID', generateTID);
 
 export default pbjsInstance;

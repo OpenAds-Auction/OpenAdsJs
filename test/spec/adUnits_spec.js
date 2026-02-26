@@ -2,11 +2,15 @@ import 'src/prebid.js';
 import {getGlobal} from '../../src/prebidGlobal.js';
 
 import {getGlobalVarName} from '../../src/buildOptions.js';
+import {pbjsTestOnly} from "../helpers/pbjs-test-only.js";
+import {assert, expect} from "chai";
 
 describe('Publisher API _ AdUnits', function () {
   var assert = require('chai').assert;
   var expect = require('chai').expect;
   var pbjsTestOnly = require('../helpers/pbjs-test-only.js').pbjsTestOnly;
+
+  var tid = getGlobal().generateTID()
 
   before(function () {
     var adUnits = [{
@@ -26,7 +30,12 @@ describe('Publisher API _ AdUnits', function () {
             placementId: '234235'
           }
         }
-      ]
+      ],
+      ortb2Imp: {
+        ext: {
+          tid: 'notavaliduserprovidedtid'
+        }
+      }
     }, {
       ortb2Imp: {
         ext: {
@@ -35,7 +44,8 @@ describe('Publisher API _ AdUnits', function () {
             inventory: [4],
             keywords: 'foo,bar',
             visitor: [1, 2, 3],
-          }
+          },
+          tid: tid
         }
       },
       code: '/1996833/slot-2',
@@ -95,12 +105,14 @@ describe('Publisher API _ AdUnits', function () {
 
       assert.strictEqual(bids2[1].bidder, 'appnexus', 'adUnit2 bids2 bidder');
       assert.strictEqual(bids2[1].params.placementId, '827326', 'adUnit2 bids2 params.placementId');
+
+      expect(adUnit1['ortb2Imp']['ext']['tid']).not.exist;
     });
 
     it(`the second adUnits value should be same with the adUnits that is added by ${getGlobalVarName()}.addAdUnits();`, function () {
       assert.strictEqual(adUnit2.code, '/1996833/slot-2', 'adUnit2 code');
       assert.deepEqual(adUnit2.sizes, [[468, 60]], 'adUnit2 sizes');
-      assert.deepEqual(adUnit2['ortb2Imp'], {'ext': {'data': {'pbadslot': 'adSlotTest', 'inventory': [4], 'keywords': 'foo,bar', 'visitor': [1, 2, 3]}}}, 'adUnit2 ortb2Imp');
+      assert.deepEqual(adUnit2['ortb2Imp'], {'ext': {'data': {'pbadslot': 'adSlotTest', 'inventory': [4], 'keywords': 'foo,bar', 'visitor': [1, 2, 3]}, 'tid': tid}}, 'adUnit2 ortb2Imp');
       assert.strictEqual(bids2[0].bidder, 'rubicon', 'adUnit2 bids1 bidder');
       assert.strictEqual(bids2[0].params.rp_account, '4934', 'adUnit2 bids1 params.rp_account');
       assert.strictEqual(bids2[0].params.rp_zonesize, '23948-15', 'adUnit2 bids1 params.rp_zonesize');

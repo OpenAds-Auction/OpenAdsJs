@@ -39,7 +39,7 @@ const CONFIG = {
   endpoint: S2S.DEFAULT_ENDPOINT,
   timeout: 1000,
   maxBids: 1,
-  adapter: 'prebidServer',
+  adapter: 'openadsServer',
   bidders: ['appnexus'],
   accountId: 'abc'
 };
@@ -49,13 +49,13 @@ const CONFIG2 = {
   endpoint: 'https://prebid-server.rubiconproject.com/openrtb2/auction',
   timeout: 1000,
   maxBids: 1,
-  adapter: 'prebidServer',
+  adapter: 'openadsServer',
   bidders: ['pubmatic'],
   accountId: 'def'
 }
 
 var prebidServerAdapterMock = {
-  bidder: 'prebidServer',
+  bidder: 'openadsServer',
   callBids: sinon.stub()
 };
 var adequantAdapterMock = {
@@ -92,7 +92,7 @@ describe('adapterManager tests', function () {
   before(function () {
     orgAppnexusAdapter = adapterManager.bidderRegistry['appnexus'];
     orgAdequantAdapter = adapterManager.bidderRegistry['adequant'];
-    orgPrebidServerAdapter = adapterManager.bidderRegistry['prebidServer'];
+    orgPrebidServerAdapter = adapterManager.bidderRegistry['openadsServer'];
     orgRubiconAdapter = adapterManager.bidderRegistry['rubicon'];
     orgBadBidderAdapter = adapterManager.bidderRegistry['badBidder'];
   });
@@ -100,7 +100,7 @@ describe('adapterManager tests', function () {
   after(function () {
     adapterManager.bidderRegistry['appnexus'] = orgAppnexusAdapter;
     adapterManager.bidderRegistry['adequant'] = orgAdequantAdapter;
-    adapterManager.bidderRegistry['prebidServer'] = orgPrebidServerAdapter;
+    adapterManager.bidderRegistry['openadsServer'] = orgPrebidServerAdapter;
     adapterManager.bidderRegistry['rubicon'] = orgRubiconAdapter;
     adapterManager.bidderRegistry['badBidder'] = orgBadBidderAdapter;
     config.setConfig({s2sConfig: { enabled: false }});
@@ -530,7 +530,7 @@ describe('adapterManager tests', function () {
   describe('S2S tests', function () {
     beforeEach(function () {
       config.setConfig({s2sConfig: CONFIG});
-      adapterManager.bidderRegistry['prebidServer'] = prebidServerAdapterMock;
+      adapterManager.bidderRegistry['openadsServer'] = prebidServerAdapterMock;
       prebidServerAdapterMock.callBids.resetHistory();
       prebidServerAdapterMock.callBids.resetBehavior();
     });
@@ -757,7 +757,7 @@ describe('adapterManager tests', function () {
   describe('Multiple S2S tests', function () {
     beforeEach(function () {
       config.setConfig({s2sConfig: [CONFIG, CONFIG2]});
-      adapterManager.bidderRegistry['prebidServer'] = prebidServerAdapterMock;
+      adapterManager.bidderRegistry['openadsServer'] = prebidServerAdapterMock;
       prebidServerAdapterMock.callBids.resetHistory();
       prebidServerAdapterMock.callBids.resetBehavior();
     });
@@ -1202,7 +1202,7 @@ describe('adapterManager tests', function () {
 
     beforeEach(function () {
       config.setConfig({s2sConfig: TESTING_CONFIG});
-      adapterManager.bidderRegistry['prebidServer'] = prebidServerAdapterMock;
+      adapterManager.bidderRegistry['openadsServer'] = prebidServerAdapterMock;
       adapterManager.bidderRegistry['adequant'] = adequantAdapterMock;
       adapterManager.bidderRegistry['appnexus'] = appnexusAdapterMock;
       adapterManager.bidderRegistry['rubicon'] = rubiconAdapterMock;
@@ -1393,7 +1393,7 @@ describe('adapterManager tests', function () {
     }
 
     beforeEach(function () {
-      adapterManager.bidderRegistry['prebidServer'] = prebidServerAdapterMock;
+      adapterManager.bidderRegistry['openadsServer'] = prebidServerAdapterMock;
       adapterManager.bidderRegistry['adequant'] = adequantAdapterMock;
       adapterManager.bidderRegistry['appnexus'] = appnexusAdapterMock;
       adapterManager.bidderRegistry['rubicon'] = rubiconAdapterMock;
@@ -1737,7 +1737,7 @@ describe('adapterManager tests', function () {
             endpoint: 'rp-pbs-endpoint-test.com',
             timeout: 500,
             maxBids: 1,
-            adapter: 'prebidServer',
+            adapter: 'openadsServer',
             bidders: ['s2sRpAlias'],
             accountId: 'def'
           }

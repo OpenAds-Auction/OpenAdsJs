@@ -30,7 +30,7 @@ describe('GPT pre-auction module', () => {
     makeSlot({ code: 'slotCode4', divId: 'div5' })
   ];
 
-  const mockTargeting = {'/123456/header-bid-tag-0': {'hb_deal_rubicon': '1234', 'hb_deal': '1234', 'hb_pb': '0.53', 'hb_adid': '148018fe5e', 'hb_bidder': 'rubicon', 'foobar': '300x250', 'hb_pb_rubicon': '0.53', 'hb_adid_rubicon': '148018fe5e', 'hb_bidder_rubicon': 'rubicon', 'hb_deal_appnexus': '4321', 'hb_pb_appnexus': '0.1', 'hb_adid_appnexus': '567891011', 'hb_bidder_appnexus': 'appnexus'}}
+  const mockTargeting = {'/123456/header-bid-tag-0': {'oa_deal_rubicon': '1234', 'oa_deal': '1234', 'oa_pb': '0.53', 'oa_adid': '148018fe5e', 'oa_bidder': 'rubicon', 'foobar': '300x250', 'oa_pb_rubicon': '0.53', 'oa_adid_rubicon': '148018fe5e', 'oa_bidder_rubicon': 'rubicon', 'oa_deal_appnexus': '4321', 'oa_pb_appnexus': '0.1', 'oa_adid_appnexus': '567891011', 'oa_bidder_appnexus': 'appnexus'}}
 
   const mockAuctionManager = {
     findBidByAdId(adId) {
@@ -464,7 +464,7 @@ describe('GPT pre-auction module', () => {
     it('should filter out adIds that do not map to any auction', () => {
       const auctionsIds = getAuctionsIdsFromTargeting({
         ...mockTargeting,
-        'au': {'hb_adid': 'missing'},
+        'au': {'oa_adid': 'missing'},
       }, mockAuctionManager);
       expect(auctionsIds).to.eql([mocksAuctions[0].auctionId, mocksAuctions[1].auctionId]);
     })

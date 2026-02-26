@@ -282,7 +282,7 @@ describe('native.js', function () {
             message: 'Prebid Native',
             action: 'assetRequest',
             adId: '123',
-            assets: ['hb_native_body', 'hb_native_image', 'hb_native_linkurl'],
+            assets: ['oa_native_body', 'oa_native_image', 'oa_native_linkurl'],
           };
 
           const message = getAssetMessage(messageRequest, bid);

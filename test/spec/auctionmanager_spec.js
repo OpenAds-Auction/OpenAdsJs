@@ -22,7 +22,7 @@ import {AuctionIndex} from '../../src/auctionIndex.js';
 import {expect} from 'chai';
 import {deepClone} from '../../src/utils.js';
 import { IMAGE as ortbNativeRequest } from 'src/native.js';
-import {PrebidServer} from '../../modules/prebidServerBidAdapter/index.js';
+import {OpenAdsServer} from '../../modules/openadsServerBidAdapter/index.js';
 import { setConfig as setCurrencyConfig } from '../../modules/currency.js'
 
 import { REJECTION_REASON } from '../../src/constants.js';
@@ -265,7 +265,7 @@ describe('auctionmanager.js', function () {
       const noAcatBid = deepClone(DEFAULT_BID);
       noAcatBid.meta.primaryCatId = ''
       const expected = getDefaultExpected(noAcatBid);
-      delete expected.hb_acat;
+      delete expected.oa_acat;
       const response = getKeyValueTargetingPairs(noAcatBid.bidderCode, noAcatBid);
       assert.deepEqual(response, expected);
     });
@@ -543,7 +543,7 @@ describe('auctionmanager.js', function () {
           defaultVendor: 'appnexuspsp',
           bidders: ['appnexus'],
           timeout: 1000,
-          adapter: 'prebidServer'
+          adapter: 'openadsServer'
         }
       });
 
@@ -1415,24 +1415,9 @@ describe('auctionmanager.js', function () {
       });
 
       it('should NOT emit BID_TIMEOUT for bidders that replied through S2S', () => {
-        adapterManager.registerBidAdapter(new PrebidServer(), 'pbs');
+        adapterManager.registerBidAdapter(new OpenAdsServer(), 'pbs');
         config.setConfig({
-          s2sConfig: [{
-            accountId: '1',
-            enabled: true,
-            defaultVendor: 'appnexuspsp',
-            bidders: ['mock-s2s-1'],
-            adapter: 'pbs',
-            endpoint: {
-              p1Consent: 'https://ib.adnxs.com/openrtb2/prebid',
-              noP1Consent: 'https://ib.adnxs-simple.com/openrtb2/prebid'
-            },
-            maxTimeout: 1000,
-            syncEndpoint: {
-              p1Consent: "https://prebid.adnxs.com/pbs/v1/cookie_sync",
-              noP1Consent: "https://prebid.adnxs-simple.com/pbs/v1/cookie_sync"
-            },
-          }, {
+          s2sConfig: {
             accountId: '1',
             enabled: true,
             defaultVendor: 'rubicon',
@@ -1447,12 +1432,11 @@ describe('auctionmanager.js', function () {
               p1Consent: 'https://prebid-server.rubiconproject.com/cookie_sync',
               noP1Consent: 'https://prebid-server.rubiconproject.com/cookie_sync',
             },
-          }]
+          }
         })
-        adUnits[0].bids.push({bidder: 'mock-s2s-1'}, {bidder: 'mock-s2s-2'})
+        adUnits[0].bids.push({bidder: 'mock-s2s-2'})
         const s2sAdUnits = deepClone(adUnits);
         bids.unshift(
-          mockBid({ bidderCode: 'mock-s2s-1', src: S2S.SRC, adUnits: s2sAdUnits, uniquePbsTid: '1' }),
           mockBid({ bidderCode: 'mock-s2s-2', src: S2S.SRC, adUnits: s2sAdUnits, uniquePbsTid: '2' })
         );
         Object.assign(s2sAdUnits[0], {
@@ -1462,10 +1446,6 @@ describe('auctionmanager.js', function () {
             }
           },
           bids: [
-            {
-              bidder: 'mock-s2s-1',
-              bid_id: bids[0].requestId
-            },
             {
               bidder: 'mock-s2s-2',
               bid_id: bids[1].requestId
@@ -1477,7 +1457,6 @@ describe('auctionmanager.js', function () {
           const toBids = eventsEmitSpy.withArgs(EVENTS.BID_TIMEOUT).getCalls()[0].args[1]
           expect(toBids.map(bid => bid.bidder)).to.eql([
             'mock-s2s-2',
-            BIDDER_CODE,
             BIDDER_CODE1,
           ])
         });

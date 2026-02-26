@@ -4,7 +4,7 @@ import {ORTB_EIDS_PATHS} from '../../src/activities/redactor.js';
 /**
  * Perform a partial pre-merge of bidder config for PBS.
  *
- * Prebid.js and Prebid Server use different strategies for merging global and bidder-specific config; JS attemps to
+ * OpenAds.js and OpenAds Server use different strategies for merging global and bidder-specific config; JS attemps to
  * merge arrays (concatenating them, with some deduping, cfr. mergeDeep), while PBS only merges objects -
  * a bidder-specific array will replace a global array.
  *

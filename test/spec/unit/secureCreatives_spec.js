@@ -156,7 +156,7 @@ describe('secureCreatives', () => {
       adResponse.adId = bidId;
     });
 
-    describe('Prebid Request', function() {
+    describe('OpenAds Request', function() {
       it('should render', function () {
         pushBidResponseToAuction({
           renderer: {render: sinon.stub(), url: 'some url'}
@@ -164,7 +164,7 @@ describe('secureCreatives', () => {
 
         const data = {
           adId: bidId,
-          message: 'Prebid Request'
+          message: 'OpenAds Request'
         };
 
         const ev = makeEvent({
@@ -191,7 +191,7 @@ describe('secureCreatives', () => {
 
         const data = {
           adId: bidId,
-          message: 'Prebid Request'
+          message: 'OpenAds Request'
         };
 
         const ev = makeEvent({
@@ -226,7 +226,7 @@ describe('secureCreatives', () => {
 
         const data = {
           adId: bidId,
-          message: 'Prebid Request'
+          message: 'OpenAds Request'
         };
 
         const ev = makeEvent({
@@ -259,7 +259,7 @@ describe('secureCreatives', () => {
       it('should emit AD_RENDER_FAILED if requested missing adId', () => {
         const ev = makeEvent({
           data: JSON.stringify({
-            message: 'Prebid Request',
+            message: 'OpenAds Request',
             adId: 'missing'
           })
         });
@@ -278,7 +278,7 @@ describe('secureCreatives', () => {
             postMessage: sinon.stub().callsFake(() => { throw new Error(); })
           },
           data: JSON.stringify({
-            message: 'Prebid Request',
+            message: 'OpenAds Request',
             adId: bidId
           })
         });
@@ -297,7 +297,7 @@ describe('secureCreatives', () => {
           source: {
             postMessage: sinon.stub()
           },
-          data: JSON.stringify({adId: bidId, message: 'Prebid Request'})
+          data: JSON.stringify({adId: bidId, message: 'OpenAds Request'})
         });
         return receive(ev).then(() => {
           sinon.assert.calledWith(ev.source.postMessage, sinon.match(ob => {
@@ -332,7 +332,7 @@ describe('secureCreatives', () => {
             source: {
               postMessage: sinon.stub()
             },
-            data: JSON.stringify({adId: bidId, message: 'Prebid Request'})
+            data: JSON.stringify({adId: bidId, message: 'OpenAds Request'})
           })
           return receive(ev).then(() => {
             sinon.assert.calledWith(ev.source.postMessage, sinon.match(ob => {
@@ -356,17 +356,17 @@ describe('secureCreatives', () => {
       }
     });
 
-    describe('Prebid Native', function() {
+    describe('OpenAds Native', function() {
       if (!FEATURES.NATIVE) {
         return;
       }
 
-      it('Prebid native should render', function () {
+      it('OpenAds native should render', function () {
         pushBidResponseToAuction({});
 
         const data = {
           adId: bidId,
-          message: 'Prebid Native',
+          message: 'OpenAds Native',
           action: 'allAssetRequest'
         };
 
@@ -390,13 +390,13 @@ describe('secureCreatives', () => {
         });
       });
 
-      it('Prebid native should not fire BID_WON when receiveMessage is called more than once', () => {
+      it('OpenAds native should not fire BID_WON when receiveMessage is called more than once', () => {
         const adId = 3;
         pushBidResponseToAuction({ adId });
 
         const data = {
           adId: adId,
-          message: 'Prebid Native',
+          message: 'OpenAds Native',
           action: 'allAssetRequest'
         };
 
@@ -420,7 +420,7 @@ describe('secureCreatives', () => {
         pushBidResponseToAuction({});
         const data = {
           adId: bidId,
-          message: 'Prebid Native',
+          message: 'OpenAds Native',
         };
 
         const ev = makeEvent({
@@ -461,7 +461,7 @@ describe('secureCreatives', () => {
           const ev = makeEvent({
             data: JSON.stringify({
               adId: bidId,
-              message: 'Prebid Native',
+              message: 'OpenAds Native',
               action: 'resizeNativeHeight',
               width: 123,
               height: 321
@@ -479,7 +479,7 @@ describe('secureCreatives', () => {
       })
     });
 
-    describe('Prebid Event', () => {
+    describe('OpenAds Event', () => {
       Object.entries({
         'unrendered': [false, (bid) => { delete bid.status; }],
         'rendered': [true, (bid) => { bid.status = BID_STATUS.RENDERED }]
@@ -493,7 +493,7 @@ describe('secureCreatives', () => {
           it(`should${shouldEmit ? ' ' : ' not '}emit AD_RENDER_FAILED`, () => {
             const event = makeEvent({
               data: JSON.stringify({
-                message: 'Prebid Event',
+                message: 'OpenAds Event',
                 event: EVENTS.AD_RENDER_FAILED,
                 adId: bidId,
                 info: {
@@ -515,7 +515,7 @@ describe('secureCreatives', () => {
           it(`should${shouldEmit ? ' ' : ' not '}emit AD_RENDER_SUCCEEDED`, () => {
             const event = makeEvent({
               data: JSON.stringify({
-                message: 'Prebid Event',
+                message: 'OpenAds Event',
                 event: EVENTS.AD_RENDER_SUCCEEDED,
                 adId: bidId,
               })
@@ -570,7 +570,7 @@ describe('secureCreatives', () => {
     })
 
     it('should find correct gpt slot based on ad id rather than ad unit code when resizing secure creative', function () {
-      slots[1].setTargeting('hb_adid', ['adId']);
+      slots[1].setTargeting('oa_adid', ['adId']);
       resizeRemoteCreative({
         adId: 'adId',
         width: 300,

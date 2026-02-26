@@ -42,7 +42,7 @@ function mockPerformanceApi({adServerCallSent, videoPresent}) {
 
   if (adServerCallSent || videoPresent) {
     entries.push({
-      name: 'https://adserver.com/ads?custom_params=hb_uuid%3D' + VIDEO_CACHE_KEY + '%26pos%3D' + VIDEO_CACHE_KEY,
+      name: 'https://adserver.com/ads?custom_params=oa_uuid%3D' + VIDEO_CACHE_KEY + '%26pos%3D' + VIDEO_CACHE_KEY,
       initiatorType: 'xmlhttprequest'
     });
   }

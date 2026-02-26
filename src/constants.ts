@@ -76,56 +76,56 @@ export const GRANULARITY_OPTIONS = {
 } as const;
 
 export const TARGETING_KEYS = {
-  BIDDER: 'hb_bidder',
-  AD_ID: 'hb_adid',
-  PRICE_BUCKET: 'hb_pb',
-  SIZE: 'hb_size',
-  DEAL: 'hb_deal',
-  SOURCE: 'hb_source',
-  FORMAT: 'hb_format',
-  UUID: 'hb_uuid',
-  CACHE_ID: 'hb_cache_id',
-  CACHE_HOST: 'hb_cache_host',
-  ADOMAIN: 'hb_adomain',
-  ACAT: 'hb_acat',
-  CRID: 'hb_crid',
-  DSP: 'hb_dsp',
-  VERSION: 'hb_ver'
+  BIDDER: 'oa_bidder',
+  AD_ID: 'oa_adid',
+  PRICE_BUCKET: 'oa_pb',
+  SIZE: 'oa_size',
+  DEAL: 'oa_deal',
+  SOURCE: 'oa_source',
+  FORMAT: 'oa_format',
+  UUID: 'oa_uuid',
+  CACHE_ID: 'oa_cache_id',
+  CACHE_HOST: 'oa_cache_host',
+  ADOMAIN: 'oa_adomain',
+  ACAT: 'oa_acat',
+  CRID: 'oa_crid',
+  DSP: 'oa_dsp',
+  VERSION: 'oa_ver'
 } as const;
 
 export const DEFAULT_TARGETING_KEYS = {
-  BIDDER: 'hb_bidder',
-  AD_ID: 'hb_adid',
-  PRICE_BUCKET: 'hb_pb',
-  SIZE: 'hb_size',
-  DEAL: 'hb_deal',
-  FORMAT: 'hb_format',
-  UUID: 'hb_uuid',
-  CACHE_HOST: 'hb_cache_host',
-  VERSION: 'hb_ver'
+  BIDDER: 'oa_bidder',
+  AD_ID: 'oa_adid',
+  PRICE_BUCKET: 'oa_pb',
+  SIZE: 'oa_size',
+  DEAL: 'oa_deal',
+  FORMAT: 'oa_format',
+  UUID: 'oa_uuid',
+  CACHE_HOST: 'oa_cache_host',
+  VERSION: 'oa_ver'
 };
 
 export const NATIVE_KEYS = {
-  title: 'hb_native_title',
-  body: 'hb_native_body',
-  body2: 'hb_native_body2',
-  privacyLink: 'hb_native_privacy',
-  privacyIcon: 'hb_native_privicon',
-  sponsoredBy: 'hb_native_brand',
-  image: 'hb_native_image',
-  icon: 'hb_native_icon',
-  clickUrl: 'hb_native_linkurl',
-  displayUrl: 'hb_native_displayurl',
-  cta: 'hb_native_cta',
-  rating: 'hb_native_rating',
-  address: 'hb_native_address',
-  downloads: 'hb_native_downloads',
-  likes: 'hb_native_likes',
-  phone: 'hb_native_phone',
-  price: 'hb_native_price',
-  salePrice: 'hb_native_saleprice',
-  rendererUrl: 'hb_renderer_url',
-  adTemplate: 'hb_adTemplate'
+  title: 'oa_native_title',
+  body: 'oa_native_body',
+  body2: 'oa_native_body2',
+  privacyLink: 'oa_native_privacy',
+  privacyIcon: 'oa_native_privicon',
+  sponsoredBy: 'oa_native_brand',
+  image: 'oa_native_image',
+  icon: 'oa_native_icon',
+  clickUrl: 'oa_native_linkurl',
+  displayUrl: 'oa_native_displayurl',
+  cta: 'oa_native_cta',
+  rating: 'oa_native_rating',
+  address: 'oa_native_address',
+  downloads: 'oa_native_downloads',
+  likes: 'oa_native_likes',
+  phone: 'oa_native_phone',
+  price: 'oa_native_price',
+  salePrice: 'oa_native_saleprice',
+  rendererUrl: 'oa_renderer_url',
+  adTemplate: 'oa_adTemplate'
 };
 
 export const S2S = {
@@ -195,11 +195,11 @@ export const NATIVE_KEYS_THAT_ARE_NOT_ASSETS = [
 ] as const;
 
 export const MESSAGES = {
-  REQUEST: 'Prebid Request',
-  RESPONSE: 'Prebid Response',
-  NATIVE: 'Prebid Native',
-  EVENT: 'Prebid Event',
-  INTERVENTION: 'Prebid Intervention'
+  REQUEST: 'OpenAds Request',
+  RESPONSE: 'OpenAds Response',
+  NATIVE: 'OpenAds Native',
+  EVENT: 'OpenAds Event',
+  INTERVENTION: 'OpenAds Intervention'
 };
 
 export const PB_LOCATOR = '__pb_locator__';
