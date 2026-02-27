@@ -94,7 +94,7 @@ jobs:
           while IFS= read -r -d $'\x00' commit; do
             SHA=$(echo "$commit" | awk -F'|SEP|' '{print $1}' | xargs)
             TITLE=$(echo "$commit" | awk -F'|SEP|' '{print $2}' | xargs)
-            BODY=$(echo "$commit" | awk -F'|SEP|' '{print $3}' | xargs)
+            BODY=$(echo "$commit" | awk -F'|SEP|' '{print $3}' | xargs | cut -c2-)
 
             # Try to extract a PR number from the title, e.g. "#123"
             PR_NUM=$(echo "$TITLE" | grep -oP '#\K[0-9]+' | head -1)
