@@ -1,24 +1,136 @@
 name: Release Drafter
-
 on:
-  push:
-    # branches to consider in the event; optional, defaults to all
-    branches:
-      - master
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 1-7 * 1'  # First Monday of every month at midnight UTC
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  update_release_draft:
-    permissions:
-      contents: write  # for release-drafter/release-drafter to create a github release
-      pull-requests: write  # for release-drafter/release-drafter to add label to PR
+  release:
     runs-on: ubuntu-latest
+
     steps:
-      # Drafts your next Release notes as Pull Requests are merged into "master"
-      - uses: release-drafter/release-drafter@v6
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-         config-name: release-drafter.yml         
+          ref: master
+          fetch-depth: 0  # full history needed for git log/tags
+
+      - name: Get latest tag
+        id: latest_tag
+        run: |
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Check for changes since last tag
+        id: changes
+        run: |
+          TAG="${{ steps.latest_tag.outputs.tag }}"
+          if [ -z "$TAG" ]; then
+            echo "No previous tag found — treating all commits as new."
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            COUNT=$(git rev-list "$TAG"..HEAD --count)
+            if [ "$COUNT" -eq 0 ]; then
+              echo "No changes since last tag ($TAG). Skipping release."
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+            else
+              echo "Found $COUNT new commit(s) since $TAG."
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Read and increment versions from package.json
+        if: steps.changes.outputs.has_changes == 'true'
+        id: versions
+        run: |
+          OA_VERSION=$(jq -r '.oaVersion' package.json)
+          PREBID_VERSION=$(jq -r '.version' package.json)
+
+          # Increment minor version (major.minor.patch → major.(minor+1).patch)
+          MAJOR=$(echo "$OA_VERSION" | cut -d. -f1)
+          MINOR=$(echo "$OA_VERSION" | cut -d. -f2)
+          PATCH=$(echo "$OA_VERSION" | cut -d. -f3)
+          NEW_MINOR=$((MINOR + 1))
+          NEW_OA_VERSION="${MAJOR}.${NEW_MINOR}.${PATCH}"
+
+          # Write new version back to package.json
+          jq --arg v "$NEW_OA_VERSION" '.oaVersion = $v' package.json > package.tmp.json
+          mv package.tmp.json package.json
+
+          echo "oa_version=$NEW_OA_VERSION" >> $GITHUB_OUTPUT
+          echo "prebid_version=$PREBID_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit incremented OA version
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "chore: bump OpenAds version to ${{ steps.versions.outputs.oa_version }}"
+          git push origin HEAD:master
+          git tag "oajs_v${{ steps.versions.outputs.oa_version }}"
+          git push origin "oajs_v${{ steps.versions.outputs.oa_version }}"
+
+      - name: Build commit list
+        if: steps.changes.outputs.has_changes == 'true'
+        id: commits
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.latest_tag.outputs.tag }}"
+          REPO="${{ github.repository }}"
+
+          if [ -z "$TAG" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="$TAG..HEAD"
+          fi
+
+          # Collect commits: "<sha> <subject>"
+          LINES=""
+          while IFS= read -r line; do
+            SHA=$(echo "$line" | awk '{print $1}')
+            SUBJECT=$(echo "$line" | cut -d' ' -f2-)
+
+            # Try to extract a PR number from the commit subject, e.g. "(#123)"
+            PR_NUM=$(echo "$SUBJECT" | grep -oP '#\K[0-9]+' | head -1)
+
+            if [ -n "$PR_NUM" ]; then
+              PR_URL="https://github.com/$REPO/pull/$PR_NUM"
+              ENTRY="- [#${PR_NUM}](${PR_URL}) ${SUBJECT}"
+            else
+              SHORT_SHA="${SHA:0:7}"
+              COMMIT_URL="https://github.com/$REPO/commit/$SHA"
+              ENTRY="- [${SHORT_SHA}](${COMMIT_URL}) ${SUBJECT}"
+            fi
+
+            LINES="${LINES}${ENTRY}"$'\n'
+          done < <(git log "$RANGE" --pretty=format:"%H %s")
+
+          # Write to a file to safely pass multiline content
+          echo "$LINES" > /tmp/commit_list.txt
+          cat /tmp/commit_list.txt
+
+      - name: Create GitHub Release
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OA_VERSION="${{ steps.versions.outputs.oa_version }}"
+          PREBID_VERSION="${{ steps.versions.outputs.prebid_version }}"
+          COMMIT_LIST=$(cat /tmp/commit_list.txt)
+
+          {
+            echo "Including Prebid features up to v${PREBID_VERSION}: https://github.com/prebid/Prebid.js/releases/tag/${PREBID_VERSION}"
+            echo ""
+            echo "OpenAdsJs Changes"
+            echo "${COMMIT_LIST}"
+          } > /tmp/release_notes.md
+
+          gh release create "v${OA_VERSION}" \
+            --title "OpenAds ${OA_VERSION}" \
+            --notes-file /tmp/release_notes.md \
+            --target "oajs_v${{ steps.versions.outputs.oa_version }}"
