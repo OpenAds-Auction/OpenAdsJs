@@ -128,7 +128,14 @@ jobs:
 OpenAdsJs changes
 ${COMMIT_LIST}"
 
+          cat <<EOF > /tmp/release_notes.md
+Including Prebid features up to v${PREBID_VERSION}: https://github.com/prebid/Prebid.js/releases/tag/${PREBID_VERSION}
+
+OpenAdsJs Changes
+${COMMIT_LIST}
+EOF
+
           gh release create "v${OA_VERSION}" \
             --title "OpenAds ${OA_VERSION}" \
-            --notes "$BODY" \
+            --notes-file /tmp/release_notes.md \
             --target "oajs_v${{ steps.versions.outputs.oa_version }}"
