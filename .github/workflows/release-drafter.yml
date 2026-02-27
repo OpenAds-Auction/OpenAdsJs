@@ -146,12 +146,12 @@ jobs:
           COMMIT_LIST=$(cat /tmp/commit_list.txt)
 
           {
-            echo "Including Prebid features up to v${PREBID_VERSION}: https://github.com/prebid/Prebid.js/releases/tag/${PREBID_VERSION}"
+            echo "Including Prebid features up to [v${PREBID_VERSION}](https://github.com/prebid/Prebid.js/releases/tag/${PREBID_VERSION})"
             echo ""
             echo "OpenAdsJs Changes"
             echo "${COMMIT_LIST}"
           } > /tmp/release_notes.md
 
           gh release create "oajs_v${OA_VERSION}" \
-            --title "OpenAds ${OA_VERSION}" \
+            --title "OpenAdsJs v${OA_VERSION}" \
             --notes-file /tmp/release_notes.md
