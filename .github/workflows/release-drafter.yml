@@ -89,28 +89,25 @@ jobs:
             RANGE="$TAG..HEAD"
           fi
 
-          # Collect commits: "<sha> <subject>"
           LINES=""
-          while IFS= read -r line; do
-            SHA=$(echo "$line" | awk '{print $1}')
-            SUBJECT=$(echo "$line" | cut -d' ' -f2-)
 
-            # Try to extract a PR number from the commit subject, e.g. "(#123)"
+          # Use a unique delimiter to split commits since bodies can be multiline
+          while IFS= read -r -d $'\x00' commit; do
+            SHA=$(echo "$commit" | head -n1)
+            # Use everything after the first line as the subject
+            SUBJECT=$(echo "$commit" | tail -n +2 | sed '/^$/d' | head -n1)
+
+            # Try to extract a PR number from the subject, e.g. "(#123)"
             PR_NUM=$(echo "$SUBJECT" | grep -oP '#\K[0-9]+' | head -1)
 
             if [ -n "$PR_NUM" ]; then
               PR_URL="https://github.com/$REPO/pull/$PR_NUM"
               ENTRY="- [#${PR_NUM}](${PR_URL}) ${SUBJECT}"
-            else
-              SHORT_SHA="${SHA:0:7}"
-              COMMIT_URL="https://github.com/$REPO/commit/$SHA"
-              ENTRY="- [${SHORT_SHA}](${COMMIT_URL}) ${SUBJECT}"
             fi
 
             LINES="${LINES}${ENTRY}"$'\n'
-          done < <(git log "$RANGE" --pretty=format:"%H %s")
+          done < <(git log "$RANGE" --pretty=format:"%H%n%B%x00")
 
-          # Write to a file to safely pass multiline content
           echo "$LINES" > /tmp/commit_list.txt
           cat /tmp/commit_list.txt
 
@@ -130,7 +127,6 @@ jobs:
             echo "${COMMIT_LIST}"
           } > /tmp/release_notes.md
 
-          gh release create "v${OA_VERSION}" \
+          gh release create "oajs_v${OA_VERSION}" \
             --title "OpenAds ${OA_VERSION}" \
-            --notes-file /tmp/release_notes.md \
-            --target "oajs_v${{ steps.versions.outputs.oa_version }}"
+            --notes-file /tmp/release_notes.md
