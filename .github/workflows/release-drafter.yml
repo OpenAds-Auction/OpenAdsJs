@@ -92,9 +92,9 @@ jobs:
           LINES=""
 
           while IFS= read -r -d $'\x00' commit; do
-            SHA=$(echo "$commit" | awk -F'|SEP|' '{print $1}')
-            TITLE=$(echo "$commit" | awk -F'|SEP|' '{print $2}')
-            BODY=$(echo "$commit" | awk -F'|SEP|' '{print $3}')
+            SHA=$(echo "$commit" | awk -F'|SEP|' '{print $1}' | xargs)
+            TITLE=$(echo "$commit" | awk -F'|SEP|' '{print $2}' | xargs)
+            BODY=$(echo "$commit" | awk -F'|SEP|' '{print $3}' | xargs)
 
             # Try to extract a PR number from the title, e.g. "#123"
             PR_NUM=$(echo "$TITLE" | grep -oP '#\K[0-9]+' | head -1)
@@ -105,7 +105,6 @@ jobs:
               LINES="${LINES}${ENTRY}"$'\n'
             fi
 
-            LINES="${LINES}${ENTRY}"$'\n'
           done < <(git log "$RANGE" --pretty=format:"%H|SEP|%s|SEP|%b%x00")
 
           echo "$LINES" > /tmp/commit_list.txt
