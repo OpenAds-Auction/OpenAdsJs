@@ -2,7 +2,7 @@ name: Release Drafter
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 1-7 * 1'  # First Monday of every month at midnight UTC
+    - cron: '0 0 1-7 * 3'  # First Wednesday of every month at midnight UTC
 
 permissions:
   contents: write
@@ -43,7 +43,7 @@ jobs:
           fi
 
       - name: Read and increment versions from package.json
-        if: steps.changes.outputs.has_changes == 'true'
+        if: steps.changes.outputs.has_changes == 'truee'
         id: versions
         run: |
           OA_VERSION=$(jq -r '.oaVersion' package.json)
@@ -73,6 +73,32 @@ jobs:
           git push origin HEAD:master
           git tag "oajs_v${{ steps.versions.outputs.oa_version }}"
           git push origin "oajs_v${{ steps.versions.outputs.oa_version }}"
+
+      - name: Read and increment versions from package.json TEST
+        if: steps.changes.outputs.has_changes == 'true'
+        id: versions
+        run: |
+          OA_VERSION=$(jq -r '.oaVersion' package.json)
+          PREBID_VERSION=$(jq -r '.version' package.json)
+
+          # Increment minor version (major.minor.patch → major.(minor+0).patch)
+          MAJOR=$(echo "$OA_VERSION" | cut -d. -f1)
+          MINOR=$(echo "$OA_VERSION" | cut -d. -f2)
+          PATCH=$(echo "$OA_VERSION" | cut -d. -f3)
+          NEW_MINOR=$((MINOR + 1))
+          NEW_OA_VERSION="${MAJOR}.${NEW_MINOR}.${PATCH}"
+
+          echo "oa_version=$NEW_OA_VERSION" >> $GITHUB_OUTPUT
+          echo "prebid_version=$PREBID_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit incremented OA version Test
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "oajs_v${{ steps.versions.outputs.oa_version }}"
+          git push origin "oajs_v${{ steps.versions.outputs.oa_version }}"
+
 
       - name: Build commit list
         if: steps.changes.outputs.has_changes == 'true'
@@ -111,7 +137,7 @@ jobs:
           cat /tmp/commit_list.txt
 
       - name: Create GitHub Release
-        if: steps.changes.outputs.has_changes == 'trueadf'
+        if: steps.changes.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
