@@ -96,7 +96,7 @@ jobs:
             SHA=$(echo "$commit" | head -n1)
             TITLE=$(echo "$commit" | sed -n '2p')
             # Use everything after the first line as the subject
-            SUBJECT=$(echo "$commit")
+            SUBJECT=$(echo "$commit" | tail -n +3)
 
             # Try to extract a PR number from the title line, e.g. "(#123)"
             PR_NUM=$(echo "$TITLE" | grep -oP '#\K[0-9]+' | head -1)
