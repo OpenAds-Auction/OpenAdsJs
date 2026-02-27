@@ -44,7 +44,7 @@ jobs:
 
       - name: Read and increment versions from package.json
         if: steps.changes.outputs.has_changes == 'truee'
-        id: versions
+        id: versionsAA
         run: |
           OA_VERSION=$(jq -r '.oaVersion' package.json)
           PREBID_VERSION=$(jq -r '.version' package.json)
