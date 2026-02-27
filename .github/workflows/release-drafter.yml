@@ -123,12 +123,12 @@ jobs:
           PREBID_VERSION="${{ steps.versions.outputs.prebid_version }}"
           COMMIT_LIST=$(cat /tmp/commit_list.txt)
 
-          cat <<EOF > /tmp/release_notes.md
-Including Prebid features up to v${PREBID_VERSION}: https://github.com/prebid/Prebid.js/releases/tag/${PREBID_VERSION}
-
-OpenAdsJs Changes
-${COMMIT_LIST}
-EOF
+          {
+            echo "Including Prebid features up to v${PREBID_VERSION}: https://github.com/prebid/Prebid.js/releases/tag/${PREBID_VERSION}"
+            echo ""
+            echo "OpenAdsJs Changes"
+            echo "${COMMIT_LIST}"
+          } > /tmp/release_notes.md
 
           gh release create "v${OA_VERSION}" \
             --title "OpenAds ${OA_VERSION}" \
