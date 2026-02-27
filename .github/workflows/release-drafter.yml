@@ -85,7 +85,7 @@ jobs:
           MAJOR=$(echo "$OA_VERSION" | cut -d. -f1)
           MINOR=$(echo "$OA_VERSION" | cut -d. -f2)
           PATCH=$(echo "$OA_VERSION" | cut -d. -f3)
-          NEW_MINOR=$((MINOR + 1))
+          NEW_MINOR=$((MINOR + 0))
           NEW_OA_VERSION="${MAJOR}.${NEW_MINOR}.${PATCH}"
 
           echo "oa_version=$NEW_OA_VERSION" >> $GITHUB_OUTPUT
