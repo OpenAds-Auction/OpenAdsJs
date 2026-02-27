@@ -44,17 +44,31 @@ jobs:
 
       - name: Read and increment versions from package.json
         if: steps.changes.outputs.has_changes == 'true'
-        id: versionsAA
+        id: versions
         run: |
           OA_VERSION=$(jq -r '.oaVersion' package.json)
           PREBID_VERSION=$(jq -r '.version' package.json)
 
-          # Increment minor version (major.minor.patch → major.(minor+1).patch)
           MAJOR=$(echo "$OA_VERSION" | cut -d. -f1)
           MINOR=$(echo "$OA_VERSION" | cut -d. -f2)
           PATCH=$(echo "$OA_VERSION" | cut -d. -f3)
-          NEW_MINOR=$((MINOR + 0))
-          NEW_OA_VERSION="${MAJOR}.${NEW_MINOR}.${PATCH}"
+
+          # Check if oaVersion differs between master and the last tagged commit
+          TAG="${{ steps.latest_tag.outputs.tag }}"
+          if [ -n "$TAG" ]; then
+            TAGGED_OA_VERSION=$(git show "$TAG":package.json | jq -r '.oaVersion')
+            echo "oaVersion on master: $OA_VERSION"
+            echo "oaVersion on last tag ($TAG): $TAGGED_OA_VERSION"
+          fi
+
+          if [ -n "$TAG" ] && [ "$OA_VERSION" != "$TAGGED_OA_VERSION" ]; then
+            echo "oaVersion has been manually changed since last tag — skipping minor increment."
+            NEW_OA_VERSION="$OA_VERSION"
+          else
+            echo "oaVersion unchanged since last tag — incrementing minor."
+            NEW_MINOR=$((MINOR + 1))
+            NEW_OA_VERSION="${MAJOR}.${NEW_MINOR}.${PATCH}"
+          fi
 
           # Write new version back to package.json
           jq --arg v "$NEW_OA_VERSION" '.oaVersion = $v' package.json > package.tmp.json
