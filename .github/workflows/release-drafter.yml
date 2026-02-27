@@ -95,7 +95,6 @@ jobs:
           while IFS= read -r -d $'\x00' commit; do
             SHA=$(echo "$commit" | head -n1)
             TITLE=$(echo "$commit" | sed -n '2p')
-            # Use everything after the first line as the subject
             SUBJECT=$(echo "$commit" | tail -n +3)
 
             # Try to extract a PR number from the title line, e.g. "(#123)"
@@ -106,28 +105,18 @@ jobs:
               PR_NUM=$(echo "$SUBJECT" | grep -oP '#\K[0-9]+' | head -1)
             fi
 
-            # Use title as subject if body subject is empty
-            if [ -z "$SUBJECT" ]; then
-              SUBJECT="$TITLE"
-            fi
-
             if [ -n "$PR_NUM" ]; then
               PR_URL="https://github.com/$REPO/pull/$PR_NUM"
               ENTRY="- [#${PR_NUM}](${PR_URL}) ${SUBJECT}"
-            else
-              SHORT_SHA="${SHA:0:7}"
-              COMMIT_URL="https://github.com/$REPO/commit/$SHA"
-              ENTRY="${SUBJECT}"
+              LINES="${LINES}${ENTRY}"$'\n'
             fi
-
-            LINES="${LINES}${ENTRY}"$'\n'
           done < <(git log "$RANGE" --pretty=format:"%H%n%B%x00")
 
           echo "$LINES" > /tmp/commit_list.txt
           cat /tmp/commit_list.txt
 
       - name: Create GitHub Release
-        if: steps.changes.outputs.has_changes == 'true'
+        if: steps.changes.outputs.has_changes == 'trueadf'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
