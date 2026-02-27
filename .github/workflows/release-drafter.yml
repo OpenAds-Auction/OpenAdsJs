@@ -123,11 +123,6 @@ jobs:
           PREBID_VERSION="${{ steps.versions.outputs.prebid_version }}"
           COMMIT_LIST=$(cat /tmp/commit_list.txt)
 
-          BODY="Including Prebid features up to v${PREBID_VERSION}: https://github.com/prebid/Prebid.js/releases/tag/${PREBID_VERSION}
-
-OpenAdsJs changes
-${COMMIT_LIST}"
-
           cat <<EOF > /tmp/release_notes.md
 Including Prebid features up to v${PREBID_VERSION}: https://github.com/prebid/Prebid.js/releases/tag/${PREBID_VERSION}
 
