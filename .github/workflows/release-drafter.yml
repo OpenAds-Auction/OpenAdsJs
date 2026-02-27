@@ -94,15 +94,30 @@ jobs:
           # Use a unique delimiter to split commits since bodies can be multiline
           while IFS= read -r -d $'\x00' commit; do
             SHA=$(echo "$commit" | head -n1)
+            TITLE=$(echo "$commit" | sed -n '2p')
             # Use everything after the first line as the subject
-            SUBJECT=$(echo "$commit" | tail -n +2 | sed '/^$/d' | head -n1)
+            SUBJECT=$(echo "$commit" | tail -n +3 | sed '/^$/d' | head -n1)
 
-            # Try to extract a PR number from the subject, e.g. "(#123)"
-            PR_NUM=$(echo "$SUBJECT" | grep -oP '#\K[0-9]+' | head -1)
+            # Try to extract a PR number from the title line, e.g. "(#123)"
+            PR_NUM=$(echo "$TITLE" | grep -oP '#\K[0-9]+' | head -1)
+
+            # Fall back to subject if no PR number found in title
+            if [ -z "$PR_NUM" ]; then
+              PR_NUM=$(echo "$SUBJECT" | grep -oP '#\K[0-9]+' | head -1)
+            fi
+
+            # Use title as subject if body subject is empty
+            if [ -z "$SUBJECT" ]; then
+              SUBJECT="$TITLE"
+            fi
 
             if [ -n "$PR_NUM" ]; then
               PR_URL="https://github.com/$REPO/pull/$PR_NUM"
               ENTRY="- [#${PR_NUM}](${PR_URL}) ${SUBJECT}"
+            else
+              SHORT_SHA="${SHA:0:7}"
+              COMMIT_URL="https://github.com/$REPO/commit/$SHA"
+              ENTRY="- [${SHORT_SHA}](${COMMIT_URL}) ${SUBJECT}"
             fi
 
             LINES="${LINES}${ENTRY}"$'\n'
