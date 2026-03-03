@@ -1,0 +1,22 @@
+name: Upstream Sync
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'   # Weekly on Monday at 06:00 UTC
+  workflow_dispatch:       # Allow manual trigger
+
+jobs:
+  sync-prebid:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      # ── 0. Generate GitHub App token ──────────────────────────────────────
+      - name: Generate GitHub App token
+        id: app_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.SYNC_APP_ID }}
+          private-key: ${{ secrets.SYNC_APP_PRIVATE_KEY }}
