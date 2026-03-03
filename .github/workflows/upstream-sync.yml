@@ -20,3 +20,208 @@ jobs:
         with:
           app-id: ${{ secrets.SYNC_APP_ID }}
           private-key: ${{ secrets.SYNC_APP_PRIVATE_KEY }}
+
+      # ── 1. Checkout master ────────────────────────────────────────────────
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+          token: ${{ steps.app_token.outputs.token }}
+
+      # ── 2. Read current Prebid version from package.json ──────────────────
+      - name: Read current Prebid version
+        id: current_version
+        run: |
+          PREBID_VERSION=$(jq -r '.version' package.json)
+          echo "version=$PREBID_VERSION" >> $GITHUB_OUTPUT
+          echo "Current Prebid version in package.json: $PREBID_VERSION"
+
+      # ── 3. Fetch all upstream tags and find the next greater version ───────
+      - name: Fetch latest upstream Prebid.js tag
+        id: latest_tag
+        run: |
+          CURRENT="${{ steps.current_version.outputs.version }}"
+          CLEAN="${CURRENT#v}"
+
+          git fetch https://github.com/prebid/Prebid.js.git --tags
+
+          # Walk sorted tags after current version and return the first greater one
+          FOUND_TAG=$(git tag -l \
+            | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sort -V \
+            | awk -v cur="$CLEAN" '
+                {
+                  tag = $0
+                  v = tag
+                  sub(/^v/, "", v)
+                  if (found) {
+                    n = split(v, a, ".")
+                    m = split(cur, b, ".")
+                    for (i = 1; i <= 3; i++) {
+                      if ((a[i]+0) > (b[i]+0)) { print tag; exit }
+                      if ((a[i]+0) < (b[i]+0)) break
+                    }
+                  }
+                  if (v == cur) found = 1
+                }
+              ' | head -1)
+
+          if [ -n "$FOUND_TAG" ]; then
+            echo "tag=$FOUND_TAG" >> $GITHUB_OUTPUT
+            echo "Next greater tag after $CURRENT: $FOUND_TAG"
+          else
+            echo "tag=" >> $GITHUB_OUTPUT
+            echo "No greater tag found after $CURRENT — already up to date."
+          fi
+
+      # ── 4. Check if a next tag was found ──────────────────────────────────
+      - name: Check if update is needed
+        id: version_check
+        run: |
+          LATEST="${{ steps.latest_tag.outputs.tag }}"
+
+          if [ -n "$LATEST" ]; then
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "✅ New tag found ($LATEST). Will attempt sync."
+          else
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "⏭️  Already up to date. Skipping."
+          fi
+
+      # ── 5. Add upstream remote & fetch ────────────────────────────────────
+      - name: Add upstream remote
+        if: steps.version_check.outputs.needs_update == 'true'
+        run: |
+          git remote add upstream https://github.com/prebid/Prebid.js.git
+          git fetch upstream --tags
+
+      # ── 6. Get commit range between current tag and latest tag ────────────
+      - name: Get commit range
+        if: steps.version_check.outputs.needs_update == 'true'
+        id: commit_range
+        run: |
+          CURRENT_TAG="${{ steps.current_version.outputs.version }}"
+          LATEST_TAG="${{ steps.latest_tag.outputs.tag }}"
+
+          if git rev-parse "$CURRENT_TAG" >/dev/null 2>&1; then
+            FROM_REF="$CURRENT_TAG"
+          elif git rev-parse "v$CURRENT_TAG" >/dev/null 2>&1; then
+            FROM_REF="v$CURRENT_TAG"
+          else
+            echo "❌ Cannot resolve current tag '$CURRENT_TAG' in upstream history."
+            exit 1
+          fi
+
+          COMMITS=$(git log --oneline "$FROM_REF".."$LATEST_TAG" --reverse | awk '{print $1}')
+          echo "Commits to process:"
+          echo "$COMMITS"
+
+          echo "$COMMITS" > /tmp/commits_to_process.txt
+          COUNT=$(echo "$COMMITS" | grep -c . || true)
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+
+      # ── 7. Cherry-pick commits (skip adapter commits) ─────────────────────
+      - name: Apply upstream commits
+        if: steps.version_check.outputs.needs_update == 'true'
+        id: apply_commits
+        run: |
+          LATEST_TAG="${{ steps.latest_tag.outputs.tag }}"
+          BRANCH="prebid-sync-${LATEST_TAG}"
+
+          APP_SLUG=$(curl -s -H "Authorization: Bearer ${{ steps.app_token.outputs.token }}" \
+            https://api.github.com/app | jq -r '.slug')
+          git config user.name  "${APP_SLUG}[bot]"
+          git config user.email "${{ secrets.SYNC_APP_ID }}+${APP_SLUG}[bot]@users.noreply.github.com"
+
+          git checkout -b "$BRANCH"
+
+          SKIPPED_FILE="/tmp/skipped_commits.txt"
+          FAILED_FILE="/tmp/failed_commits.txt"
+          APPLIED_FILE="/tmp/applied_commits.txt"
+          touch "$SKIPPED_FILE" "$FAILED_FILE" "$APPLIED_FILE"
+
+          while IFS= read -r HASH; do
+            [ -z "$HASH" ] && continue
+
+            SUBJECT=$(git log --format="%s" -n 1 "$HASH")
+
+            # ── Skip adapter commits ─────────────────────────────────────
+            if echo "$SUBJECT" | grep -qiE "adapter"; then
+              echo "⏭️  SKIPPED (adapter) [$HASH] $SUBJECT"
+              echo "$HASH | $SUBJECT" >> "$SKIPPED_FILE"
+              continue
+            fi
+
+            # ── Skip commits where all changes are only in .github/ ──────
+            CHANGED_FILES=$(git diff-tree --no-commit-id -r --name-only "$HASH")
+            NON_WORKFLOW=$(echo "$CHANGED_FILES" | grep -v '^\.github/' || true)
+            if [ -z "$NON_WORKFLOW" ]; then
+              echo "⏭️  SKIPPED (workflow only) [$HASH] $SUBJECT"
+              echo "$HASH | $SUBJECT" >> "$SKIPPED_FILE"
+              continue
+            fi
+
+            # ── Attempt cherry-pick ──────────────────────────────────────
+            if git cherry-pick --allow-empty "$HASH" 2>/dev/null; then
+              echo "✅ APPLIED  [$HASH] $SUBJECT"
+              echo "$HASH | $SUBJECT" >> "$APPLIED_FILE"
+            else
+              echo "❌ CONFLICT [$HASH] $SUBJECT"
+              echo "$HASH | $SUBJECT" >> "$FAILED_FILE"
+              git cherry-pick --abort 2>/dev/null || true
+            fi
+          done < /tmp/commits_to_process.txt
+
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+
+          echo ""
+          echo "━━━ Summary ━━━"
+          echo "Applied  : $(wc -l < $APPLIED_FILE)"
+          echo "Skipped  : $(wc -l < $SKIPPED_FILE)"
+          echo "Conflicts: $(wc -l < $FAILED_FILE)"
+
+      # ── 8. Push sync branch ───────────────────────────────────────────────
+      - name: Push sync branch
+        if: steps.version_check.outputs.needs_update == 'true'
+        run: |
+          git push origin "${{ steps.apply_commits.outputs.branch }}"
+
+      # ── 9. Open Pull Request with full report ─────────────────────────────
+      - name: Create Pull Request
+        if: steps.version_check.outputs.needs_update == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+        run: |
+          CURRENT="${{ steps.current_version.outputs.version }}"
+          LATEST="${{ steps.latest_tag.outputs.tag }}"
+          BRANCH="${{ steps.apply_commits.outputs.branch }}"
+
+          BODY="## Prebid.js Sync: \`$CURRENT\` → \`$LATEST\`
+
+          This PR was auto-generated by the **Sync with Upstream Prebid.js** workflow.
+
+          ### ✅ Applied Commits
+          \`\`\`
+          $(cat /tmp/applied_commits.txt || echo 'none')
+          \`\`\`
+
+          ### ⏭️ Skipped Commits (adapter)
+          These commits were intentionally skipped because their subject contains \`adapter\`:
+          \`\`\`
+          $(cat /tmp/skipped_commits.txt || echo 'none')
+          \`\`\`
+
+          ### ❌ Conflicting Commits (require manual resolution)
+          \`\`\`
+          $(cat /tmp/failed_commits.txt || echo 'none')
+          \`\`\`
+
+          > **Upstream diff:** https://github.com/prebid/Prebid.js/compare/$CURRENT...$LATEST"
+
+          gh pr create \
+            --title "chore: sync Prebid.js $CURRENT → $LATEST" \
+            --body "$BODY" \
+            --base main \
+            --head "$BRANCH" \
+            --label "prebid-sync"
