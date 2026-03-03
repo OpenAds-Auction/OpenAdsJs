@@ -1,4 +1,4 @@
-name: Upstream Per-PR Sync
+name: Upstream Sync
 
 on:
   schedule:
