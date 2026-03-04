@@ -254,6 +254,5 @@ jobs:
 
           gh pr create \
             --title "chore: sync Prebid.js $CURRENT → $LATEST" \
-            --body "$BODY" \
             --base main \
             --head "$BRANCH"
