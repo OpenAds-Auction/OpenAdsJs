@@ -169,6 +169,15 @@ jobs:
               continue
             fi
 
+            # ── Skip commits where all changes are only in .github/ ──────
+            CHANGED_FILES=$(git diff-tree --no-commit-id -r --name-only "$HASH")
+            NON_WORKFLOW=$(echo "$CHANGED_FILES" | grep -v '^\.github/' || true)
+            if [ -z "$NON_WORKFLOW" ]; then
+              echo "⏭️  SKIPPED (workflow only) [$HASH] $SUBJECT"
+              echo "$HASH | $SUBJECT" >> "$SKIPPED_FILE"
+              continue
+            fi
+
             # ── Attempt cherry-pick ──────────────────────────────────────
             if git cherry-pick --allow-empty "$HASH" 2>/dev/null; then
               echo "✅ APPLIED  [$HASH] $SUBJECT"
