@@ -152,14 +152,14 @@ jobs:
             LATEST_TAG_CLEAN="${LATEST_TAG#v}"
             if echo "$SUBJECT" | grep -qiE "^Increment version to ${LATEST_TAG_CLEAN}-pre$"; then
               echo "⏭️  SKIPPED (version increment) [$HASH] $SUBJECT"
-              echo "$HASH | $SUBJECT" >> "$SKIPPED_FILE"
+              echo "$HASH | $SUBJECT (unneeded changes)" >> "$SKIPPED_FILE"
               continue
             fi
 
             # ── Skip release commits ─────────────────────────────────────
             if echo "$SUBJECT" | grep -qiE "^Prebid ${LATEST_TAG_CLEAN} release$"; then
               echo "⏭️  SKIPPED (release commit) [$HASH] $SUBJECT"
-              echo "$HASH | $SUBJECT" >> "$SKIPPED_FILE"
+              echo "$HASH | $SUBJECT (will cause merge conflicts)" >> "$SKIPPED_FILE"
               continue
             fi
 
@@ -219,7 +219,8 @@ jobs:
           npm install
 
           git add package.json package-lock.json
-          git commit -m "Prebid ${LATEST_TAG_CLEAN} release - reautomated"
+          SYNC_HASH=$(git commit -m "Prebid ${LATEST_TAG_CLEAN} release - reautomated" | grep -oE '[0-9a-f]{7,}' | head -1)
+          echo "$SYNC_HASH | Prebid Version Update (OpenAds Upstream Sync Bot)" >> /tmp/applied_commits.txt
 
       # ── 9. Push sync branch ───────────────────────────────────────────────
       - name: Push sync branch
