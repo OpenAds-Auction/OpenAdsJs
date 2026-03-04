@@ -20,6 +20,8 @@ jobs:
         with:
           app-id: ${{ secrets.SYNC_APP_ID }}
           private-key: ${{ secrets.SYNC_APP_PRIVATE_KEY }}
+          owner: OpenAds-Auction
+          repositories: OpenAdsJs
 
       # ── 1. Checkout master ────────────────────────────────────────────────
       - name: Checkout master
@@ -254,4 +256,5 @@ jobs:
             --title "chore: sync Prebid.js $CURRENT → $LATEST" \
             --body "$BODY" \
             --base main \
-            --head "$BRANCH"
+            --head "$BRANCH" \
+            --label "prebid-sync"
