@@ -252,7 +252,14 @@ jobs:
 
           > **Upstream diff:** https://github.com/prebid/Prebid.js/compare/$CURRENT...$LATEST"
 
-          gh pr create \
-            --title "chore: sync Prebid.js $CURRENT → $LATEST" \
-            --base main \
-            --head "$BRANCH"
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ steps.app_token.outputs.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/pulls \
+            -d "{
+              \"title\": \"chore: sync Prebid.js $CURRENT → $LATEST\",
+              \"body\": $(echo "$BODY" | jq -Rs .),
+              \"head\": \"$BRANCH\",
+              \"base\": \"master\",
+              \"labels\": [\"prebid-sync\"]
+            }"
