@@ -1,7 +1,5 @@
 name: Upstream Sync
 
-name: Sync with Upstream Prebid.js
-
 on:
   schedule:
     - cron: '0 6 * * 1'   # Weekly on Monday at 06:00 UTC
