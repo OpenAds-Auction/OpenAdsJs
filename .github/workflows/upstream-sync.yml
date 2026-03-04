@@ -91,16 +91,40 @@ jobs:
             echo "⏭️  Already up to date. Skipping."
           fi
 
-      # ── 5. Add upstream remote & fetch ────────────────────────────────────
-      - name: Add upstream remote
+      # ── 5. Check if PR already exists ─────────────────────────────────────
+      - name: Check for existing PR
         if: steps.version_check.outputs.needs_update == 'true'
+        id: pr_check
+        run: |
+          CURRENT="${{ steps.current_version.outputs.version }}"
+          LATEST="${{ steps.latest_tag.outputs.tag }}"
+          PR_TITLE="chore: sync Prebid.js $CURRENT → $LATEST"
+
+          EXISTING=$(curl -s \
+            -H "Authorization: Bearer ${{ steps.app_token.outputs.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls?state=open&per_page=100" \
+            | jq -r '.[].title' \
+            | grep -qF "$PR_TITLE" && echo "true" || echo "false")
+
+          echo "exists=$EXISTING" >> $GITHUB_OUTPUT
+
+          if [ "$EXISTING" = "true" ]; then
+            echo "⏭️  PR already exists for '$PR_TITLE'. Skipping."
+          else
+            echo "✅ No existing PR found. Proceeding."
+          fi
+
+      # ── 6. Add upstream remote & fetch ────────────────────────────────────
+      - name: Add upstream remote
+        if: steps.version_check.outputs.needs_update == 'true' && steps.pr_check.outputs.exists == 'false'
         run: |
           git remote add upstream https://github.com/prebid/Prebid.js.git
           git fetch upstream --tags
 
-      # ── 6. Get commit range between current tag and latest tag ────────────
+      # ── 7. Get commit range between current tag and latest tag ────────────
       - name: Get commit range
-        if: steps.version_check.outputs.needs_update == 'true'
+        if: steps.version_check.outputs.needs_update == 'true' && steps.pr_check.outputs.exists == 'false'
         id: commit_range
         run: |
           CURRENT_TAG="${{ steps.current_version.outputs.version }}"
@@ -123,12 +147,13 @@ jobs:
           COUNT=$(echo "$COMMITS" | grep -c . || true)
           echo "count=$COUNT" >> $GITHUB_OUTPUT
 
-      # ── 7. Cherry-pick commits (skip adapter commits) ─────────────────────
+      # ── 8. Cherry-pick commits (skip adapter, workflow-only, and release commits) ──
       - name: Apply upstream commits
-        if: steps.version_check.outputs.needs_update == 'true'
+        if: steps.version_check.outputs.needs_update == 'true' && steps.pr_check.outputs.exists == 'false'
         id: apply_commits
         run: |
           LATEST_TAG="${{ steps.latest_tag.outputs.tag }}"
+          LATEST_TAG_CLEAN="${LATEST_TAG#v}"
           BRANCH="prebid-sync-${LATEST_TAG}"
 
           APP_SLUG=$(curl -s -H "Authorization: Bearer ${{ steps.app_token.outputs.token }}" \
@@ -149,7 +174,6 @@ jobs:
             SUBJECT=$(git log --format="%s" -n 1 "$HASH")
 
             # ── Skip version increment pre-release commits ───────────────
-            LATEST_TAG_CLEAN="${LATEST_TAG#v}"
             if echo "$SUBJECT" | grep -qiE "^Increment version to ${LATEST_TAG_CLEAN}-pre$"; then
               echo "⏭️  SKIPPED (version increment) [$HASH] $SUBJECT"
               echo "$HASH | $SUBJECT (unneeded changes)" >> "$SKIPPED_FILE"
@@ -206,9 +230,9 @@ jobs:
           echo "Skipped  : $(wc -l < $SKIPPED_FILE)"
           echo "Conflicts: $(wc -l < $FAILED_FILE)"
 
-      # ── 8. Update package.json Prebid version and reinstall ─────────────────────
+      # ── 9. Update package.json version and reinstall ──────────────────────
       - name: Bump version and run npm install
-        if: steps.version_check.outputs.needs_update == 'true'
+        if: steps.version_check.outputs.needs_update == 'true' && steps.pr_check.outputs.exists == 'false'
         run: |
           LATEST_TAG="${{ steps.latest_tag.outputs.tag }}"
           LATEST_TAG_CLEAN="${LATEST_TAG#v}"
@@ -222,15 +246,15 @@ jobs:
           SYNC_HASH=$(git commit -m "Prebid ${LATEST_TAG_CLEAN} release - reautomated" | grep -oE '[0-9a-f]{7,}' | head -1)
           echo "$SYNC_HASH | Prebid Version Update (OpenAds Upstream Sync Bot)" >> /tmp/applied_commits.txt
 
-      # ── 9. Push sync branch ───────────────────────────────────────────────
+      # ── 10. Push sync branch ──────────────────────────────────────────────
       - name: Push sync branch
-        if: steps.version_check.outputs.needs_update == 'true'
+        if: steps.version_check.outputs.needs_update == 'true' && steps.pr_check.outputs.exists == 'false'
         run: |
           git push origin "${{ steps.apply_commits.outputs.branch }}"
 
-      # ── 10. Open Pull Request with full report ────────────────────────────
+      # ── 11. Open Pull Request with full report ────────────────────────────
       - name: Create Pull Request
-        if: steps.version_check.outputs.needs_update == 'true'
+        if: steps.version_check.outputs.needs_update == 'true' && steps.pr_check.outputs.exists == 'false'
         run: |
           CURRENT="${{ steps.current_version.outputs.version }}"
           LATEST="${{ steps.latest_tag.outputs.tag }}"
@@ -256,7 +280,7 @@ jobs:
           ### ✅ Applied Commits
           $(format_list /tmp/applied_commits.txt)
 
-          ### ⏭️ Skipped Commits (adapter)
+          ### ⏭️ Skipped Commits
           These commits were intentionally skipped because they made changes to files matching \`BidAdapter\`:
           $(format_list /tmp/skipped_commits.txt)
 
