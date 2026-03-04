@@ -254,5 +254,4 @@ jobs:
             --title "chore: sync Prebid.js $CURRENT → $LATEST" \
             --body "$BODY" \
             --base main \
-            --head "$BRANCH" \
-            --label "prebid-sync"
+            --head "$BRANCH"
