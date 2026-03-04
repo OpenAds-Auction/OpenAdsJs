@@ -1,5 +1,7 @@
 name: Upstream Sync
 
+name: Sync with Upstream Prebid.js
+
 on:
   schedule:
     - cron: '0 6 * * 1'   # Weekly on Monday at 06:00 UTC
@@ -146,18 +148,25 @@ jobs:
 
             SUBJECT=$(git log --format="%s" -n 1 "$HASH")
 
-            # ── Skip adapter commits ─────────────────────────────────────
-            if echo "$SUBJECT" | grep -qiE "adapter"; then
-              echo "⏭️  SKIPPED (adapter) [$HASH] $SUBJECT"
+            # ── Skip version increment pre-release commits ───────────────
+            LATEST_TAG_CLEAN="${LATEST_TAG#v}"
+            if echo "$SUBJECT" | grep -qiE "^Increment version to ${LATEST_TAG_CLEAN}-pre$"; then
+              echo "⏭️  SKIPPED (version increment) [$HASH] $SUBJECT"
               echo "$HASH | $SUBJECT" >> "$SKIPPED_FILE"
               continue
             fi
 
-            # ── Skip commits where all changes are only in .github/ ──────
-            CHANGED_FILES=$(git diff-tree --no-commit-id -r --name-only "$HASH")
-            NON_WORKFLOW=$(echo "$CHANGED_FILES" | grep -v '^\.github/' || true)
-            if [ -z "$NON_WORKFLOW" ]; then
-              echo "⏭️  SKIPPED (workflow only) [$HASH] $SUBJECT"
+            # ── Skip release commits ─────────────────────────────────────
+            if echo "$SUBJECT" | grep -qiE "^Prebid ${LATEST_TAG_CLEAN} release$"; then
+              echo "⏭️  SKIPPED (release commit) [$HASH] $SUBJECT"
+              echo "$HASH | $SUBJECT" >> "$SKIPPED_FILE"
+              continue
+            fi
+
+            # ── Skip commits that touch any *BidAdapter* file ────────────
+            BID_ADAPTER_FILES=$(git diff-tree --no-commit-id -r --name-only "$HASH" | grep -i "BidAdapter" || true)
+            if [ -n "$BID_ADAPTER_FILES" ]; then
+              echo "⏭️  SKIPPED (BidAdapter files) [$HASH] $SUBJECT"
               echo "$HASH | $SUBJECT" >> "$SKIPPED_FILE"
               continue
             fi
@@ -181,13 +190,28 @@ jobs:
           echo "Skipped  : $(wc -l < $SKIPPED_FILE)"
           echo "Conflicts: $(wc -l < $FAILED_FILE)"
 
-      # ── 8. Push sync branch ───────────────────────────────────────────────
+      # ── 8. Update package.json Prebid version and reinstall ─────────────────────
+      - name: Bump version and run npm install
+        if: steps.version_check.outputs.needs_update == 'true'
+        run: |
+          LATEST_TAG="${{ steps.latest_tag.outputs.tag }}"
+          LATEST_TAG_CLEAN="${LATEST_TAG#v}"
+
+          jq --arg v "$LATEST_TAG_CLEAN" '.version = $v' package.json > package.json.tmp
+          mv package.json.tmp package.json
+
+          npm install
+
+          git add package.json package-lock.json
+          git commit -m "Prebid ${LATEST_TAG_CLEAN} release - reautomated"
+
+      # ── 9. Push sync branch ───────────────────────────────────────────────
       - name: Push sync branch
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
           git push origin "${{ steps.apply_commits.outputs.branch }}"
 
-      # ── 9. Open Pull Request with full report ─────────────────────────────
+      # ── 10. Open Pull Request with full report ─────────────────────────────
       - name: Create Pull Request
         if: steps.version_check.outputs.needs_update == 'true'
         env:
