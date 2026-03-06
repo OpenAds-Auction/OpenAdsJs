@@ -5,14 +5,14 @@ const TEST_PAGE_URL = testPageURL('native.html?pbjs_debug=true');
 const CREATIVE_IFRAME_CSS_SELECTOR = 'iframe[id="google_ads_iframe_/19968336/prebid_native_example_1_0"]';
 
 const EXPECTED_TARGETING_KEYS = {
-  hb_pb_appnexus: '10.00',
-  hb_format: 'native',
-  hb_size: '0x0',
-  hb_bidder_appnexus: 'appnexus',
-  hb_pb: '10.00',
-  hb_bidder: 'appnexus',
-  hb_format_appnexus: 'native',
-  hb_size_appnexus: '0x0'
+  oa_pb_appnexus: '10.00',
+  oa_format: 'native',
+  oa_size: '0x0',
+  oa_bidder_appnexus: 'appnexus',
+  oa_pb: '10.00',
+  oa_bidder: 'appnexus',
+  oa_format_appnexus: 'native',
+  oa_size_appnexus: '0x0'
 }
 
 setupTest({
@@ -23,7 +23,7 @@ setupTest({
 }, 'Prebid.js Native Ad Unit Test', function () {
   it('should load the targeting keys with correct values', async function () {
     const result = await browser.execute(function () {
-      return window.pbjs.getAdserverTargeting('/19968336/prebid_native_example_2');
+      return window.oajs.getAdserverTargeting('/19968336/prebid_native_example_2');
     });
 
     const targetingKeys = result['/19968336/prebid_native_example_2'];

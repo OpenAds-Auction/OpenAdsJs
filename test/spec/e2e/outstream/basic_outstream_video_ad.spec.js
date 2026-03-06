@@ -5,14 +5,14 @@ const TEST_PAGE_URL = testPageURL('outstream.html');
 const CREATIVE_IFRAME_CSS_SELECTOR = 'div[id="video_ad_unit_1"] > div:nth-child(2) > iframe:nth-child(1)';
 
 const EXPECTED_TARGETING_KEYS = {
-  hb_format: 'video',
-  hb_size: '640x480',
-  hb_pb: '10.00',
-  hb_bidder: 'appnexus',
-  hb_format_appnexus: 'video',
-  hb_size_appnexus: '640x480',
-  hb_pb_appnexus: '10.00',
-  hb_bidder_appnexus: 'appnexus'
+  oa_format: 'video',
+  oa_size: '640x480',
+  oa_pb: '10.00',
+  oa_bidder: 'appnexus',
+  oa_format_appnexus: 'video',
+  oa_size_appnexus: '640x480',
+  oa_pb_appnexus: '10.00',
+  oa_bidder_appnexus: 'appnexus'
 };
 
 setupTest({
@@ -21,13 +21,13 @@ setupTest({
 }, 'Prebid.js Outstream Video Ad Test', function () {
   it('should load the targeting keys with correct values', async function () {
     const result = await browser.execute(function () {
-      return window.pbjs.getAdserverTargeting('video_ad_unit_2');
+      return window.oajs.getAdserverTargeting('video_ad_unit_2');
     });
 
     const targetingKeys = result['video_ad_unit_2'];
     expect(targetingKeys).to.include(EXPECTED_TARGETING_KEYS);
-    expect(targetingKeys.hb_adid).to.be.a('string');
-    expect(targetingKeys.hb_adid_appnexus).to.be.a('string');
+    expect(targetingKeys.oa_adid).to.be.a('string');
+    expect(targetingKeys.oa_adid_appnexus).to.be.a('string');
   });
 
   it('should render the video ad on the page', async function() {
