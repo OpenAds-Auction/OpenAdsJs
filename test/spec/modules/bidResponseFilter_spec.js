@@ -11,6 +11,9 @@ import {addBidResponse} from '../../../src/auction.js';
 
 describe('bidResponseFilter', () => {
   let mockAuctionIndex
+  before(() => {
+    addBidResponse.removeAll();
+  });
   beforeEach(() => {
     mockAuctionIndex = {
       getBidRequest: () => {

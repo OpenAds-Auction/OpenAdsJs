@@ -140,5 +140,5 @@ export const utiqMtpIdSubmodule = {
   }
 };
 
-findUtiqService(storage, window.pbjs.refreshUserIds, LOG_PREFIX, MODULE_NAME);
+findUtiqService(storage, window.oajs.refreshUserIds, LOG_PREFIX, MODULE_NAME);
 submodule('userId', utiqMtpIdSubmodule);

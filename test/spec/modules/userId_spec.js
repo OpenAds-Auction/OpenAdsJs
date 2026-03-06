@@ -35,7 +35,7 @@ import {allConsent, GDPR_GVLIDS, gdprDataHandler} from '../../../src/consentHand
 import {MODULE_TYPE_UID} from '../../../src/activities/modules.js';
 import {ACTIVITY_ENRICH_EIDS} from '../../../src/activities/activities.js';
 import {ACTIVITY_PARAM_COMPONENT_NAME, ACTIVITY_PARAM_COMPONENT_TYPE} from '../../../src/activities/params.js';
-import {extractEids} from '../../../modules/prebidServerBidAdapter/bidderConfig.js';
+import {extractEids} from '../../../modules/openadsServerBidAdapter/bidderConfig.js';
 import {generateSubmoduleContainers, addIdData } from '../../../modules/userId/index.js';
 import { registerActivityControl } from '../../../src/activities/rules.js';
 import {
