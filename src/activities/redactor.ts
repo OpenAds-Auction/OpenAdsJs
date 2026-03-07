@@ -1,5 +1,5 @@
-import {deepAccess} from '../utils.js';
-import {isActivityAllowed, registerActivityControl} from './rules.js';
+import { deepAccess } from '../utils.js';
+import { isActivityAllowed, registerActivityControl } from './rules.js';
 import {
   ACTIVITY_TRANSMIT_EIDS,
   ACTIVITY_TRANSMIT_PRECISE_GEO,

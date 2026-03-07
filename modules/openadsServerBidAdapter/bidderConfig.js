@@ -1,5 +1,5 @@
-import {mergeDeep, deepEqual, deepAccess, deepSetValue, deepClone} from '../../src/utils.js';
-import {ORTB_EIDS_PATHS} from '../../src/activities/redactor.js';
+import { mergeDeep, deepEqual, deepAccess, deepSetValue, deepClone } from '../../src/utils.js';
+import { ORTB_EIDS_PATHS } from '../../src/activities/redactor.js';
 
 /**
  * Perform a partial pre-merge of bidder config for PBS.
@@ -11,7 +11,7 @@ import {ORTB_EIDS_PATHS} from '../../src/activities/redactor.js';
  * This returns bidder config (from `bidder`) where arrays are replaced with what you get from merging them with `global`,
  * so that the result of merging in PBS is the same as in JS.
  */
-export function getPBSBidderConfig({global, bidder}) {
+export function getPBSBidderConfig({ global, bidder }) {
   return Object.fromEntries(
     Object.entries(bidder).map(([bidderCode, bidderConfig]) => {
       return [bidderCode, replaceArrays(bidderConfig, mergeDeep({}, global, bidderConfig))]
@@ -44,7 +44,7 @@ function replaceArrays(config, mergedConfig) {
  *      `bidders` is a list of all the bidders that refer to that specific EID object, or false if that EID object is defined globally.
  *   - `conflicts` is a set containing all EID sources that appear in multiple, otherwise different, EID objects.
  */
-export function extractEids({global, bidder}) {
+export function extractEids({ global, bidder }) {
   const entries = [];
   const bySource = {};
   const conflicts = new Set()
@@ -52,7 +52,7 @@ export function extractEids({global, bidder}) {
   function getEntry(eid) {
     let entry = entries.find((candidate) => deepEqual(candidate.eid, eid));
     if (entry == null) {
-      entry = {eid, bidders: new Set()}
+      entry = { eid, bidders: new Set() }
       entries.push(entry);
     }
     if (bySource[eid.source] == null) {
@@ -79,7 +79,7 @@ export function extractEids({global, bidder}) {
       })
     })
   })
-  return {eids: entries.map(({eid, bidders}) => ({eid, bidders: bidders && Array.from(bidders)})), conflicts};
+  return { eids: entries.map(({ eid, bidders }) => ({ eid, bidders: bidders && Array.from(bidders) })), conflicts };
 }
 
 /**
@@ -102,9 +102,9 @@ export function consolidateEids({ eids, conflicts = new Set() }, requestedBidder
   eids.forEach(eid => {
     (eid.bidders === false ? globalEntries : bidderEntries).push(eid);
   });
-  bidderEntries.forEach(({eid, bidders}) => {
+  bidderEntries.forEach(({ eid, bidders }) => {
     if (!conflicts.has(eid.source)) {
-      globalEntries.push({eid, bidders})
+      globalEntries.push({ eid, bidders })
     } else {
       bidders.forEach(bidderCode => {
         (byBidder[bidderCode] = byBidder[bidderCode] || []).push(eid)
@@ -127,7 +127,7 @@ export function consolidateEids({ eids, conflicts = new Set() }, requestedBidder
   }
 }
 
-function replaceEids({global, bidder}, requestedBidders) {
+function replaceEids({ global, bidder }, requestedBidders) {
   const consolidated = consolidateEids(extractEids({ global, bidder }), requestedBidders);
   global = deepClone(global);
   bidder = deepClone(bidder);
@@ -148,7 +148,7 @@ function replaceEids({global, bidder}, requestedBidders) {
       deepSetValue(bidder[bidderCode], 'user.ext.eids', bidderEids);
     }
   })
-  return {global, bidder}
+  return { global, bidder }
 }
 
 export function premergeFpd(ortb2Fragments, requestedBidders) {

@@ -1,4 +1,4 @@
-import {setImpBidParams} from '../../../../libraries/pbsExtensions/processors/params.js';
+import { setImpBidParams } from '../../../../libraries/pbsExtensions/processors/params.js';
 
 describe('pbjs -> ortb bid params to imp[].ext.openads.BIDDER', () => {
   function setParams(bidRequest = {}) {
@@ -8,7 +8,7 @@ describe('pbjs -> ortb bid params to imp[].ext.openads.BIDDER', () => {
   }
 
   it('sets params in ext.openads.bidder.BIDDER', () => {
-    expect(setParams({bidder: 'mockBidder', params: {a: 'param'}})).to.eql({
+    expect(setParams({ bidder: 'mockBidder', params: { a: 'param' } })).to.eql({
       ext: {
         openads: {
           bidder: {
@@ -22,6 +22,6 @@ describe('pbjs -> ortb bid params to imp[].ext.openads.BIDDER', () => {
   });
 
   it('has no effect if bidRequest has no params', () => {
-    expect(setParams({bidder: 'mockBidder'})).to.eql({});
+    expect(setParams({ bidder: 'mockBidder' })).to.eql({});
   });
 });
