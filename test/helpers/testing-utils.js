@@ -37,12 +37,13 @@ const utils = {
         it(`should render GAM creative`, async () => {
           await utils.switchFrame(expectGAMCreative);
           if (nestedIframe) {
-            await utils.switchFrame('iframe[srcdoc]');
+            await utils.switchFrame('iframe[srcdoc]:not([style])');
           }
           const creative = [
             'a > img', // banner
             'div[class="card"]' // native
           ].join(', ');
+
           const existing = await $(creative).isExisting();
           expect(existing).to.be.true;
         });
