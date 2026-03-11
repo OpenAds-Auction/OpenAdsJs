@@ -3,7 +3,7 @@ const {setupTest, testPageURL} = require('../../../helpers/testing-utils.js');
 
 const TEST_PAGE_URL = testPageURL('banner.html?pbjs_debug=true');
 const SYNC_PAGE_URL = testPageURL('banner_sync.html?pbjs_debug=true');
-const CREATIVE_IFRAME_ID = 'google_ads_iframe_/19968336/header-bid-tag-0_0';
+const CREATIVE_IFRAME_ID = 'google_ads_iframe_/92296675/header-bid-tag-0_0';
 const CREATIVE_IFRAME_CSS_SELECTOR = 'iframe[id="' + CREATIVE_IFRAME_ID + '"]';
 
 const EXPECTED_TARGETING_KEYS = {
