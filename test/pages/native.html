@@ -13,12 +13,12 @@
 	<script async src="https://www.googletagservices.com/tag/js/gpt.js"></script>
 
 	<script>
-		var pbjs = pbjs || {};
-		pbjs.que = pbjs.que || [];
+		var oajs = oajs || {};
+		oajs.que = oajs.que || [];
 
 		// Prebid Native Ad Unit
 		const adUnits = [{
-			code: '/19968336/prebid_native_example_1',
+			code: '/92296675/prebid_native_example_1',
 			sizes: [360, 360],
 			mediaTypes: {
 				native: {
@@ -41,7 +41,7 @@
 				}
 			}]
 		}, {
-			code: '/19968336/prebid_native_example_2',
+			code: '/92296675/prebid_native_example_2',
 			sizes: [
 				[1, 1]
 			],
@@ -82,16 +82,16 @@
 			googletag.pubads().disableInitialLoad();
 		});
 
-		pbjs.que.push(function () {
-			pbjs.setConfig({enableTIDs: true});
-			pbjs.addAdUnits(adUnits);
-			pbjs.requestBids({ bidsBackHandler: sendAdServerRequest });
+		oajs.que.push(function () {
+			oajs.setConfig({enableTIDs: true});
+			oajs.addAdUnits(adUnits);
+			oajs.requestBids({ bidsBackHandler: sendAdServerRequest });
 		});
 
 		function sendAdServerRequest() {
 			googletag.cmd.push(function () {
-				pbjs.que.push(function () {
-					pbjs.setTargetingForGPTAsync('/19968336/prebid_native_example_1');
+				oajs.que.push(function () {
+					oajs.setTargetingForGPTAsync('/92296675/prebid_native_example_1');
 					googletag.pubads().refresh();
 				});
 			});
@@ -102,7 +102,7 @@
 		// GPT Setup
 		googletag.cmd.push(function () {
 			googletag
-				.defineSlot('/19968336/prebid_native_example_1', [360, 360], 'div-1')
+				.defineSlot('/92296675/prebid_native_example_1', [360, 360], 'div-1')
 				.addService(googletag.pubads());
 
 			googletag.pubads().enableSingleRequest();

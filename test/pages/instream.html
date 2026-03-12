@@ -21,8 +21,8 @@
 
     <script>
 
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
 
       /*
        Prebid Video adUnit
@@ -48,9 +48,9 @@
         ]
       };
 
-      pbjs.que.push(function(){
-        pbjs.onEvent('auctionEnd', function() {
-            console.log(pbjs.getAdserverTargeting('video1'));
+      oajs.que.push(function(){
+        oajs.onEvent('auctionEnd', function() {
+            console.log(oajs.getAdserverTargeting('video1'));
           let pEl = document.createElement('p');
           pEl.innerText = 'PREBID HAS FINISHED';
           pEl.id = 'statusText';
@@ -58,29 +58,29 @@
           parDiv.appendChild(pEl);
         });
 
-        pbjs.addAdUnits(videoAdUnit);
-        pbjs.setConfig({
+        oajs.addAdUnits(videoAdUnit);
+        oajs.setConfig({
                     enableTIDs: true,
                     debug: true,
                     cache: {
                         useLocal: true,
                     }
                 });
-        pbjs.requestBids({
+        oajs.requestBids({
           timeout: 10000,
           bidsBackHandler : function(bids) {
-            var videoUrl = pbjs.adServers.gam.buildVideoUrl({
+            var videoUrl = oajs.adServers.gam.buildVideoUrl({
               adUnit: videoAdUnit,
               params: {
-                iu: '/19968336/prebid_cache_video_adunit'
+                iu: '/92296675/prebid_cache_video_adunit'
               }
             });
-
+            
             invokeVideoPlayer(videoUrl);
           }
         });
       });
-      pbjs.bidderSettings = {
+      oajs.bidderSettings = {
         appnexus: {
           bidCpmAdjustment: function() {
             return 10.00;
