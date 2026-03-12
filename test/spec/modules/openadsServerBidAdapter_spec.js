@@ -9,7 +9,7 @@ import {
 } from 'modules/openadsServerBidAdapter/index.js';
 import adapterManager, { PBS_ADAPTER_NAME } from 'src/adapterManager.js';
 import * as utils from 'src/utils.js';
-import { deepAccess, deepClone, getWinDimensions, mergeDeep } from 'src/utils.js';
+import { deepAccess, deepClone, getWinDimensions } from 'src/utils.js';
 import { ajax } from 'src/ajax.js';
 import { config } from 'src/config.js';
 import * as events from 'src/events.js';
@@ -25,17 +25,15 @@ import 'modules/priceFloors.js';
 import 'modules/consentManagementTcf.js';
 import 'modules/consentManagementUsp.js';
 import 'modules/consentManagementGpp.js';
-import 'modules/paapi.js';
 import * as redactor from 'src/activities/redactor.js';
 import * as activityRules from 'src/activities/rules.js';
 import { hook } from '../../../src/hook.js';
 import { decorateAdUnitsWithNativeParams } from '../../../src/native.js';
 import { auctionManager } from '../../../src/auctionManager.js';
 import { stubAuctionIndex } from '../../helpers/indexStub.js';
-import { addPaapiConfig, registerBidder } from 'src/adapters/bidderFactory.js';
+import { registerBidder } from 'src/adapters/bidderFactory.js';
 import { getGlobal } from '../../../src/prebidGlobal.js';
 import { addFPDToBidderRequest } from '../../helpers/fpd.js';
-import { deepSetValue } from '../../../src/utils.js';
 import { ACTIVITY_TRANSMIT_UFPD } from '../../../src/activities/activities.js';
 import { MODULE_TYPE_PREBID } from '../../../src/activities/modules.js';
 import {
@@ -3508,24 +3506,7 @@ describe('S2S Adapter', function () {
       expect(response).to.have.property('ttl', 60);
     });
 
-    it('handles seatnonbid responses and emits SEAT_NON_BID', function () {
-      const original = CONFIG;
-      CONFIG.extPrebid = { returnallbidstatus: true };
-      const nonbidResponse = { ...RESPONSE_OPENRTB, ext: { seatnonbid: [{}] } };
-      config.setConfig({ CONFIG });
-      CONFIG = original;
-      adapter.callBids(REQUEST, BID_REQUESTS, addBidResponse, done, ajax);
-      const responding = deepClone(nonbidResponse);
-      Object.assign(responding.ext.seatnonbid, [{ auctionId: 2 }])
-      server.requests[0].respond(200, {}, JSON.stringify(responding));
-      const event = events.emit.thirdCall.args;
-      expect(event[0]).to.equal(EVENTS.SEAT_NON_BID);
-      expect(event[1].seatnonbid[0]).to.have.property('auctionId', 2);
-      expect(event[1].requestedBidders).to.deep.equal(['appnexus']);
-      expect(event[1].response).to.deep.equal(responding);
-    });
-
-    it('handles seatnonbid responses and emits SEAT_NON_BID set with extOpenAds', function () {
+    it('handles seatnonbid responses and emits PBS_ANALYTICS set with extOpenAds', function () {
       const original = CONFIG;
       CONFIG.extOpenAds = { returnallbidstatus: true };
       const nonbidResponse = { ...RESPONSE_OPENRTB, ext: { seatnonbid: [{}] } };
@@ -3536,7 +3517,7 @@ describe('S2S Adapter', function () {
       Object.assign(responding.ext.seatnonbid, [{ auctionId: 2 }])
       server.requests[0].respond(200, {}, JSON.stringify(responding));
       const event = events.emit.thirdCall.args;
-      expect(event[0]).to.equal(EVENTS.SEAT_NON_BID);
+      expect(event[0]).to.equal(EVENTS.PBS_ANALYTICS);
       expect(event[1].seatnonbid[0]).to.have.property('auctionId', 2);
       expect(event[1].requestedBidders).to.deep.equal(['appnexus']);
       expect(event[1].response).to.deep.equal(responding);
@@ -3552,7 +3533,7 @@ describe('S2S Adapter', function () {
       const responding = deepClone(nonbidResponse);
       Object.assign(responding.ext.seatnonbid, [{ auctionId: 2 }])
       server.requests[0].respond(200, {}, JSON.stringify(responding));
-      const event = events.emit.getCall(3).args;
+      const event = events.emit.getCall(2).args;
       expect(event[0]).to.equal(EVENTS.PBS_ANALYTICS);
       expect(event[1].seatnonbid[0]).to.have.property('auctionId', 2);
       expect(event[1].requestedBidders).to.deep.equal(['appnexus']);
@@ -3945,108 +3926,6 @@ describe('S2S Adapter', function () {
           expect(syncer().args[0]).to.include.members([123]);
         });
       });
-    });
-    describe('when the response contains ext.openads.fledge', () => {
-      const AU = 'div-gpt-ad-1460505748561-0';
-      const FLEDGE_RESP = {
-        ext: {
-          openads: {
-            fledge: {
-              auctionconfigs: [
-                {
-                  impid: AU,
-                  bidder: 'appnexus',
-                  config: {
-                    id: 1
-                  }
-                },
-                {
-                  impid: AU,
-                  bidder: 'other',
-                  config: {
-                    id: 2
-                  }
-                }
-              ]
-            }
-          }
-        }
-      }
-
-      let fledgeStub, request, bidderRequests;
-
-      function fledgeHook(next, ...args) {
-        fledgeStub(...args);
-      }
-
-      before(() => {
-        addPaapiConfig.before(fledgeHook);
-      });
-
-      after(() => {
-        addPaapiConfig.getHooks({ hook: fledgeHook }).remove();
-      })
-
-      beforeEach(function () {
-        fledgeStub = sinon.stub();
-        config.setConfig({
-          s2sConfig: CONFIG,
-        });
-        bidderRequests = deepClone(BID_REQUESTS);
-        bidderRequests.forEach(req => {
-          Object.assign(req, {
-            paapi: {
-              enabled: true
-            },
-            ortb2: {
-              fpd: 1
-            }
-          })
-          req.bids.forEach(bid => {
-            Object.assign(bid, {
-              ortb2Imp: {
-                fpd: 2,
-              }
-            })
-          })
-        });
-        request = deepClone(REQUEST);
-        request.ad_units.forEach(au => deepSetValue(au, 'ortb2Imp.ext.ae', 1));
-      });
-
-      function expectFledgeCalls() {
-        const auctionId = bidderRequests[0].auctionId;
-        sinon.assert.calledWith(fledgeStub, sinon.match({ auctionId, adUnitCode: AU, ortb2: bidderRequests[0].ortb2, ortb2Imp: bidderRequests[0].bids[0].ortb2Imp }), sinon.match({ config: { id: 1 } }))
-        sinon.assert.calledWith(fledgeStub, sinon.match({ auctionId, adUnitCode: AU, ortb2: undefined, ortb2Imp: undefined }), sinon.match({ config: { id: 2 } }))
-      }
-
-      it('calls addPaapiConfig alongside addBidResponse', function () {
-        adapter.callBids(request, bidderRequests, addBidResponse, done, ajax);
-        server.requests[0].respond(200, {}, JSON.stringify(mergeDeep({}, RESPONSE_OPENRTB, FLEDGE_RESP)));
-        expect(addBidResponse.called).to.be.true;
-        expectFledgeCalls();
-      });
-
-      it('calls addPaapiConfig when there is no bid in the response', () => {
-        adapter.callBids(request, bidderRequests, addBidResponse, done, ajax);
-        server.requests[0].respond(200, {}, JSON.stringify(FLEDGE_RESP));
-        expect(addBidResponse.called).to.be.false;
-        expectFledgeCalls();
-      });
-
-      it('wraps call in runWithBidder', () => {
-        let fail = false;
-        fledgeStub.callsFake(({ bidder }) => {
-          try {
-            expect(bidder).to.exist.and.to.eql(config.getCurrentBidder());
-          } catch (e) {
-            fail = true;
-          }
-        });
-        adapter.callBids(request, bidderRequests, addBidResponse, done, ajax);
-        server.requests[0].respond(200, {}, JSON.stringify(FLEDGE_RESP));
-        expect(fail).to.be.false;
-      })
     });
   });
 
