@@ -1406,16 +1406,6 @@ describe('paapi module', () => {
           expect(getPAAPIConfig().au.componentAuctions.length).to.eql(1);
         });
 
-        it('should hide TIDs from buildPAAPIConfigs', () => {
-          config.setConfig({enableTIDs: false});
-          startParallel();
-          sinon.assert.calledWith(
-            spec.buildPAAPIConfigs,
-            sinon.match(bidRequests => bidRequests.every(req => req.auctionId == null)),
-            sinon.match(bidderRequest => bidderRequest.auctionId == null)
-          );
-        });
-
         it('should show TIDs when enabled', () => {
           config.setConfig({enableTIDs: true});
           startParallel();

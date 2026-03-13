@@ -3,6 +3,7 @@ import { adpodUtils } from 'modules/freeWheelAdserverVideo.js';
 import { auctionManager } from 'src/auctionManager.js';
 import { config } from 'src/config.js';
 import { server } from 'test/mocks/xhr.js';
+import 'modules/adpod.js';
 
 describe('freeWheel adserver module', function() {
   let amStub;
@@ -226,9 +227,9 @@ describe('freeWheel adserver module', function() {
     );
 
     expect(targeting['preroll_1'].length).to.equal(3);
-    expect(targeting['preroll_1']).to.deep.include({'hb_pb_cat_dur': 'tier6_395_15s'});
-    expect(targeting['preroll_1']).to.deep.include({'hb_pb_cat_dur': 'tier7_395_15s'});
-    expect(targeting['preroll_1']).to.deep.include({'hb_cache_id': '123'});
+    expect(targeting['preroll_1']).to.deep.include({'oa_pb_cat_dur': 'tier6_395_15s'});
+    expect(targeting['preroll_1']).to.deep.include({'oa_pb_cat_dur': 'tier7_395_15s'});
+    expect(targeting['preroll_1']).to.deep.include({'oa_cache_id': '123'});
   });
 
   it('should apply minDealTier to bids if configured', function() {
@@ -247,14 +248,14 @@ describe('freeWheel adserver module', function() {
 
     const tier2Bid = createBid(10, 'preroll_1', 15, 'tier2_395_15s', '123', '395');
     tier2Bid['video']['dealTier'] = 2
-    tier2Bid['adserverTargeting']['hb_pb'] = '10.00'
+    tier2Bid['adserverTargeting']['oa_pb'] = '10.00'
 
     const tier7Bid = createBid(11, 'preroll_1', 45, 'tier7_395_15s', '123', '395');
     tier7Bid['video']['dealTier'] = 7
-    tier7Bid['adserverTargeting']['hb_pb'] = '11.00'
+    tier7Bid['adserverTargeting']['oa_pb'] = '11.00'
 
     const bid = createBid(15, 'preroll_1', 15, '15.00_395_90s', '123', '395');
-    bid['adserverTargeting']['hb_pb'] = '15.00'
+    bid['adserverTargeting']['oa_pb'] = '15.00'
 
     const bidsReceived = [
       tier2Bid,
@@ -276,10 +277,10 @@ describe('freeWheel adserver module', function() {
     );
 
     expect(targeting['preroll_1'].length).to.equal(3);
-    expect(targeting['preroll_1']).to.deep.include({'hb_pb_cat_dur': 'tier7_395_15s'});
-    expect(targeting['preroll_1']).to.deep.include({'hb_pb_cat_dur': '15.00_395_90s'});
-    expect(targeting['preroll_1']).to.not.include({'hb_pb_cat_dur': 'tier2_395_15s'});
-    expect(targeting['preroll_1']).to.deep.include({'hb_cache_id': '123'});
+    expect(targeting['preroll_1']).to.deep.include({'oa_pb_cat_dur': 'tier7_395_15s'});
+    expect(targeting['preroll_1']).to.deep.include({'oa_pb_cat_dur': '15.00_395_90s'});
+    expect(targeting['preroll_1']).to.not.include({'oa_pb_cat_dur': 'tier2_395_15s'});
+    expect(targeting['preroll_1']).to.deep.include({'oa_cache_id': '123'});
   })
 });
 
@@ -331,14 +332,14 @@ function createBid(cpm, adUnitCode, durationBucket, priceIndustryDuration, uuid,
     'pbCg': '',
     'size': '640x360',
     'adserverTargeting': {
-      'hb_bidder': 'appnexus',
-      'hb_adid': '28f24ced14586c',
-      'hb_pb': '5.00',
-      'hb_size': '640x360',
-      'hb_source': 'client',
-      'hb_format': 'video',
-      'hb_pb_cat_dur': priceIndustryDuration,
-      'hb_cache_id': uuid
+      'oa_bidder': 'appnexus',
+      'oa_adid': '28f24ced14586c',
+      'oa_pb': '5.00',
+      'oa_size': '640x360',
+      'oa_source': 'client',
+      'oa_format': 'video',
+      'oa_pb_cat_dur': priceIndustryDuration,
+      'oa_cache_id': uuid
     },
     'customCacheKey': `${priceIndustryDuration}_${uuid}`,
     'meta': {
