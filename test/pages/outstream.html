@@ -52,34 +52,34 @@
 			}]
 		}];
 
-		// Load the pbjs global and Prebid event queue
-		var pbjs = pbjs || {};
-		pbjs.que = pbjs.que || [];
+		// Load the oajs global and Prebid event queue
+		var oajs = oajs || {};
+		oajs.que = oajs.que || [];
 
 		// Load GPT global and GPT command queue
 		var googletag = googletag || {};
 		googletag.cmd = googletag.cmd || [];
 
-		pbjs.que.push(function () {
-			pbjs.setConfig({
+		oajs.que.push(function () {
+			oajs.setConfig({
 				enableTIDs: true,
 				debug: true
 			});
-      pbjs.addAdUnits(outstreamVideoAdUnit);
-      pbjs.bidderSettings = {
+      oajs.addAdUnits(outstreamVideoAdUnit);
+      oajs.bidderSettings = {
         appnexus: {
           bidCpmAdjustment: function () {
             return 10;
           }
         }
       };
-			pbjs.requestBids({ bidsBackHandler: initAdServer });
+			oajs.requestBids({ bidsBackHandler: initAdServer });
 		});
 
 		function initAdServer() {
 			googletag.cmd.push(function () {
-				pbjs.que.push(function () {
-					pbjs.setTargetingForGPTAsync('video_ad_unit_1');
+				oajs.que.push(function () {
+					oajs.setTargetingForGPTAsync('video_ad_unit_1');
 					googletag.pubads().refresh();
 				});
 			});
@@ -87,7 +87,7 @@
 
 		googletag.cmd.push(function () {
 			googletag
-				.defineSlot('/19968336/prebid_outstream_adunit_1', [[1, 1]], 'video_ad_unit_1')
+				.defineSlot('/92296675/prebid_outstream_adunit_1', [[1, 1]], 'video_ad_unit_1')
 				.addService(googletag.pubads());
 			googletag.pubads().disableInitialLoad();
 			googletag.pubads().enableSingleRequest();

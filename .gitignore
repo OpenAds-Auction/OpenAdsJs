@@ -9,6 +9,9 @@ build
 test/app
 gpt.html
 gpt-each-bidder3.html
+browserstack.err
+local.log
+logs/
 
 # Selenium files
 bin
