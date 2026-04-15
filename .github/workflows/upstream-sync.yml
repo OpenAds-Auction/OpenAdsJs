@@ -221,7 +221,7 @@ jobs:
               UNRESOLVED=false
               for f in $(git diff --name-only --diff-filter=U); do
                 echo "looking at $f"
-                if [[ "$f" == *_spec.js ]] && ! git ls-tree HEAD -- "$f" > /dev/null 2>&1; then
+                if [[ "$f" == *_spec.js ]]; then
                   echo "matched test file, remove"
                   # HEAD deleted this _spec.js file — accept the deletion
                   git rm "$f" 2>/dev/null
