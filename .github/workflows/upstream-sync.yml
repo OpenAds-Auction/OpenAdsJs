@@ -217,9 +217,31 @@ jobs:
               echo "✅ APPLIED  [$HASH] $SUBJECT"
               echo "$HASH | $SUBJECT" >> "$APPLIED_FILE"
             else
-              echo "❌ CONFLICT [$HASH] $SUBJECT"
-              echo "$HASH | $SUBJECT" >> "$FAILED_FILE"
-              git cherry-pick --abort 2>/dev/null || true
+              # Check if all conflicts can be auto-resolved
+              UNRESOLVED=false
+              for f in $(git diff --name-only --diff-filter=U); do
+                if [[ "$f" == *_spec.js ]] && ! git ls-tree HEAD -- "$f" > /dev/null 2>&1; then
+                  # HEAD deleted this _spec.js file — accept the deletion
+                  git rm "$f" 2>/dev/null
+                elif [[ "$f" == *BidAdapter* ]]; then
+                  # BidAdapter file — take HEAD's version
+                  git checkout HEAD -- "$f" 2>/dev/null
+                  git add "$f"
+                else
+                  UNRESOLVED=true
+                fi
+              done
+
+              if [ "$UNRESOLVED" = false ]; then
+                # All conflicts were auto-resolved
+                git -c core.editor=true cherry-pick --continue 2>/dev/null
+                echo "✅ APPLIED  [$HASH] $SUBJECT (auto-resolved)"
+                echo "$HASH | $SUBJECT" >> "$APPLIED_FILE"
+              else
+                echo "❌ CONFLICT [$HASH] $SUBJECT"
+                echo "$HASH | $SUBJECT" >> "$FAILED_FILE"
+                git cherry-pick --abort 2>/dev/null || true
+              fi
             fi
           done < /tmp/commits_to_process.txt
 
