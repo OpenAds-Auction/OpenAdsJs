@@ -194,10 +194,11 @@ jobs:
               SUBJECT="${SUBJECT}[#${PR_REF}](https://github.com/prebid/Prebid.js/pull/${PR_REF})"
             fi
 
-            # ── Skip commits that touch any *BidAdapter* file ────────────
+            # ── Skip commits only touch *BidAdapter* file ────────────
             BID_ADAPTER_FILES=$(git diff-tree --no-commit-id -r --name-only "$HASH" | grep -i "BidAdapter" || true)
-            if [ -n "$BID_ADAPTER_FILES" ]; then
-              echo "⏭️  SKIPPED (BidAdapter files) [$HASH] $SUBJECT"
+            ALL_FILES=$(git diff-tree --no-commit-id -r --name-only "$HASH")
+            if [ -n "$BID_ADAPTER_FILES" ] && [ "$BID_ADAPTER_FILES" = "$ALL_FILES" ]; then
+              echo "⏭️  SKIPPED (BidAdapter files only) [$HASH] $SUBJECT"
               echo "$HASH | $SUBJECT" >> "$SKIPPED_FILE"
               continue
             fi
@@ -296,5 +297,5 @@ jobs:
               \"body\": $(echo "$BODY" | jq -Rs .),
               \"head\": \"$BRANCH\",
               \"base\": \"master\",
-              \"labels\": [\"prebid-sync\"]
+              \"labels\": [\"upstream-sync\"]
             }"
