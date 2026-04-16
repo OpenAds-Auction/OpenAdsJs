@@ -221,15 +221,14 @@ jobs:
               UNRESOLVED=false
               for f in $(git diff --name-only --diff-filter=U); do
                 echo "looking at $f"
-                if [[ "$f" == *_spec.js ]]; then
+                if [[ "$f" == *_spec.js ]] && [ ! -f "$f" ]; then
                   echo "matched test file, remove"
                   # HEAD deleted this _spec.js file — accept the deletion
                   git rm "$f" 2>/dev/null
-                elif [[ "$f" == *BidAdapter* ]]; then
+                elif [[ "$f" == *BidAdapter* ]] && [ ! -f "$f" ]; then
                   echo "matched bidapterfile, remove"
                   # BidAdapter file — take HEAD's version
-                  git checkout HEAD -- "$f" 2>/dev/null
-                  git add "$f"
+                  git rm "$f" 2>/dev/null
                 else
                   echo "matched unresolved"
                   UNRESOLVED=true
