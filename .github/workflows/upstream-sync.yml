@@ -243,7 +243,7 @@ jobs:
                 # All conflicts were auto-resolved
                 git -c core.editor=true cherry-pick --continue 2>/dev/null
                 echo "✅ APPLIED  [$HASH] $SUBJECT (auto-resolved)"
-                echo "$HASH | $SUBJECT" >> "$APPLIED_FILE"
+                echo "$HASH | $SUBJECT (auto-resolved)" >> "$APPLIED_FILE"
               else
                 echo "❌ CONFLICT [$HASH] $SUBJECT"
                 echo "$HASH | $SUBJECT" >> "$FAILED_FILE"
