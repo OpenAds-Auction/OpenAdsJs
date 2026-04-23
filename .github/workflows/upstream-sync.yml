@@ -290,7 +290,7 @@ jobs:
             local file=$1
             if [ -s "$file" ]; then
               while IFS= read -r line; do
-                echo "- [] $line"
+                echo "- [ ] $line"
               done < "$file"
             else
               echo "- none"
