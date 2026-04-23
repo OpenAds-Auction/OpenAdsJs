@@ -1,9 +1,5 @@
 name: Check for Duplicated Code
 
-permissions:
-  pull-requests: write
-  contents: read
-  
 on:
   workflow_dispatch:
   pull_request_target:
@@ -15,6 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # ── 0. Generate GitHub App token ──────────────────────────────────────
+    - name: Generate GitHub App token
+      id: app_token
+      uses: actions/create-github-app-token@v1
+      with:
+        app-id: ${{ secrets.SYNC_APP_ID }}
+        private-key: ${{ secrets.SYNC_APP_PRIVATE_KEY }}
+        owner: OpenAds-Auction
+        repositories: OpenAdsJs
+
     - name: Checkout code
       uses: actions/checkout@v5
       with:
@@ -101,6 +107,7 @@ jobs:
       if: env.filtered_report_exists == 'true'
       uses: actions/github-script@v8
       with:
+        github-token: ${{ steps.app_token.outputs.token }}
         script: |
           const fs = require('fs');
           const filteredReport = JSON.parse(fs.readFileSync('filtered-jscpd-report.json', 'utf8'));
