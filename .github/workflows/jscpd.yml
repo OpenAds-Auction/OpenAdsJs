@@ -1,9 +1,5 @@
 name: Check for Duplicated Code
 
-permissions:
-  pull-requests: write
-  contents: read
-
 on:
   workflow_dispatch:
   pull_request_target:
@@ -109,29 +105,38 @@ jobs:
 
     - name: Post GitHub comment
       if: env.filtered_report_exists == 'true'
-      uses: actions/github-script@v8
-      with:
-        github-token: ${{ steps.app_token.outputs.token }}
-        script: |
-          const fs = require('fs');
-          const filteredReport = JSON.parse(fs.readFileSync('filtered-jscpd-report.json', 'utf8'));
-          let comment = "Whoa there, partner! 🌵🤠 We wrangled some duplicated code in your PR:\n\n";
-          function link(dup) {
-             return `https://github.com/${{ github.event.repository.full_name }}/blob/${{ github.event.pull_request.head.sha }}/${dup.name}#L${dup.start + 1}-L${dup.end - 1}`
-          }
-          filteredReport.forEach(duplication => {
-            const firstFile = duplication.firstFile;
-            const secondFile = duplication.secondFile;
-            const lines = duplication.lines;
-            comment += `- [\`${firstFile.name}\`](${link(firstFile)}) has ${lines} duplicated lines with [\`${secondFile.name}\`](${link(secondFile)})\n`;
-          });
-          comment += "\nReducing code duplication by importing common functions from a library not only makes our code cleaner but also easier to maintain. Please move the common code from both files into a library and import it in each. We hate that we have to mention this, however, commits designed to hide from this utility by renaming variables or reordering an object are poor conduct. We will not look upon them kindly! Keep up the great work! 🚀";
-          await github.rest.issues.createComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number,
-            body: comment
-          });
+      env:
+        GH_TOKEN: ${{ steps.app_token.outputs.token }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        REPO: ${{ github.event.repository.full_name }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      run: |
+        REPORT=$(cat filtered-jscpd-report.json)
+        COMMENT="Whoa there, partner! 🌵🤠 We wrangled some duplicated code in your PR:\n\n"
+        
+        while IFS= read -r dup; do
+          FIRST_NAME=$(echo "$dup" | jq -r '.firstFile.name')
+          FIRST_START=$(echo "$dup" | jq -r '.firstFile.start + 1')
+          FIRST_END=$(echo "$dup" | jq -r '.firstFile.end - 1')
+          SECOND_NAME=$(echo "$dup" | jq -r '.secondFile.name')
+          SECOND_START=$(echo "$dup" | jq -r '.secondFile.start + 1')
+          SECOND_END=$(echo "$dup" | jq -r '.secondFile.end - 1')
+          LINES=$(echo "$dup" | jq -r '.lines')
+          
+          FIRST_LINK="https://github.com/${REPO}/blob/${HEAD_SHA}/${FIRST_NAME}#L${FIRST_START}-L${FIRST_END}"
+          SECOND_LINK="https://github.com/${REPO}/blob/${HEAD_SHA}/${SECOND_NAME}#L${SECOND_START}-L${SECOND_END}"
+          
+          COMMENT+="- [\`${FIRST_NAME}\`](${FIRST_LINK}) has ${LINES} duplicated lines with [\`${SECOND_NAME}\`](${SECOND_LINK})\n"
+        done < <(echo "$REPORT" | jq -c '.[]')
+        
+        COMMENT+="\nReducing code duplication by importing common functions from a library not only makes our code cleaner but also easier to maintain. Please move the common code from both files into a library and import it in each. We hate that we have to mention this, however, commits designed to hide from this utility by renaming variables or reordering an object are poor conduct. We will not look upon them kindly! Keep up the great work! 🚀"
+        
+        curl -s -X POST \
+          -H "Authorization: Bearer ${GH_TOKEN}" \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "https://api.github.com/repos/${REPO}/issues/${PR_NUMBER}/comments" \
+          -d "$(jq -n --arg body "$(echo -e "$COMMENT")" '{body: $body}')"
 
     - name: Fail if duplications are found
       if: env.filtered_report_exists == 'true'
