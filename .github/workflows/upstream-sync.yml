@@ -229,10 +229,6 @@ jobs:
                 elif [[ "$f" == *BidAdapter* ]] && [ "$HEAD_HAS_FILE" = "no" ]; then
                   echo "matched bidadapter file, remove"
                   git rm "$f" 2>/dev/null
-                elif [[ "$f" == *BidAdapter* ]] && [ "$HEAD_HAS_FILE" = "yes" ]; then
-                  echo "matched bidadapter file, take HEAD version"
-                  git checkout HEAD -- "$f"
-                  git add "$f"
                 else
                   echo "matched unresolved"
                   UNRESOLVED=true
@@ -294,7 +290,7 @@ jobs:
             local file=$1
             if [ -s "$file" ]; then
               while IFS= read -r line; do
-                echo "- [] $line"
+                echo "- [ ] $line"
               done < "$file"
             else
               echo "- none"

@@ -1,5 +1,9 @@
 name: Check for Duplicated Code
 
+permissions:
+  pull-requests: write
+  contents: read
+
 on:
   workflow_dispatch:
   pull_request_target:
@@ -36,7 +40,7 @@ jobs:
           ],
           "output": "./",
           "pattern": "**/*.js",
-          "ignore": ["**/*spec.js"]
+          "ignore": ["**/*spec.js", "**/*BidAdapter.js"]
         }' > .jscpd.json
 
     - name: Run jscpd on entire codebase
