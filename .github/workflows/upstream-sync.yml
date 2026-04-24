@@ -194,6 +194,13 @@ jobs:
               SUBJECT="${SUBJECT}[#${PR_REF}](https://github.com/prebid/Prebid.js/pull/${PR_REF})"
             fi
 
+            # ── Skip bidadapter commits  labled by subject line────────────
+            if echo "$SUBJECT" | grep -qiE "bid\s?adapter"; then
+              echo "⏭️  SKIPPED (bid adapter commit) [$HASH] $SUBJECT"
+              echo "$HASH | $SUBJECT (bid adapter change)" >> "$SKIPPED_FILE"
+              continue
+            fi
+
             # ── Skip commits only touch *BidAdapter* file ────────────
             BID_ADAPTER_FILES=$(git diff-tree --no-commit-id -r --name-only "$HASH" | grep -i "BidAdapter" || true)
             ALL_FILES=$(git diff-tree --no-commit-id -r --name-only "$HASH")
