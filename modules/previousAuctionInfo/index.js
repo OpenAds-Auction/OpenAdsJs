@@ -125,7 +125,7 @@ export function startAuctionHook(next, req) {
     .filter(bidder => auctionState[bidder]?.length)
     .forEach(bidder => {
       auctionState[bidder].forEach(payload => { delete payload.transactionId });
-      deepSetValue(req.ortb2Fragments, `bidder.${bidder}.ext.prebid.previousauctioninfo`, auctionState[bidder]);
+      deepSetValue(req.ortb2Fragments, `bidder.${bidder}.ext.openads.previousauctioninfo`, auctionState[bidder]);
       delete auctionState[bidder];
     })
   next.call(this, req);

@@ -11,36 +11,36 @@ import {addEventTrackers} from './eventTrackers.js';
 export const PBS_PROCESSORS = {
   [REQUEST]: {
     extPrebid: {
-      // set request.ext.prebid.auctiontimestamp, .debug and .targeting
+      // set request.ext.openads.auctiontimestamp, .debug and .targeting
       fn: setRequestExtPrebid
     },
-    extPrebidChannel: {
-      // sets request.ext.prebid.channel
+    extOPrebidChannel: {
+      // sets request.ext.openads.channel
       fn: setRequestExtPrebidChannel
     },
     extPrebidAliases: {
-      // sets ext.prebid.aliases
+      // sets ext.openads.aliases
       fn: setRequestExtPrebidAliases
     }
   },
   [IMP]: {
     params: {
-      // sets bid ext.prebid.bidder.[bidderCode] with bidRequest.params, passed through transformBidParams if necessary
+      // sets bid ext.openads.bidder.[bidderCode] with bidRequest.params, passed through transformBidParams if necessary
       fn: setImpBidParams
     },
     adUnitCode: {
-      // sets bid ext.prebid.adunitcode
+      // sets bid ext.openads.adunitcode
       fn: setImpAdUnitCode
     }
   },
   [BID_RESPONSE]: {
     mediaType: {
-      // sets bidResponse.mediaType according to context.mediaType, falling back to imp.ext.prebid.type
+      // sets bidResponse.mediaType according to context.mediaType, falling back to imp.ext.openads.type
       fn: extPrebidMediaType,
       priority: 99,
     },
     videoCache: {
-      // sets response video attributes; in addition, looks at ext.prebid.cache and .targeting to set video cache key and URL
+      // sets response video attributes; in addition, looks at ext.openads.cache and .targeting to set video cache key and URL
       fn: setBidResponseVideoCache,
       priority: -10, // after 'video'
     },
@@ -48,35 +48,35 @@ export const PBS_PROCESSORS = {
       // sets bidderCode from on seatbid.seat
       fn(bidResponse, bid, context) {
         bidResponse.bidderCode = context.seatbid.seat;
-        bidResponse.adapterCode = bid?.ext?.prebid?.meta?.adaptercode || context.bidRequest?.bidder || bidResponse.bidderCode;
+        bidResponse.adapterCode = bid?.ext?.openads?.meta?.adaptercode || context.bidRequest?.bidder || bidResponse.bidderCode;
       }
     },
     pbsBidId: {
-      // sets bidResponse.pbsBidId from ext.prebid.bidid
+      // sets bidResponse.pbsBidId from ext.openads.bidid
       fn(bidResponse, bid) {
-        const bidId = bid?.ext?.prebid?.bidid;
+        const bidId = bid?.ext?.openads?.bidid;
         if (isStr(bidId)) {
           bidResponse.pbsBidId = bidId;
         }
       }
     },
     adserverTargeting: {
-      // sets bidResponse.adserverTargeting from ext.prebid.targeting
+      // sets bidResponse.adserverTargeting from ext.openads.targeting
       fn(bidResponse, bid) {
-        const targeting = bid?.ext?.prebid?.targeting;
+        const targeting = bid?.ext?.openads?.targeting;
         if (isPlainObject(targeting)) {
           bidResponse.adserverTargeting = targeting;
         }
       }
     },
     extPrebidMeta: {
-      // sets bidResponse.meta from ext.prebid.meta
+      // sets bidResponse.meta from ext.openads.meta
       fn(bidResponse, bid) {
-        bidResponse.meta = mergeDeep({}, bid?.ext?.prebid?.meta, bidResponse.meta);
+        bidResponse.meta = mergeDeep({}, bid?.ext?.openads?.meta, bidResponse.meta);
       }
     },
     pbsWinTrackers: {
-      // converts "legacy" burl and ext.prebid.events.win into eventtrackers
+      // converts "legacy" burl and ext.openads.events.win into eventtrackers
       fn: addEventTrackers
     },
   },

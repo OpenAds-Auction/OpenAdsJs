@@ -14,10 +14,10 @@ describe('PBS event trackers', () => {
       },
       type: EVENT_TYPE_IMPRESSION
     },
-    'ext.prebid.events.win': {
+    'ext.openads.events.win': {
       bid: {
         ext: {
-          prebid: {
+          openads: {
             events: {
               win: 'tracker'
             }

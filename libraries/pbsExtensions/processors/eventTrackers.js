@@ -4,7 +4,7 @@ export function addEventTrackers(bidResponse, bid) {
   bidResponse.eventtrackers = bidResponse.eventtrackers || [];
   [
     [bid.burl, EVENT_TYPE_IMPRESSION], // core used to fire burl directly, but only for bids coming from PBS
-    [bid?.ext?.prebid?.events?.win, EVENT_TYPE_WIN]
+    [bid?.ext?.openads?.events?.win, EVENT_TYPE_WIN]
   ].filter(([winUrl, type]) => winUrl && bidResponse.eventtrackers.find(
     ({method, event, url}) => event === type && method === TRACKER_METHOD_IMG && url === winUrl
   ) == null)

@@ -203,16 +203,16 @@ describe('setOrtbExtPrebidFloors', () => {
     config.setConfig({floors: {enabled: false}});
   });
 
-  it('should set ext.prebid.floors.enabled to false', () => {
+  it('should set ext.openads.floors.enabled to false', () => {
     const req = {};
     setOrtbExtPrebidFloors(req);
-    expect(req.ext.prebid.floors.enabled).to.equal(false);
+    expect(req.ext.openads.floors.enabled).to.equal(false);
   })
 
   it('should respect fpd', () => {
     const req = {
       ext: {
-        prebid: {
+        openads: {
           floors: {
             enabled: true
           }
@@ -220,6 +220,6 @@ describe('setOrtbExtPrebidFloors', () => {
       }
     }
     setOrtbExtPrebidFloors(req);
-    expect(req.ext.prebid.floors.enabled).to.equal(true);
+    expect(req.ext.openads.floors.enabled).to.equal(true);
   })
 })

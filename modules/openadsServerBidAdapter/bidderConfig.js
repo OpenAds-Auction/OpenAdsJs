@@ -140,7 +140,7 @@ function replaceEids({global, bidder}, requestedBidders) {
     });
   }
   if (consolidated.permissions.length) {
-    deepSetValue(global, 'ext.prebid.data.eidpermissions', consolidated.permissions);
+    deepSetValue(global, 'ext.oepndads.data.eidpermissions', consolidated.permissions);
   }
   Object.entries(consolidated.bidder).forEach(([bidderCode, bidderEids]) => {
     if (bidderEids.length) {

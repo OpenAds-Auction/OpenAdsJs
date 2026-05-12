@@ -5,7 +5,7 @@ export function setImpBidParams(imp, bidRequest) {
   if (params) {
     deepSetValue(
       imp,
-      `ext.prebid.bidder.${bidRequest.bidder}`,
+      `ext.openads.bidder.${bidRequest.bidder}`,
       params
     );
   }

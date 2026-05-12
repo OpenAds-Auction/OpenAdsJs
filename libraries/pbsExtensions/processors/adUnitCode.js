@@ -6,7 +6,7 @@ export function setImpAdUnitCode(imp, bidRequest) {
   if (adUnitCode) {
     deepSetValue(
       imp,
-      `ext.prebid.adunitcode`,
+      `ext.openads.adunitcode`,
       adUnitCode
     );
   }

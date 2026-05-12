@@ -1,7 +1,7 @@
 import {setRequestExtPrebidAliases} from '../../../../libraries/pbsExtensions/processors/aliases.js';
 import {config} from 'src/config.js';
 
-describe('PBS - ortb ext.prebid.aliases', () => {
+describe('PBS - ortb ext.openads.aliases', () => {
   let aliasRegistry, bidderRegistry;
 
   function setAliases(bidderRequest) {
@@ -50,11 +50,11 @@ describe('PBS - ortb ext.prebid.aliases', () => {
       }
     };
   }
-  it('sets ext.prebid.aliases.BIDDER', () => {
+  it('sets ext.openads.aliases.BIDDER', () => {
     initAlias();
     expect(setAliases({bidderCode: 'alias'})).to.eql({
       ext: {
-        prebid: {
+        openads: {
           aliases: {
             alias: 'bidder'
           }
@@ -63,11 +63,11 @@ describe('PBS - ortb ext.prebid.aliases', () => {
     })
   });
 
-  it('sets ext.prebid.aliasgvlids.BIDDER if set on spec', () => {
+  it('sets ext.openads.aliasgvlids.BIDDER if set on spec', () => {
     initAlias({ gvlid: 24 });
     expect(setAliases({ bidderCode: 'alias' })).to.eql({
       ext: {
-        prebid: {
+        openads: {
           aliases: {
             alias: 'bidder'
           },
@@ -79,7 +79,7 @@ describe('PBS - ortb ext.prebid.aliases', () => {
     })
   });
 
-  it('sets ext.prebid.aliasgvlids.BIDDER if set on config', () => {
+  it('sets ext.openads.aliasgvlids.BIDDER if set on config', () => {
     config.setConfig({
       gvlMapping: {
         alias: 24
@@ -88,7 +88,7 @@ describe('PBS - ortb ext.prebid.aliases', () => {
     initAlias();
     expect(setAliases({ bidderCode: 'alias' })).to.eql({
       ext: {
-        prebid: {
+        openads: {
           aliases: {
             alias: 'bidder'
           },
@@ -100,7 +100,7 @@ describe('PBS - ortb ext.prebid.aliases', () => {
     })
   });
 
-  it('prefers ext.prebid.aliasgvlids.BIDDER set on config over spec', () => {
+  it('prefers ext.openads.aliasgvlids.BIDDER set on config over spec', () => {
     config.setConfig({
       gvlMapping: {
         alias: 888
@@ -109,7 +109,7 @@ describe('PBS - ortb ext.prebid.aliases', () => {
     initAlias({ gvlid: 24 });
     expect(setAliases({ bidderCode: 'alias' })).to.eql({
       ext: {
-        prebid: {
+        openads: {
           aliases: {
             alias: 'bidder'
           },

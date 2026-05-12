@@ -1833,7 +1833,7 @@ describe('paapi module', () => {
         'parseExtPrebidFledge': {
           parser: parseExtPrebidFledge,
           responses: {
-            'ext.prebid.fledge'(configs) {
+            'ext.openads.fledge'(configs) {
               return {
                 ext: {
                   prebid: {

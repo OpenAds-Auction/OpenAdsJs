@@ -777,7 +777,7 @@ function paapiResponseParser(configs, response, context) {
 
 export function parseExtPrebidFledge(response, ortbResponse, context) {
   paapiResponseParser(
-    (ortbResponse.ext?.prebid?.fledge?.auctionconfigs || []),
+    (ortbResponse.ext?.openads?.fledge?.auctionconfigs || []),
     response,
     context
   )

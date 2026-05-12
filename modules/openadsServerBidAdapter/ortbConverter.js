@@ -47,7 +47,7 @@ const PBS_CONVERTER = ortbConverter({
     (proxyBidRequest.bids || []).forEach(bid => {
       if (bid.ortb2Imp && Object.keys(bid.ortb2Imp).length > 0) {
         // set bidder-level imp attributes; see https://github.com/prebid/prebid-server/issues/2335
-        deepSetValue(imp, `ext.prebid.imp.${bid.bidder}`, bid.ortb2Imp);
+        deepSetValue(imp, `ext.openads.imp.${bid.bidder}`, bid.ortb2Imp);
       }
     });
     if (Object.values(SUPPORTED_MEDIA_TYPES).some(mtype => imp[mtype])) {
@@ -72,7 +72,7 @@ const PBS_CONVERTER = ortbConverter({
       })
 
       if (!context.transmitTids) {
-        deepSetValue(request, 'ext.prebid.createtids', false);
+        deepSetValue(request, 'ext.openads.createtids', false);
       }
 
       return request;
@@ -135,7 +135,7 @@ const PBS_CONVERTER = ortbConverter({
         for (const req of context.actualBidRequests.values()) {
           setImpBidParams(imp, req, context, context);
           if (adapterOptions && adapterOptions[req.bidder]) {
-            Object.assign(imp.ext.prebid.bidder[req.bidder], adapterOptions[req.bidder]);
+            Object.assign(imp.ext.openads.bidder[req.bidder], adapterOptions[req.bidder]);
           }
         }
       },
@@ -177,7 +177,7 @@ const PBS_CONVERTER = ortbConverter({
     [REQUEST]: {
       fpd(orig, ortbRequest, proxyBidderRequest, context) {
         // FPD is handled different for PBS - the base request will only contain global FPD;
-        // bidder-specific values are set in ext.prebid.bidderconfig
+        // bidder-specific values are set in ext.openads.bidderconfig
 
         if (context.transmitTids) {
           deepSetValue(ortbRequest, 'source.tid', proxyBidderRequest.auctionId);
@@ -185,9 +185,23 @@ const PBS_CONVERTER = ortbConverter({
 
         mergeDeep(ortbRequest, context.s2sBidRequest.ortb2Fragments?.global);
 
-        // also merge in s2sConfig.extPrebid
-        if (context.s2sBidRequest.s2sConfig.extPrebid && typeof context.s2sBidRequest.s2sConfig.extPrebid === 'object') {
-          deepSetValue(ortbRequest, 'ext.prebid', mergeDeep(ortbRequest.ext?.prebid || {}, context.s2sBidRequest.s2sConfig.extPrebid));
+        // also merge in s2sConfig.extOpenAds or s2sConfig.extPrebid
+        const extPrebidSet = context.s2sBidRequest.s2sConfig.extPrebid && typeof context.s2sBidRequest.s2sConfig.extPrebid === 'object'
+        const extOpenAdsSet = context.s2sBidRequest.s2sConfig.extOpenAds && typeof context.s2sBidRequest.s2sConfig.extOpenAds === 'object'
+
+        let extObj
+        if (extOpenAdsSet)  {
+          if (extPrebidSet) {
+            logWarn("extOpenAds and extPrebid set in s2sConfig, extOpenAds takes precedence")
+          }
+
+          extObj = context.s2sBidRequest.s2sConfig.extOpenAds
+        } else if (extPrebidSet) {
+          extObj = context.s2sBidRequest.s2sConfig.extPrebid
+        }
+
+        if (extObj) {
+          deepSetValue(ortbRequest, 'ext.openads', mergeDeep(ortbRequest.ext?.openads || {}, extObj));
         }
 
         // for global FPD, check allowed activities against "prebid.pbsBidAdapter"...
@@ -203,12 +217,12 @@ const PBS_CONVERTER = ortbConverter({
           config: {ortb2: context.getRedactor(bidder).ortb2(ortb2)}
         }));
         if (fpdConfigs.length) {
-          deepSetValue(ortbRequest, 'ext.prebid.bidderconfig', fpdConfigs);
+          deepSetValue(ortbRequest, 'ext.openads.bidderconfig', fpdConfigs);
         }
 
         // Handle schain information after FPD processing
-        // Collect schains from bidder requests and organize into ext.prebid.schains
-        let chains = ortbRequest?.ext?.prebid?.schains || [];
+        // Collect schains from bidder requests and organize into ext.openads.schains
+        let chains = ortbRequest?.ext?.openads?.schains || [];
         const chainBidders = new Set(chains.flatMap((item) => item.bidders));
 
         chains = Object.values(
@@ -231,7 +245,7 @@ const PBS_CONVERTER = ortbConverter({
         ).map(({bidders, schain}) => ({bidders: Array.from(bidders), schain}));
 
         if (chains.length) {
-          deepSetValue(ortbRequest, 'ext.prebid.schains', chains);
+          deepSetValue(ortbRequest, 'ext.openads.schains', chains);
         }
       },
       extPrebidAliases(orig, ortbRequest, proxyBidderRequest, context) {

@@ -229,7 +229,7 @@ export function getFirstMatchingFloor(floorData, bidObject, responseObject = {})
     matchingRule: matchingRule === floorData.meta?.defaultRule ? undefined : matchingRule
   };
   // use adUnit floorMin as priority!
-  const floorMin = deepAccess(bidObject, 'ortb2Imp.ext.prebid.floors.floorMin');
+  const floorMin = deepAccess(bidObject, 'ortb2Imp.ext.openads.floors.floorMin');
   if (typeof floorMin === 'number') {
     matchingData.floorMin = floorMin;
   }
@@ -273,7 +273,7 @@ export function calculateAdjustedFloor(oldFloor, newFloor) {
 }
 
 /**
- * @summary gets the prebid set sizes depending on the input mediaType
+ * @summary gets the openads set sizes depending on the input mediaType
  */
 const getMediaTypesSizes = {
   banner: (bid) => deepAccess(bid, 'mediaTypes.banner.sizes') || [],
@@ -843,7 +843,7 @@ export type FloorsConfig = Pick<Schema1FloorData, 'skipRate' | 'floorProvider'> 
      */
     enforceJS?: boolean;
     /**
-     * If set to true (the default), the Price Floors Module will signal to Prebid Server to pass floors to it’s bid
+     * If set to true (the default), the Price Floors Module will signal to OpenAds Server to pass floors to it’s bid
      * adapters and enforce floors.
      * If set to false, the pbjs should still pass matched bid request floor data to PBS, however no enforcement will take place.
      */
@@ -1109,7 +1109,7 @@ export function setGranularBidfloors(imp, bidRequest, context) {
     })
 }
 
-export function setImpExtPrebidFloors(imp, bidRequest, context) {
+export function setImpExtOpenAdsFloors(imp, bidRequest, context) {
   // logic below relates to https://github.com/prebid/Prebid.js/issues/8749 and does the following:
   // 1. check client-side floors (ref bidfloor/bidfloorcur & ortb2Imp floorMin/floorMinCur (if present))
   // 2. set pbs req wide floorMinCur to the first floor currency found when iterating over imp's
@@ -1121,8 +1121,8 @@ export function setImpExtPrebidFloors(imp, bidRequest, context) {
     let {floorMinCur, floorMin} = context.reqContext.floorMin || {};
 
     if (floorMinCur == null) { floorMinCur = imp.bidfloorcur }
-    const ortb2ImpFloorCur = imp.ext?.prebid?.floors?.floorMinCur || imp.ext?.prebid?.floorMinCur || floorMinCur;
-    const ortb2ImpFloorMin = imp.ext?.prebid?.floors?.floorMin || imp.ext?.prebid?.floorMin;
+    const ortb2ImpFloorCur = imp.ext?.openads?.floors?.floorMinCur || imp.ext?.openads?.floorMinCur || floorMinCur;
+    const ortb2ImpFloorMin = imp.ext?.openads?.floors?.floorMin || imp.ext?.openads?.floorMin;
     const convertedFloorMinValue = convertCurrency(imp.bidfloor, imp.bidfloorcur, floorMinCur);
     const convertedOrtb2ImpFloorMinValue = ortb2ImpFloorMin && ortb2ImpFloorCur ? convertCurrency(ortb2ImpFloorMin, ortb2ImpFloorCur, floorMinCur) : false;
 
@@ -1130,29 +1130,29 @@ export function setImpExtPrebidFloors(imp, bidRequest, context) {
       ? convertedOrtb2ImpFloorMinValue
       : convertedFloorMinValue;
 
-    deepSetValue(imp, 'ext.prebid.floors.floorMin', lowestImpFloorMin);
+    deepSetValue(imp, 'ext.openads.floors.floorMin', lowestImpFloorMin);
     if (floorMin == null || floorMin > lowestImpFloorMin) { floorMin = lowestImpFloorMin }
     context.reqContext.floorMin = {floorMin, floorMinCur};
   }
 }
 
 /**
- * PBS specific extension: set ext.prebid.floors.enabled = false if floors are processed client-side
+ * PBS specific extension: set ext.openads.floors.enabled = false if floors are processed client-side
  */
-export function setOrtbExtPrebidFloors(ortbRequest, bidderRequest, context) {
+export function setOrtbExtOpenAdsFloors(ortbRequest, bidderRequest, context) {
   if (addedFloorsHook) {
-    deepSetValue(ortbRequest, 'ext.prebid.floors.enabled', ortbRequest.ext?.prebid?.floors?.enabled || false);
+    deepSetValue(ortbRequest, 'ext.openads.floors.enabled', ortbRequest.ext?.openads?.floors?.enabled || false);
   }
   if (context?.floorMin) {
-    mergeDeep(ortbRequest, {ext: {prebid: {floors: context.floorMin}}})
+    mergeDeep(ortbRequest, {ext: {openads: {floors: context.floorMin}}})
   }
 }
 
 registerOrtbProcessor({type: IMP, name: 'bidfloor', fn: setOrtbImpBidFloor});
 // granular floors should be set after both "normal" bidfloors and mediaypes
 registerOrtbProcessor({type: IMP, name: 'extBidfloor', fn: setGranularBidfloors, priority: -10})
-registerOrtbProcessor({type: IMP, name: 'extPrebidFloors', fn: setImpExtPrebidFloors, dialects: [PBS], priority: -1});
-registerOrtbProcessor({type: REQUEST, name: 'extPrebidFloors', fn: setOrtbExtPrebidFloors, dialects: [PBS]});
+registerOrtbProcessor({type: IMP, name: 'extOpenAdsFloors', fn: setImpExtOpenAdsFloors, dialects: [PBS], priority: -1});
+registerOrtbProcessor({type: REQUEST, name: 'extOpenAdsFloors', fn: setOrtbExtOpenAdsFloors, dialects: [PBS]});
 
 /**
  * Validate userIds config: must be an object with array values
