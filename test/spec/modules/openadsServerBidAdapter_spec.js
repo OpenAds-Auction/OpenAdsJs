@@ -4279,7 +4279,7 @@ describe('S2S Adapter', function () {
 
     it('should correctly set the floorMin key when multiple bids with various bidfloors exist', function () {
       const s2sConfig = Object.assign({}, CONFIG, {
-        extPrebid: {
+        extOpenAds: {
           floors: {
             enabled: true
           }
@@ -4353,7 +4353,7 @@ describe('S2S Adapter', function () {
 
     it('should correctly set the floorMin key when multiple bids with various bidfloors exist and ortb2Imp contains the lowest floorMin', function () {
       const s2sConfig = Object.assign({}, CONFIG, {
-        extPrebid: {
+        extOpenAds: {
           floors: {
             enabled: true
           }
