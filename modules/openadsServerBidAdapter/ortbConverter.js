@@ -190,7 +190,7 @@ const PBS_CONVERTER = ortbConverter({
         const extOpenAdsSet = context.s2sBidRequest.s2sConfig.extOpenAds && typeof context.s2sBidRequest.s2sConfig.extOpenAds === 'object'
 
         let extObj
-        if (extOpenAdsSet)  {
+        if (extOpenAdsSet) {
           if (extPrebidSet) {
             logWarn("extOpenAds and extPrebid set in s2sConfig, extOpenAds takes precedence")
           }

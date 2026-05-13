@@ -1,4 +1,4 @@
-  import adapterManager from '../../../src/adapterManager.js';
+import adapterManager from '../../../src/adapterManager.js';
 import {config} from '../../../src/config.js';
 import {deepSetValue} from '../../../src/utils.js';
 

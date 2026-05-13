@@ -679,9 +679,9 @@ function getAnalyticsFlags(s2sConfig, response) {
   }
 }
 function getNonBidData(s2sConfig, response) {
-  return s2sConfig?.extOpenAds?.returnallbidstatus ? 
-         s2sConfig?.extPrebid?.returnallbidstatus ? 
-         response?.ext?.seatnonbid : undefined;
+  var extOpenAdsAll = s2sConfig?.extOpenAds?.returnallbidstatus ?? false
+  var extPrebidAll = s2sConfig?.extPrebid?.returnallbidstatus ?? false
+  return (extOpenAdsAll || extPrebidAll) ? response?.ext?.seatnonbid : undefined;
 }
 
 function getAtagData(response) {
