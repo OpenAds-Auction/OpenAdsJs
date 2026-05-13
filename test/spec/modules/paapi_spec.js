@@ -1836,7 +1836,7 @@ describe('paapi module', () => {
             'ext.openads.fledge'(configs) {
               return {
                 ext: {
-                  prebid: {
+                  openads: {
                     fledge: {
                       auctionconfigs: configs
                     }
