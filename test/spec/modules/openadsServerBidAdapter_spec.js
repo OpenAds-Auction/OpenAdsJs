@@ -2383,9 +2383,40 @@ describe('S2S Adapter', function () {
       expect(requestBid.ext.openads.targeting.includewinners).to.equal(true);
     });
 
-    it('adds s2sConfig video.ext.openads to request for ORTB', function () {
+    it('adds extPrebid s2sConfig video.ext.openads to request for ORTB', function () {
       const s2sConfig = Object.assign({}, CONFIG, {
         extPrebid: {
+          foo: 'bar'
+        }
+      });
+      const _config = {
+        s2sConfig: s2sConfig,
+        device: { ifa: '6D92078A-8246-4BA4-AE5B-76104861E7DC' },
+        app: { bundle: 'com.test.app' },
+      };
+
+      const s2sBidRequest = utils.deepClone(REQUEST);
+      s2sBidRequest.s2sConfig = s2sConfig;
+
+      config.setConfig(_config);
+      adapter.callBids(s2sBidRequest, BID_REQUESTS, addBidResponse, done, ajax);
+      const requestBid = JSON.parse(server.requests[0].requestBody);
+
+      expect(requestBid).to.haveOwnProperty('ext');
+      expect(requestBid.ext).to.haveOwnProperty('openads');
+      expect(requestBid.ext.openads).to.deep.include({
+        auctiontimestamp: 1510852447530,
+        foo: 'bar',
+        targeting: {
+          includewinners: true,
+          includebidderkeys: false
+        }
+      });
+    });
+
+    it('adds extOpenAds s2sConfig video.ext.openads to request for ORTB', function () {
+      const s2sConfig = Object.assign({}, CONFIG, {
+        extOpenAds: {
           foo: 'bar'
         }
       });
@@ -2478,6 +2509,54 @@ describe('S2S Adapter', function () {
         auctiontimestamp: 1510852447530,
         cache: {
           vastxml: 'vastxml-set-though-extPrebid.cache.vastXml'
+        },
+        targeting: {
+          includewinners: false,
+          includebidderkeys: false
+        }
+      });
+    });
+
+    it('overrides request.ext.openads properties using extOpenAds over extPrebid s2sConfig video.ext.openads values for ORTB', function () {
+      const s2sConfig = Object.assign({}, CONFIG, {
+        extPrebid: {
+          cache: {
+            vastxml: 'vastxml-set-though-extPrebid.cache.vastXml'
+          },
+          targeting: {
+            includewinners: false,
+            includebidderkeys: false
+          }
+        },
+        extOpenAds: {
+          cache: {
+            vastxml: 'vastxml-set-though-extOpenAds.cache.vastXml'
+          },
+          targeting: {
+            includewinners: false,
+            includebidderkeys: false
+          }
+        }
+      });
+      const _config = {
+        s2sConfig: s2sConfig,
+        device: { ifa: '6D92078A-8246-4BA4-AE5B-76104861E7DC' },
+        app: { bundle: 'com.test.app' },
+      };
+
+      const s2sBidRequest = utils.deepClone(REQUEST);
+      s2sBidRequest.s2sConfig = s2sConfig;
+
+      config.setConfig(_config);
+      adapter.callBids(s2sBidRequest, BID_REQUESTS, addBidResponse, done, ajax);
+      const requestBid = JSON.parse(server.requests[0].requestBody);
+
+      expect(requestBid).to.haveOwnProperty('ext');
+      expect(requestBid.ext).to.haveOwnProperty('openads');
+      expect(requestBid.ext.openads).to.deep.include({
+        auctiontimestamp: 1510852447530,
+        cache: {
+          vastxml: 'vastxml-set-though-extOpenAds.cache.vastXml'
         },
         targeting: {
           includewinners: false,
@@ -3300,6 +3379,23 @@ describe('S2S Adapter', function () {
     it('handles seatnonbid responses and emits SEAT_NON_BID', function () {
       const original = CONFIG;
       CONFIG.extPrebid = { returnallbidstatus: true };
+      const nonbidResponse = {...RESPONSE_OPENRTB, ext: {seatnonbid: [{}]}};
+      config.setConfig({ CONFIG });
+      CONFIG = original;
+      adapter.callBids(REQUEST, BID_REQUESTS, addBidResponse, done, ajax);
+      const responding = deepClone(nonbidResponse);
+      Object.assign(responding.ext.seatnonbid, [{auctionId: 2}])
+      server.requests[0].respond(200, {}, JSON.stringify(responding));
+      const event = events.emit.thirdCall.args;
+      expect(event[0]).to.equal(EVENTS.SEAT_NON_BID);
+      expect(event[1].seatnonbid[0]).to.have.property('auctionId', 2);
+      expect(event[1].requestedBidders).to.deep.equal(['appnexus']);
+      expect(event[1].response).to.deep.equal(responding);
+    });
+
+    it('handles seatnonbid responses and emits SEAT_NON_BID set with extOpenAds', function () {
+      const original = CONFIG;
+      CONFIG.extOpenAds = { returnallbidstatus: true };
       const nonbidResponse = {...RESPONSE_OPENRTB, ext: {seatnonbid: [{}]}};
       config.setConfig({ CONFIG });
       CONFIG = original;
