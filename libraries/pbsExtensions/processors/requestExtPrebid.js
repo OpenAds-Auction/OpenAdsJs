@@ -22,7 +22,7 @@ export function setRequestExtPrebid(ortbRequest, bidderRequest) {
   }
 }
 
-export function setRequestExtPrebidsChannel(ortbRequest) {
+export function setRequestExtPrebidChannel(ortbRequest) {
   deepSetValue(ortbRequest, 'ext.openads.channel', Object.assign({
     name: 'oajs',
     version: getGlobal().oaVersion

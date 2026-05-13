@@ -14,7 +14,7 @@ export const PBS_PROCESSORS = {
       // set request.ext.openads.auctiontimestamp, .debug and .targeting
       fn: setRequestExtPrebid
     },
-    extOPrebidChannel: {
+    extPrebidChannel: {
       // sets request.ext.openads.channel
       fn: setRequestExtPrebidChannel
     },

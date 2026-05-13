@@ -1109,7 +1109,7 @@ export function setGranularBidfloors(imp, bidRequest, context) {
     })
 }
 
-export function setImpExtOpenAdsFloors(imp, bidRequest, context) {
+export function setImpExtPrebidFloors(imp, bidRequest, context) {
   // logic below relates to https://github.com/prebid/Prebid.js/issues/8749 and does the following:
   // 1. check client-side floors (ref bidfloor/bidfloorcur & ortb2Imp floorMin/floorMinCur (if present))
   // 2. set pbs req wide floorMinCur to the first floor currency found when iterating over imp's
@@ -1139,7 +1139,7 @@ export function setImpExtOpenAdsFloors(imp, bidRequest, context) {
 /**
  * PBS specific extension: set ext.openads.floors.enabled = false if floors are processed client-side
  */
-export function setOrtbExtOpenAdsFloors(ortbRequest, bidderRequest, context) {
+export function setOrtbExtPrebidFloors(ortbRequest, bidderRequest, context) {
   if (addedFloorsHook) {
     deepSetValue(ortbRequest, 'ext.openads.floors.enabled', ortbRequest.ext?.openads?.floors?.enabled || false);
   }
@@ -1151,8 +1151,8 @@ export function setOrtbExtOpenAdsFloors(ortbRequest, bidderRequest, context) {
 registerOrtbProcessor({type: IMP, name: 'bidfloor', fn: setOrtbImpBidFloor});
 // granular floors should be set after both "normal" bidfloors and mediaypes
 registerOrtbProcessor({type: IMP, name: 'extBidfloor', fn: setGranularBidfloors, priority: -10})
-registerOrtbProcessor({type: IMP, name: 'extOpenAdsFloors', fn: setImpExtOpenAdsFloors, dialects: [PBS], priority: -1});
-registerOrtbProcessor({type: REQUEST, name: 'extOpenAdsFloors', fn: setOrtbExtOpenAdsFloors, dialects: [PBS]});
+registerOrtbProcessor({type: IMP, name: 'extPrebidFloors', fn: setImpExtPrebidFloors, dialects: [PBS], priority: -1});
+registerOrtbProcessor({type: REQUEST, name: 'extPrebidFloors', fn: setOrtbExtPrebidFloors, dialects: [PBS]});
 
 /**
  * Validate userIds config: must be an object with array values
