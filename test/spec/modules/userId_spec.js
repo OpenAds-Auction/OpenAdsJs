@@ -13,6 +13,7 @@ import {
   setSubmoduleRegistry,
   COOKIE_SUFFIXES, HTML5_SUFFIXES,
   syncDelay, adUnitEidsHook,
+  generateSubmoduleContainers, addIdData
 } from 'modules/userId/index.js';
 import { UID1_EIDS } from 'libraries/uid1Eids/uid1Eids.js';
 import { createEidsArray, EID_CONFIG, getEids } from 'modules/userId/eids.js';
