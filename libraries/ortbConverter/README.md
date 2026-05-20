@@ -1,7 +1,7 @@
-# Prebid.js - ORTB conversion library
+# OpenAds.js - ORTB conversion library
 
-This library provides methods to convert Prebid.js bid request objects to ORTB requests,
-and ORTB responses to Prebid.js bid response objects.
+This library provides methods to convert OpenAds.js bid request objects to ORTB requests,
+and ORTB responses to OpenAds.js bid response objects.
 
 ## Usage
 
@@ -42,7 +42,7 @@ If your endpoint sets `response.seatbid[].bid[].mtype` (part of the ORTB 2.6 spe
 
 ### Module-specific conversions
 
-Prebid.js features that require a module also require it for their corresponding ORTB conversion logic. For example, `imp.bidfloor` is only populated if the `priceFloors` module is active; `request.cur` needs the `currency` module, and so on. Notably, this means that to get those fields populated from your unit tests, you must import those modules first; see [this suite](https://github.com/prebid/Prebid.js/blob/master/test/spec/modules/openxOrtbBidAdapter_spec.js) for an example.
+OpenAds.js features that require a module also require it for their corresponding ORTB conversion logic. For example, `imp.bidfloor` is only populated if the `priceFloors` module is active; `request.cur` needs the `currency` module, and so on. Notably, this means that to get those fields populated from your unit tests, you must import those modules first; see [this suite](https://github.com/prebid/Prebid.js/blob/master/test/spec/modules/openxOrtbBidAdapter_spec.js) for an example.
 
 #### priceFloors extensions
 
@@ -97,7 +97,7 @@ However, there are two restrictions (to avoid them, use the [other customization
 When invoked, `toORTB({bidRequests, bidderRequest})` first loops through each request in `bidRequests`, converting them into ORTB `imp` objects.
 It then packages them into a single ORTB request, adding other parameters that are not imp-specific (such as for example `request.tmax`).
 
-Likewise, `fromORTB({request, response})` first loops through each `response.seatbid[].bid[]`, converting them into Prebid bidResponses; it then packages them into
+Likewise, `fromORTB({request, response})` first loops through each `response.seatbid[].bid[]`, converting them into OpenAds bidResponses; it then packages them into
 a single return value.
 
 You can customize each of these steps using the `ortbConverter` arguments `imp`, `request`, `bidResponse` and `response`:
@@ -162,14 +162,14 @@ const converter = ortbConverter({
 
 ### <a id="bidResponse" /> Customizing bid responses: `bidResponse(buildBidResponse, bid, context)`
 
-Invoked once for each `seatbid[].bid[]` in the response; should return the corresponding Prebid.js bid response object.
+Invoked once for each `seatbid[].bid[]` in the response; should return the corresponding OpenAds.js bid response object.
 The arguments are:
-- `buildBidResponse`: a function taking `(bid, context)` and returning a Prebid.js bid response object;
+- `buildBidResponse`: a function taking `(bid, context)` and returning a OpenAds.js bid response object;
 - `bid`: an ORTB `seatbid[].bid[]` object;
 - `context`: a [context object](#context) that contains at least:
     - `seatbid`: the ORTB `seatbid[]` object that encloses `bid`;
     - `imp`: the ORTB request's `imp` object that matches `bid.impid`;
-    - `bidRequest`: the Prebid.js bid request object that was used to generate `context.imp`;
+    - `bidRequest`: the OpenAds.js bid request object that was used to generate `context.imp`;
     - `ortbRequest`: the `request` argument passed to `fromORTB`;
     - `ortbResponse`: the `response` argument passed to `fromORTB`.
 
@@ -194,7 +194,7 @@ const converter = ortbConverter({
 
 #### <a id="response-mediaTypes" /> Example: setting response mediaType
 
-In ORTB 2.5, bid responses do not specify their mediatype, which is something Prebid.js requires. You can provide it as
+In ORTB 2.5, bid responses do not specify their mediatype, which is something OpenAds.js requires. You can provide it as
 `context.mediaType`:
 
 ```javascript
@@ -240,7 +240,7 @@ by this function is also the value returned by `fromORTB`.
 The arguments are:
 
 - `buildResponse`: a function that takes `(bidResponses, ortbResponse, context)` and returns `{bids: bidResponses}`. In the future, this may contain additional response data not necessarily tied to any bid (for example fledge auction configuration).
-- `bidResponses`: array of Prebid.js bid response objects
+- `bidResponses`: array of OpenAds.js bid response objects
 - `ortbResponse`: the `response` argument passed to `fromORTB`
 - `context`: a [context object](#context) that contains at least:
     - `ortbRequest`: the `request` argument passed to `fromORTB`;
@@ -372,13 +372,13 @@ For ease of use, the conversion logic gives special meaning to some context prop
     - is passed as the `mediaType` option to `bidRequest.getFloor` when computing price floors;
     - sets `bidResponse.mediaType`.
 - `nativeRequest`: a plain object that serves as the base value for `imp.native.request` (and is relevant only for native bid requests).
-  If not specified, the only property that is guaranteed to be populated is `assets`, since Prebid does not require anything else to define a native adUnit. You can use `context.nativeRequest` to provide other properties; for example, you may want to signal support for native impression trackers by setting it to `{eventtrackers: [{event: 1, methods: [1, 2]}]}` (see also the [ORTB Native spec](https://www.iab.com/wp-content/uploads/2018/03/OpenRTB-Native-Ads-Specification-Final-1.2.pdf)).
+  If not specified, the only property that is guaranteed to be populated is `assets`, since OpenAds does not require anything else to define a native adUnit. You can use `context.nativeRequest` to provide other properties; for example, you may want to signal support for native impression trackers by setting it to `{eventtrackers: [{event: 1, methods: [1, 2]}]}` (see also the [ORTB Native spec](https://www.iab.com/wp-content/uploads/2018/03/OpenRTB-Native-Ads-Specification-Final-1.2.pdf)).
 - `netRevenue`: the value to set as `bidResponse.netRevenue`. This is a required property of bid responses that does not have a clear ORTB counterpart.
 - `ttl`: the default value to use for `bidResponse.ttl` (if the ORTB response does not provide one in `seatbid[].bid[].exp`).
 
-## Prebid Server extensions
+## OpenAds Server extensions
 
-If your endpoint is a Prebid Server instance, you may take advantage of the `pbsExtension` companion library, which adds a number of processors that can populate and parse PBS-specific extensions (typically prefixed `ext.prebid`); these include bidder params (with `transformBidParams`), bidder aliases, targeting keys, and others.
+If your endpoint is a OpenAds Server instance, you may take advantage of the `pbsExtension` companion library, which adds a number of processors that can populate and parse PBS-specific extensions (typically prefixed `ext.openads`); these include bidder params (with `transformBidParams`), bidder aliases, targeting keys, and others.
 
 ```javascript
 import {pbsExtensions} from '../../libraries/pbsExtensions/pbsExtensions.js'

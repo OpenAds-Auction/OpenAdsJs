@@ -11,7 +11,7 @@ export function setRequestExtPrebidAliases(ortbRequest, bidderRequest, context, 
       // set alias
       deepSetValue(
         ortbRequest,
-        `ext.prebid.aliases.${bidderRequest.bidderCode}`,
+        `ext.openads.aliases.${bidderRequest.bidderCode}`,
         am.aliasRegistry[bidderRequest.bidderCode]
       );
 
@@ -20,7 +20,7 @@ export function setRequestExtPrebidAliases(ortbRequest, bidderRequest, context, 
       if (gvlId) {
         deepSetValue(
           ortbRequest,
-          `ext.prebid.aliasgvlids.${bidderRequest.bidderCode}`,
+          `ext.openads.aliasgvlids.${bidderRequest.bidderCode}`,
           gvlId
         );
       }

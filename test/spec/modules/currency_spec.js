@@ -533,7 +533,7 @@ describe('currency', function () {
       fakeCurrencyFileServer.respondWith(JSON.stringify(getCurrencyRates()));
       setConfig({ adServerCurrency: 'EUR' });
       return fpd({}).then((ortb) => {
-        expect(ortb.ext.prebid.adServerCurrency).to.eql('EUR')
+        expect(ortb.ext.openads.adServerCurrency).to.eql('EUR')
       })
     })
   });

@@ -133,6 +133,10 @@ type S2SConfig = {
    */
   extPrebid?: Record<string, unknown>;
   /**
+   * Arguments will be added to resulting OpenRTB payload to OpenAds Server in request.ext.openads.
+   */
+  extOpenAds?: Record<string, unknown>;
+  /**
    * Base value for imp.native.request
    */
   ortbNative?: Partial<NativeRequest>;
@@ -465,7 +469,7 @@ export type SeatNonBid = {
 
 export type PbsAnalytics = SeatNonBid & {
   /**
-   * The PBS response's `ext.prebid.analytics.tags`.
+   * The PBS response's `ext.openads.analytics.tags`.
    */
   atag: unknown;
 }
@@ -676,11 +680,13 @@ function getAnalyticsFlags(s2sConfig, response) {
   }
 }
 function getNonBidData(s2sConfig, response) {
-  return s2sConfig?.extPrebid?.returnallbidstatus ? response?.ext?.seatnonbid : undefined;
+  var extOpenAdsAll = s2sConfig?.extOpenAds?.returnallbidstatus ?? false
+  var extPrebidAll = s2sConfig?.extPrebid?.returnallbidstatus ?? false
+  return (extOpenAdsAll || extPrebidAll) ? response?.ext?.seatnonbid : undefined;
 }
 
 function getAtagData(response) {
-  return response?.ext?.prebid?.analytics?.tags;
+  return response?.ext?.openads?.analytics?.tags;
 }
 
 adapterManager.registerBidAdapter(new OpenAdsServer(), 'openadsServer');

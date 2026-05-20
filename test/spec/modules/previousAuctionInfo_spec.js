@@ -199,7 +199,7 @@ describe('previous auction info', () => {
       function extractInfo() {
         return Object.fromEntries(
           Object.entries(bidder)
-            .map(([bidder, ortb2]) => [bidder, ortb2.ext?.prebid?.previousauctioninfo])
+            .map(([bidder, ortb2]) => [bidder, ortb2.ext?.openads?.previousauctioninfo])
         )
       }
 

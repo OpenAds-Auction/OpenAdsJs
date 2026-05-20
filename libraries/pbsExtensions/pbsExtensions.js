@@ -5,7 +5,7 @@ import {defaultProcessors} from '../ortbConverter/converter.js';
 import {memoize} from '../../src/utils.js';
 
 /**
- * ORTB converter processor set that understands Prebid Server extensions.
+ * ORTB converter processor set that understands OpenAds Server extensions.
  *
  * Pass this as the `processors` option to `ortbConverter` if your backend is a PBS instance.
  */

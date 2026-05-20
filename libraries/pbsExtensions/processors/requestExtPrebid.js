@@ -5,7 +5,7 @@ import {getGlobal} from '../../../src/prebidGlobal.js';
 export function setRequestExtPrebid(ortbRequest, bidderRequest) {
   deepSetValue(
     ortbRequest,
-    'ext.prebid',
+    'ext.openads',
     mergeDeep(
       {
         auctiontimestamp: bidderRequest.auctionStart,
@@ -14,17 +14,17 @@ export function setRequestExtPrebid(ortbRequest, bidderRequest) {
           includebidderkeys: false
         }
       },
-      ortbRequest.ext?.prebid,
+      ortbRequest.ext?.openads,
     )
   );
   if (config.getConfig('debug')) {
-    ortbRequest.ext.prebid.debug = true;
+    ortbRequest.ext.openads.debug = true;
   }
 }
 
 export function setRequestExtPrebidChannel(ortbRequest) {
-  deepSetValue(ortbRequest, 'ext.prebid.channel', Object.assign({
+  deepSetValue(ortbRequest, 'ext.openads.channel', Object.assign({
     name: 'oajs',
     version: getGlobal().oaVersion
-  }, ortbRequest.ext?.prebid?.channel));
+  }, ortbRequest.ext?.openads?.channel));
 }
