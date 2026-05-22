@@ -1,5 +1,5 @@
 /**
- * This module adds Multibid support to prebid.js
+ * This module adds Multibid support to openads.js
  * @module modules/multibid
  */
 
@@ -285,7 +285,7 @@ init();
 export function setOrtbExtPrebidMultibid(ortbRequest) {
   const multibid = config.getConfig('multibid');
   if (multibid) {
-    deepSetValue(ortbRequest, 'ext.prebid.multibid', multibid.map(o =>
+    deepSetValue(ortbRequest, 'ext.openads.multibid', multibid.map(o =>
       Object.fromEntries(Object.entries(o).map(([k, v]) => [k.toLowerCase(), v])))
     )
   }

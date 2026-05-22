@@ -37,14 +37,14 @@ describe('ortb -> pbjs mediaType conversion', () => {
   })
 });
 
-describe('ortb -> pbjs mediaType conversion based on ext.prebid.type', () => {
+describe('ortb -> pbjs mediaType conversion based on ext.openads.type', () => {
   testMtype(extPrebidMediaType);
-  describe('respects ext.prebid.type', () => {
+  describe('respects ext.openads.type', () => {
     Object.values(ORTB_MTYPES).forEach(mediaType => {
       const response = {};
       extPrebidMediaType(response, {
         ext: {
-          prebid: {
+          openads: {
             type: mediaType
           }
         }
@@ -61,7 +61,7 @@ describe('ortb -> pbjs mediaType conversion based on ext.prebid.type', () => {
 
   it('gives precedence to context.mediaType', () => {
     const response = {};
-    extPrebidMediaType(response, {ext: {prebid: {type: 'banner'}}}, {mediaType: 'video'});
+    extPrebidMediaType(response, {ext: {openads: {type: 'banner'}}}, {mediaType: 'video'});
     expect(response.mediaType).to.eql('video');
   })
 });

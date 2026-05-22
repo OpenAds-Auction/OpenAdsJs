@@ -19,23 +19,23 @@
     var googletag = googletag || {};
     googletag.cmd = googletag.cmd || [];
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
 
     function initAdserver() {
-      if (pbjs.initAdserverSet) return;
+      if (oajs.initAdserverSet) return;
 
       googletag.cmd.push(function () {
-        pbjs.que.push(function () {
-          pbjs.setTargetingForGPTAsync('div-banner-native-1');
+        oajs.que.push(function () {
+          oajs.setTargetingForGPTAsync('div-banner-native-1');
           googletag.pubads().refresh();
         });
       });
 
-      pbjs.initAdserverSet = true;
+      oajs.initAdserverSet = true;
     }
 
-    pbjs.que.push(function () {
+    oajs.que.push(function () {
       var adUnits = [{
         code: 'div-banner-native-1',
         mediaTypes: {
@@ -72,9 +72,9 @@
           }
         }]
       }];
-      pbjs.setConfig({enableTIDs: true});
-      pbjs.addAdUnits(adUnits);
-      pbjs.requestBids({
+      oajs.setConfig({enableTIDs: true});
+      oajs.addAdUnits(adUnits);
+      oajs.requestBids({
         timeout: PREBID_TIMEOUT,
         bidsBackHandler: function (bidResponses) {
           initAdserver();
@@ -87,7 +87,7 @@
   <script>
     googletag.cmd.push(function () {
       googletag
-        .defineSlot('/19968336/prebid_multiformat_test', [[300, 250], [300, 600]], 'div-banner-native-1')
+        .defineSlot('/92296675/prebid_multiformat_test', [[300, 250], [300, 600]], 'div-banner-native-1')
         .addService(googletag.pubads());
 
       googletag.pubads().disableInitialLoad();

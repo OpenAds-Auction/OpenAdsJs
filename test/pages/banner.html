@@ -13,8 +13,8 @@
 	<script async src="https://www.googletagservices.com/tag/js/gpt.js"></script>
 
 	<script>
-		var pbjs = pbjs || {};
-		pbjs.que = pbjs.que || [];
+		var oajs = oajs || {};
+		oajs.que = oajs.que || [];
 
 		// Prebid Banner Ad Unit
 		const adUnits = [{
@@ -56,16 +56,16 @@
 			googletag.pubads().disableInitialLoad();
 		});
 
-		pbjs.que.push(function () {
-			pbjs.setConfig({enableTIDs: true});
-			pbjs.addAdUnits(adUnits);
-			pbjs.requestBids({ bidsBackHandler: sendAdServerRequest });
+		oajs.que.push(function () {
+			oajs.setConfig({enableTIDs: true});
+			oajs.addAdUnits(adUnits);
+			oajs.requestBids({ bidsBackHandler: sendAdServerRequest });
 		});
 
 		function sendAdServerRequest() {
 			googletag.cmd.push(function () {
-				pbjs.que.push(function () {
-					pbjs.setTargetingForGPTAsync('div-gpt-ad-1460505748561-0');
+				oajs.que.push(function () {
+					oajs.setTargetingForGPTAsync('div-gpt-ad-1460505748561-0');
 					googletag.pubads().refresh();
 				});
 			});
@@ -75,7 +75,7 @@
 	<script>
 		googletag.cmd.push(function () {
 			googletag
-				.defineSlot('/19968336/header-bid-tag-0', [[300, 250], [300, 600]], 'div-gpt-ad-1460505748561-0')
+				.defineSlot('/92296675/header-bid-tag-0', [[300, 250], [300, 600]], 'div-gpt-ad-1460505748561-0')
 				.addService(googletag.pubads());
 
 			googletag.pubads().enableSingleRequest();

@@ -1,9 +1,9 @@
 import {setBidResponseVideoCache} from '../../../../libraries/pbsExtensions/processors/video.js';
 
-describe('pbjs - ortb videoCacheKey based on ext.prebid', () => {
+describe('pbjs - ortb videoCacheKey based on ext.openads', () => {
   const EXT_PREBID_CACHE = {
     ext: {
-      prebid: {
+      openads: {
         cache: {
           vastXml: {
             cacheId: 'id',
@@ -36,7 +36,7 @@ describe('pbjs - ortb videoCacheKey based on ext.prebid', () => {
   it('sets videoCacheKey, vastUrl from ext.prebid.targeting', () => {
     sinon.assert.match(setCache({
       ext: {
-        prebid: {
+        openads: {
           targeting: {
             oa_uuid: 'id',
             oa_cache_host: 'host',

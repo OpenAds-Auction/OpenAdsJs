@@ -1,7 +1,7 @@
 import {config} from 'src/config.js';
 import {setOrtbExtPrebidMultibid} from '../../../modules/multibid/index.js';
 
-describe('pbjs - ortb ext.prebid.multibid', () => {
+describe('pbjs - ortb ext.openads.multibid', () => {
   before(() => {
     config.resetConfig();
   });
@@ -9,7 +9,7 @@ describe('pbjs - ortb ext.prebid.multibid', () => {
     config.resetConfig();
   });
 
-  it('sets ext.prebid.multibid according to config', () => {
+  it('sets ext.openads.multibid according to config', () => {
     config.setConfig({
       multibid: [
         {
@@ -24,7 +24,7 @@ describe('pbjs - ortb ext.prebid.multibid', () => {
     });
     const req = {};
     setOrtbExtPrebidMultibid(req);
-    expect(req.ext.prebid.multibid).to.eql([{bidder: 'A', maxbids: 2}, {bidder: 'B', maxbids: 3}]);
+    expect(req.ext.openads.multibid).to.eql([{bidder: 'A', maxbids: 2}, {bidder: 'B', maxbids: 3}]);
   });
 
   it('does not set it if not configured', () => {

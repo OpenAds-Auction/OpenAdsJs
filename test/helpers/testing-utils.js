@@ -37,7 +37,9 @@ const utils = {
         it(`should render GAM creative`, async () => {
           await utils.switchFrame(expectGAMCreative);
           if (nestedIframe) {
-            await utils.switchFrame('iframe[srcdoc]');
+            // needed :not([style]) as the orgignal test uses the universal creative.js
+            // instead of [format].js, which inserted another iframe[srcdoc] causing the wrong iframe to be focused
+            await utils.switchFrame('iframe[srcdoc]:not([style])');
           }
           const creative = [
             'a > img', // banner

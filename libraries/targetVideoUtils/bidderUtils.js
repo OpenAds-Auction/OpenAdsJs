@@ -146,7 +146,7 @@ export function getBannerHtml(vastUrl) {
 export function getAd(bid) {
   let ad, adUrl, vastXml, vastUrl;
 
-  switch (bid?.ext?.prebid?.type) {
+  switch (bid?.ext?.openads?.type) {
     case VIDEO:
       if (bid.adm.substr(0, 4) === 'http') {
         vastUrl = bid.adm;

@@ -1,6 +1,6 @@
 import {setImpBidParams} from '../../../../libraries/pbsExtensions/processors/params.js';
 
-describe('pbjs -> ortb bid params to imp[].ext.prebid.BIDDER', () => {
+describe('pbjs -> ortb bid params to imp[].ext.openads.BIDDER', () => {
   let bidderRegistry, index, adUnit;
   beforeEach(() => {
     bidderRegistry = {};
@@ -18,10 +18,10 @@ describe('pbjs -> ortb bid params to imp[].ext.prebid.BIDDER', () => {
     return imp;
   }
 
-  it('sets params in ext.prebid.bidder.BIDDER', () => {
+  it('sets params in ext.openads.bidder.BIDDER', () => {
     expect(setParams({bidder: 'mockBidder', params: {a: 'param'}})).to.eql({
       ext: {
-        prebid: {
+        openads: {
           bidder: {
             mockBidder: {
               a: 'param'

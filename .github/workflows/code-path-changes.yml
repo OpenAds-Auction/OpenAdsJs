@@ -1,10 +1,7 @@
 name: Notify Code Path Changes
 
 on:
-  pull_request_target:
-    types: [opened, synchronize]
-    paths:
-      - '**'
+  workflow_dispatch:
 
 env:
   OAUTH2_CLIENT_ID: ${{ secrets.OAUTH2_CLIENT_ID }}
@@ -22,10 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: '18'
 

@@ -43,17 +43,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
 
       - name: Restore working directory
         id: restore-dir
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: .
           key: ${{ inputs.wdir }}
           fail-on-cache-miss: true
+
+      - name: 'BrowserStack Env Setup'
+        uses: 'browserstack/github-actions/setup-env@master'
+        with:
+          username:  ${{ secrets.BROWSERSTACK_USER_NAME}}
+          access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+
+      - name: 'BrowserStackLocal Setup'
+        uses: 'browserstack/github-actions/setup-local@master'
+        with:
+          local-testing: start
+          local-identifier: random
 
       - name: Run tests
         uses: nick-fields/retry@v3
@@ -62,14 +74,19 @@ jobs:
           max_attempts: 3
           command: ${{ inputs.cmd }}
 
+      - name: 'BrowserStackLocal Stop'
+        uses: 'browserstack/github-actions/setup-local@master'
+        with:
+          local-testing: stop
+
       - name: Save working directory
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: .
           key: test-${{ inputs.cmd }}-${{ inputs.chunk-no }}-${{ github.run_id }}
 
       - name: Verify cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: .
           key: test-${{ inputs.cmd }}-${{ inputs.chunk-no }}-${{ github.run_id }}

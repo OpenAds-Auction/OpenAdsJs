@@ -291,6 +291,7 @@ function rejectOnAuctionTimeout({auctionId}) {
   bidResponseQueue = bidResponseQueue.filter(([fn, ctx, adUnitCode, bid, reject]) => {
     if (bid.auctionId === auctionId) {
       reject(REJECTION_REASON.CANNOT_CONVERT_CURRENCY)
+      return false;
     } else {
       return true;
     }
@@ -330,7 +331,7 @@ function getCurrencyConversion(fromCurrency, toCurrency = adServerCurrency) {
     if (fromCurrency === 'USD') {
       conversionRate = 1;
     } else {
-      throw new Error('Prebid currency support has not been enabled and fromCurrency is not USD');
+      throw new Error('OpenAds currency support has not been enabled and fromCurrency is not USD');
     }
   } else if (fromCurrency === toCurrency) {
     conversionRate = 1;
@@ -398,7 +399,7 @@ registerOrtbProcessor({type: REQUEST, name: 'currency', fn: setOrtbCurrency});
 
 function enrichFPDHook(next, fpd) {
   return next(fpd.then(ortb2 => {
-    deepSetValue(ortb2, 'ext.prebid.adServerCurrency', adServerCurrency);
+    deepSetValue(ortb2, 'ext.openads.adServerCurrency', adServerCurrency);
     return ortb2;
   }))
 }

@@ -1,0 +1,333 @@
+name: Upstream Sync
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'   # Weekly on Monday at 06:00 UTC
+  workflow_dispatch:       # Allow manual trigger
+
+jobs:
+  sync-prebid:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      # ── 0. Generate GitHub App token ──────────────────────────────────────
+      - name: Generate GitHub App token
+        id: app_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.SYNC_APP_ID }}
+          private-key: ${{ secrets.SYNC_APP_PRIVATE_KEY }}
+          owner: OpenAds-Auction
+          repositories: OpenAdsJs
+
+      # ── 1. Checkout master ────────────────────────────────────────────────
+      - name: Checkout master
+        uses: actions/checkout@v6
+        with:
+          ref: master
+          fetch-depth: 0
+          token: ${{ steps.app_token.outputs.token }}
+
+      # ── 2. Read current Prebid version from package.json ──────────────────
+      - name: Read current Prebid version
+        id: current_version
+        run: |
+          PREBID_VERSION=$(jq -r '.version' package.json)
+          echo "version=$PREBID_VERSION" >> $GITHUB_OUTPUT
+          echo "Current Prebid version in package.json: $PREBID_VERSION"
+
+      # ── 3. Fetch all upstream tags and find the next greater version ───────
+      - name: Fetch latest upstream Prebid.js tag
+        id: latest_tag
+        run: |
+          CURRENT="${{ steps.current_version.outputs.version }}"
+          CLEAN="${CURRENT#v}"
+
+          git fetch https://github.com/prebid/Prebid.js.git --tags
+
+          # Walk sorted tags after current version and return the first greater one
+          FOUND_TAG=$(git tag -l \
+            | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sort -V \
+            | awk -v cur="$CLEAN" '
+                {
+                  tag = $0
+                  v = tag
+                  sub(/^v/, "", v)
+                  if (found) {
+                    n = split(v, a, ".")
+                    m = split(cur, b, ".")
+                    for (i = 1; i <= 3; i++) {
+                      if ((a[i]+0) > (b[i]+0)) { print tag; exit }
+                      if ((a[i]+0) < (b[i]+0)) break
+                    }
+                  }
+                  if (v == cur) found = 1
+                }
+              ' | head -1)
+
+          if [ -n "$FOUND_TAG" ]; then
+            echo "tag=$FOUND_TAG" >> $GITHUB_OUTPUT
+            echo "Next greater tag after $CURRENT: $FOUND_TAG"
+          else
+            echo "tag=" >> $GITHUB_OUTPUT
+            echo "No greater tag found after $CURRENT — already up to date."
+          fi
+
+      # ── 4. Check if a next tag was found ──────────────────────────────────
+      - name: Check if update is needed
+        id: version_check
+        run: |
+          LATEST="${{ steps.latest_tag.outputs.tag }}"
+
+          if [ -n "$LATEST" ]; then
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "✅ New tag found ($LATEST). Will attempt sync."
+          else
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "⏭️  Already up to date. Skipping."
+          fi
+
+      # ── 5. Check if PR already exists ─────────────────────────────────────
+      - name: Check for existing PR
+        if: steps.version_check.outputs.needs_update == 'true'
+        id: pr_check
+        run: |
+          CURRENT="${{ steps.current_version.outputs.version }}"
+          LATEST="${{ steps.latest_tag.outputs.tag }}"
+          PR_TITLE="upstream-sync: sync Prebid.js $CURRENT → $LATEST"
+
+          EXISTING=$(curl -s \
+            -H "Authorization: Bearer ${{ steps.app_token.outputs.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls?state=open&per_page=100" \
+            | jq -r '.[].title' \
+            | grep -qF "$PR_TITLE" && echo "true" || echo "false")
+
+          echo "exists=$EXISTING" >> $GITHUB_OUTPUT
+
+          if [ "$EXISTING" = "true" ]; then
+            echo "⏭️  PR already exists for '$PR_TITLE'. Skipping."
+          else
+            echo "✅ No existing PR found. Proceeding."
+          fi
+
+      # ── 6. Add upstream remote & fetch ────────────────────────────────────
+      - name: Add upstream remote
+        if: steps.version_check.outputs.needs_update == 'true' && steps.pr_check.outputs.exists == 'false'
+        run: |
+          git remote add upstream https://github.com/prebid/Prebid.js.git
+          git fetch upstream --tags
+
+      # ── 7. Get commit range between current tag and latest tag ────────────
+      - name: Get commit range
+        if: steps.version_check.outputs.needs_update == 'true' && steps.pr_check.outputs.exists == 'false'
+        id: commit_range
+        run: |
+          CURRENT_TAG="${{ steps.current_version.outputs.version }}"
+          LATEST_TAG="${{ steps.latest_tag.outputs.tag }}"
+
+          if git rev-parse "$CURRENT_TAG" >/dev/null 2>&1; then
+            FROM_REF="$CURRENT_TAG"
+          elif git rev-parse "v$CURRENT_TAG" >/dev/null 2>&1; then
+            FROM_REF="v$CURRENT_TAG"
+          else
+            echo "❌ Cannot resolve current tag '$CURRENT_TAG' in upstream history."
+            exit 1
+          fi
+
+          COMMITS=$(git log --oneline "$FROM_REF".."$LATEST_TAG" --reverse | awk '{print $1}')
+          echo "Commits to process:"
+          echo "$COMMITS"
+
+          echo "$COMMITS" > /tmp/commits_to_process.txt
+          COUNT=$(echo "$COMMITS" | grep -c . || true)
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+
+      # ── 8. Cherry-pick commits (skip adapter, workflow-only, and release commits) ──
+      - name: Apply upstream commits
+        if: steps.version_check.outputs.needs_update == 'true' && steps.pr_check.outputs.exists == 'false'
+        id: apply_commits
+        run: |
+          LATEST_TAG="${{ steps.latest_tag.outputs.tag }}"
+          LATEST_TAG_CLEAN="${LATEST_TAG#v}"
+          BRANCH="prebid-sync-${LATEST_TAG}"
+
+          APP_SLUG=$(curl -s -H "Authorization: Bearer ${{ steps.app_token.outputs.token }}" \
+            https://api.github.com/app | jq -r '.slug')
+          git config user.name  "${APP_SLUG}[bot]"
+          git config user.email "${{ secrets.SYNC_APP_ID }}+${APP_SLUG}[bot]@users.noreply.github.com"
+
+          git checkout -b "$BRANCH"
+
+          SKIPPED_FILE="/tmp/skipped_commits.txt"
+          FAILED_FILE="/tmp/failed_commits.txt"
+          APPLIED_FILE="/tmp/applied_commits.txt"
+          touch "$SKIPPED_FILE" "$FAILED_FILE" "$APPLIED_FILE"
+
+          while IFS= read -r HASH; do
+            [ -z "$HASH" ] && continue
+
+            SUBJECT=$(git log --format="%s" -n 1 "$HASH")
+
+            # ── Skip version increment pre-release commits ───────────────
+            if echo "$SUBJECT" | grep -qiE "^Increment version to ${LATEST_TAG_CLEAN}-pre$"; then
+              echo "⏭️  SKIPPED (version increment) [$HASH] $SUBJECT"
+              echo "$HASH | $SUBJECT (unneeded changes)" >> "$SKIPPED_FILE"
+              continue
+            fi
+
+            # ── Skip release commits ─────────────────────────────────────
+            if echo "$SUBJECT" | grep -qiE "^Prebid ${LATEST_TAG_CLEAN} release$"; then
+              echo "⏭️  SKIPPED (release commit) [$HASH] $SUBJECT"
+              echo "$HASH | $SUBJECT (will cause merge conflicts)" >> "$SKIPPED_FILE"
+              continue
+            fi
+
+            # ── Replace (#NUMBER) with a Prebid.js PR link ───────────────
+            PR_REF=$(echo "$SUBJECT" | grep -oE '\(#[0-9]+\)$' | grep -oE '[0-9]+' || true)
+            if [ -n "$PR_REF" ]; then
+              SUBJECT=$(echo "$SUBJECT" | sed "s/(#${PR_REF})$//")
+              SUBJECT="${SUBJECT}[#${PR_REF}](https://github.com/prebid/Prebid.js/pull/${PR_REF})"
+            fi
+
+            # ── Skip commits only touch *BidAdapter* file ────────────
+            BID_ADAPTER_FILES=$(git diff-tree --no-commit-id -r --name-only "$HASH" | grep -i "BidAdapter" || true)
+            ALL_FILES=$(git diff-tree --no-commit-id -r --name-only "$HASH")
+            if [ -n "$BID_ADAPTER_FILES" ] && [ "$BID_ADAPTER_FILES" = "$ALL_FILES" ]; then
+              echo "⏭️  SKIPPED (BidAdapter files only) [$HASH] $SUBJECT"
+              echo "$HASH | $SUBJECT" >> "$SKIPPED_FILE"
+              continue
+            fi
+
+            # ── Skip commits where all changes are only in .github/ ──────
+            CHANGED_FILES=$(git diff-tree --no-commit-id -r --name-only "$HASH")
+            NON_WORKFLOW=$(echo "$CHANGED_FILES" | grep -v '^\.github/' || true)
+            if [ -z "$NON_WORKFLOW" ]; then
+              echo "⏭️  SKIPPED (workflow only) [$HASH] $SUBJECT"
+              echo "$HASH | $SUBJECT" >> "$SKIPPED_FILE"
+              continue
+            fi
+
+            # ── Attempt cherry-pick ──────────────────────────────────────
+            if git cherry-pick --allow-empty "$HASH" 2>/dev/null; then
+              echo "✅ APPLIED  [$HASH] $SUBJECT"
+              echo "$HASH | $SUBJECT" >> "$APPLIED_FILE"
+            else
+              # Check if all conflicts can be auto-resolved
+              UNRESOLVED=false
+              for f in $(git diff --name-only --diff-filter=U); do
+                echo "looking at $f"
+                HEAD_HAS_FILE=$(git ls-tree -r HEAD --name-only | grep -qxF "$f" && echo "yes" || echo "no")
+                echo "HEAD has file: $HEAD_HAS_FILE"
+                if [[ "$f" == *_spec.js ]] && [ "$HEAD_HAS_FILE" = "no" ]; then
+                  echo "matched test file, remove"
+                  git rm "$f" 2>/dev/null
+                elif [[ "$f" == *BidAdapter* ]] && [ "$HEAD_HAS_FILE" = "no" ]; then
+                  echo "matched bidadapter file, remove"
+                  git rm "$f" 2>/dev/null
+                else
+                  echo "matched unresolved"
+                  UNRESOLVED=true
+                fi
+              done
+
+              if [ "$UNRESOLVED" = false ]; then
+                # All conflicts were auto-resolved
+                git -c core.editor=true cherry-pick --continue 2>/dev/null
+                echo "✅ APPLIED  [$HASH] $SUBJECT (auto-resolved)"
+                echo "$HASH | $SUBJECT (auto-resolved)" >> "$APPLIED_FILE"
+              else
+                echo "❌ CONFLICT [$HASH] $SUBJECT"
+                echo "$HASH | $SUBJECT" >> "$FAILED_FILE"
+                git cherry-pick --abort 2>/dev/null || true
+              fi
+            fi
+          done < /tmp/commits_to_process.txt
+
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+
+          echo ""
+          echo "━━━ Summary ━━━"
+          echo "Applied  : $(wc -l < $APPLIED_FILE)"
+          echo "Skipped  : $(wc -l < $SKIPPED_FILE)"
+          echo "Conflicts: $(wc -l < $FAILED_FILE)"
+
+      # ── 9. Update package.json version and reinstall ──────────────────────
+      - name: Bump version and run npm install
+        if: steps.version_check.outputs.needs_update == 'true' && steps.pr_check.outputs.exists == 'false'
+        run: |
+          LATEST_TAG="${{ steps.latest_tag.outputs.tag }}"
+          LATEST_TAG_CLEAN="${LATEST_TAG#v}"
+
+          jq --arg v "$LATEST_TAG_CLEAN" '.version = $v' package.json > package.json.tmp
+          mv package.json.tmp package.json
+
+          npm install
+
+          git add package.json package-lock.json
+          SYNC_HASH=$(git commit -m "Prebid ${LATEST_TAG_CLEAN} release - reautomated" | grep -oE '[0-9a-f]{7,}' | head -1)
+          echo "$SYNC_HASH | Prebid Version Update (OpenAds Upstream Sync Bot)" >> /tmp/applied_commits.txt
+
+      # ── 10. Push sync branch ──────────────────────────────────────────────
+      - name: Push sync branch
+        if: steps.version_check.outputs.needs_update == 'true' && steps.pr_check.outputs.exists == 'false'
+        run: |
+          git push origin "${{ steps.apply_commits.outputs.branch }}"
+
+      # ── 11. Open Pull Request with full report ────────────────────────────
+      - name: Create Pull Request
+        if: steps.version_check.outputs.needs_update == 'true' && steps.pr_check.outputs.exists == 'false'
+        run: |
+          CURRENT="${{ steps.current_version.outputs.version }}"
+          LATEST="${{ steps.latest_tag.outputs.tag }}"
+          BRANCH="${{ steps.apply_commits.outputs.branch }}"
+
+          format_list() {
+            local file=$1
+            if [ -s "$file" ]; then
+              while IFS= read -r line; do
+                echo "- [ ] $line"
+              done < "$file"
+            else
+              echo "- none"
+            fi
+          }
+
+          BODY="## Prebid.js Sync: \`$CURRENT\` → \`$LATEST\`
+
+          This PR was auto-generated by the **Sync with Upstream Prebid.js** workflow.
+          [Prebid $LATEST Release Page](https://github.com/prebid/Prebid.js/releases/tag/$LATEST)
+          > **Upstream diff:** https://github.com/prebid/Prebid.js/compare/$CURRENT...$LATEST
+
+          ### ✅ Applied Commits
+          $(format_list /tmp/applied_commits.txt)
+
+          ### ⏭️ Skipped Commits
+          These commits were intentionally skipped because they made changes to files matching \`BidAdapter\`:
+          $(format_list /tmp/skipped_commits.txt)
+
+          ### ❌ Conflicting Commits (require manual resolution)
+          $(format_list /tmp/failed_commits.txt)"
+
+          # Create the PR and capture its number
+          PR_URL=$(curl -s -X POST \
+            -H "Authorization: Bearer ${{ steps.app_token.outputs.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/pulls \
+            -d "{
+              \"title\": \"upstream-sync: sync Prebid.js $CURRENT → $LATEST\",
+              \"body\": $(echo "$BODY" | jq -Rs .),
+              \"head\": \"$BRANCH\",
+              \"base\": \"master\"
+            }" | jq -r '.number')
+
+          # Add the label in a separate call
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ steps.app_token.outputs.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/$PR_URL/labels \
+            -d '{"labels": ["upstream-sync"]}'
