@@ -51,7 +51,7 @@ jobs:
           fi
 
       - name: Read and increment versions from package.json
-        if: steps.changes.outputs.has_changes == 'true'
+        if: false #steps.changes.outputs.has_changes == 'true'
         id: versions
         run: |
           OA_VERSION=$(jq -r '.oaVersion' package.json)
@@ -84,6 +84,18 @@ jobs:
 
           echo "oa_version=$NEW_OA_VERSION" >> $GITHUB_OUTPUT
           echo "prebid_version=$PREBID_VERSION" >> $GITHUB_OUTPUT
+
+      #delete --------
+      - name: Read versions from package.json for testing
+        if: steps.changes.outputs.has_changes == 'true'
+        id: versions
+        run: |
+          OA_VERSION=$(jq -r '.oaVersion' package.json)
+          PREBID_VERSION=$(jq -r '.version' package.json)
+
+          echo "oa_version=$OA_VERSION" >> $GITHUB_OUTPUT
+          echo "prebid_version=$PREBID_VERSION" >> $GITHUB_OUTPUT
+      #-------------------
 
       - name: Commit incremented OA version
         if: false ##steps.changes.outputs.has_changes == 'true'
