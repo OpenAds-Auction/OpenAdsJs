@@ -140,7 +140,7 @@ jobs:
           cat /tmp/commit_list.txt
 
       - name: Create GitHub Release
-        if: false #steps.changes.outputs.has_changes == 'true'
+        if: steps.changes.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ steps.app_token.outputs.token }}
         run: |
