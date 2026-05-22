@@ -121,14 +121,14 @@ jobs:
           LINES=""
 
           while IFS= read -r -d $'\x00' commit; do
-            TITLE=$(echo "$commit" | awk -F'|SEP|' '{print $2}' | xargs -0)
+            TITLE=$(echo "$commit" | awk -F'|SEP|' '{print $2}' | xargs -0| sed '/^$/d' | sed 's/^[[:space:]]*//')
 
             # Try to extract a PR number from the title, e.g. "#123"
             PR_NUM=$(echo "$TITLE" | grep -oP '#\K[0-9]+' | head -1)
 
             if [ -n "$PR_NUM" ]; then
               # Remove the PR reference like "(#123)" from the title
-              BODY=$(echo "$TITLE" | sed "s/ *(#${PR_NUM})//")
+              BODY=$(echo "$TITLE" | sed "s/ *(#${PR_NUM}) *|//")
               PR_URL="https://github.com/$REPO/pull/$PR_NUM"
               ENTRY="- [#${PR_NUM}](${PR_URL}) ${BODY}"
               LINES="${LINES}${ENTRY}"$'\n'
