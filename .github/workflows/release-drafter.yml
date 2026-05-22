@@ -86,7 +86,7 @@ jobs:
           echo "prebid_version=$PREBID_VERSION" >> $GITHUB_OUTPUT
 
       - name: Commit incremented OA version
-        if: steps.changes.outputs.has_changes == 'true'
+        if: false ##steps.changes.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ steps.app_token.outputs.token }}
         run: |
@@ -117,9 +117,9 @@ jobs:
           LINES=""
 
           while IFS= read -r -d $'\x00' commit; do
-            SHA=$(echo "$commit" | awk -F'|SEP|' '{print $1}' | xargs)
-            TITLE=$(echo "$commit" | awk -F'|SEP|' '{print $2}' | xargs)
-            BODY=$(echo "$commit" | awk -F'|SEP|' '{print $3}' | xargs | cut -c2-)
+            SHA=$(echo "$commit" | awk -F'|SEP|' '{print $1}' | xargs -0)
+            TITLE=$(echo "$commit" | awk -F'|SEP|' '{print $2}' | xargs -0)
+            BODY=$(echo "$commit" | awk -F'|SEP|' '{print $3}' | xargs -0 | cut -c2-)
 
             # Try to extract a PR number from the title, e.g. "#123"
             PR_NUM=$(echo "$TITLE" | grep -oP '#\K[0-9]+' | head -1)
