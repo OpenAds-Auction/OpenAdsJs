@@ -128,7 +128,7 @@ jobs:
 
             if [ -n "$PR_NUM" ]; then
               # Remove the PR reference like "(#123)" from the title
-              BODY=$(echo "$TITLE" | sed "s/ *(#${PR_NUM}) *|//")
+              BODY=$(echo "$TITLE" | sed "s/ *(#${PR_NUM}) *|//" | cut -c3-)
               PR_URL="https://github.com/$REPO/pull/$PR_NUM"
               ENTRY="- [#${PR_NUM}](${PR_URL}) ${BODY}"
               LINES="${LINES}${ENTRY}"$'\n'
