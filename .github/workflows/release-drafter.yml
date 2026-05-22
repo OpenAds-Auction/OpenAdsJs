@@ -51,7 +51,7 @@ jobs:
           fi
 
       - name: Read and increment versions from package.json
-        if: false #steps.changes.outputs.has_changes == 'true'
+        if: steps.changes.outputs.has_changes == 'true'
         id: versions
         run: |
           OA_VERSION=$(jq -r '.oaVersion' package.json)
@@ -84,18 +84,6 @@ jobs:
 
           echo "oa_version=$NEW_OA_VERSION" >> $GITHUB_OUTPUT
           echo "prebid_version=$PREBID_VERSION" >> $GITHUB_OUTPUT
-
-      #delete --------
-      - name: Read versions from package.json for testing
-        if: steps.changes.outputs.has_changes == 'true'
-        id: versionsTester
-        run: |
-          OA_VERSION=$(jq -r '.oaVersion' package.json)
-          PREBID_VERSION=$(jq -r '.version' package.json)
-
-          echo "oa_version=$OA_VERSION" >> $GITHUB_OUTPUT
-          echo "prebid_version=$PREBID_VERSION" >> $GITHUB_OUTPUT
-      #-------------------
 
       - name: Commit incremented OA version
         if: false ##steps.changes.outputs.has_changes == 'true'
@@ -131,7 +119,7 @@ jobs:
           while IFS= read -r -d $'\x00' commit; do
             SHA=$(echo "$commit" | awk -F'|SEP|' '{print $1}' | xargs -0)
             TITLE=$(echo "$commit" | awk -F'|SEP|' '{print $2}' | xargs -0)
-            BODY=$(echo "$commit" | awk -F'|SEP|' '{print $3}' | xargs -0 | cut -c2-)
+            BODY=$(echo "$commit" | awk -F'|SEP|' '{print $3}' | xargs -0 | sed '/^$/d' | sed 's/^[[:space:]]*//')
 
             # Try to extract a PR number from the title, e.g. "#123"
             PR_NUM=$(echo "$TITLE" | grep -oP '#\K[0-9]+' | head -1)
@@ -148,7 +136,7 @@ jobs:
           cat /tmp/commit_list.txt
 
       - name: Create GitHub Release
-        if: steps.changes.outputs.has_changes == 'true'
+        if: false #steps.changes.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ steps.app_token.outputs.token }}
         run: |
