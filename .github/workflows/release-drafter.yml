@@ -72,21 +72,25 @@ jobs:
           if [ -n "$TAG" ] && [ "$OA_VERSION" != "$TAGGED_OA_VERSION" ]; then
             echo "oaVersion has been manually changed since last tag — skipping minor increment."
             NEW_OA_VERSION="$OA_VERSION"
+
+            echo "version_bumped=false" >> $GITHUB_OUTPUT
           else
             echo "oaVersion unchanged since last tag — incrementing minor."
             NEW_MINOR=$((MINOR + 1))
             NEW_OA_VERSION="${MAJOR}.${NEW_MINOR}.${PATCH}"
-          fi
 
-          # Write new version back to package.json
-          jq --arg v "$NEW_OA_VERSION" '.oaVersion = $v' package.json > package.tmp.json
-          mv package.tmp.json package.json
+            # Write new version back to package.json
+            jq --arg v "$NEW_OA_VERSION" '.oaVersion = $v' package.json > package.tmp.json
+            mv package.tmp.json package.json
+
+            echo "version_bumped=true" >> $GITHUB_OUTPUT
+          fi
 
           echo "oa_version=$NEW_OA_VERSION" >> $GITHUB_OUTPUT
           echo "prebid_version=$PREBID_VERSION" >> $GITHUB_OUTPUT
 
       - name: Commit incremented OA version
-        if: false ##steps.changes.outputs.has_changes == 'true'
+        if: steps.changes.outputs.has_changes == 'true' && steps.versions.outputs.version_bumped == 'true'
         env:
           GH_TOKEN: ${{ steps.app_token.outputs.token }}
         run: |
@@ -117,14 +121,14 @@ jobs:
           LINES=""
 
           while IFS= read -r -d $'\x00' commit; do
-            SHA=$(echo "$commit" | awk -F'|SEP|' '{print $1}' | xargs -0)
             TITLE=$(echo "$commit" | awk -F'|SEP|' '{print $2}' | xargs -0)
-            BODY=$(echo "$commit" | awk -F'|SEP|' '{print $3}' | xargs -0 | sed '/^$/d' | sed 's/^[[:space:]]*//')
 
             # Try to extract a PR number from the title, e.g. "#123"
             PR_NUM=$(echo "$TITLE" | grep -oP '#\K[0-9]+' | head -1)
 
             if [ -n "$PR_NUM" ]; then
+              # Remove the PR reference like "(#123)" from the title
+              BODY=$(echo "$TITLE" | sed "s/ *(#${PR_NUM})//")
               PR_URL="https://github.com/$REPO/pull/$PR_NUM"
               ENTRY="- [#${PR_NUM}](${PR_URL}) ${BODY}"
               LINES="${LINES}${ENTRY}"$'\n'
