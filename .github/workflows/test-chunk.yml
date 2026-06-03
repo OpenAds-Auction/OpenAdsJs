@@ -68,7 +68,7 @@ jobs:
           local-identifier: random
 
       - name: Run tests
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 8
           max_attempts: 3
