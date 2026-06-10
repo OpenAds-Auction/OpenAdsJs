@@ -594,7 +594,70 @@ describe('s2s configuration', () => {
   it('filters out disabled configs', () => {
     cfg1.enabled = false;
     expect(validateConfig([cfg1, cfg2])).to.eql([cfg2]);
-  })
+  });
+  it('thetradedesk bidder param defaults are not set if no defaults configured', () => {
+    expect(validateConfig(cfg1)[0].adapterOptions).to.not.exist;
+
+    cfg1.adapterOptions = {tester: {key: 'value'}}
+    const res = validateConfig(cfg1)[0]
+    expect(res.adapterOptions).to.exist;
+    expect(res.adapterOptions.tester).to.exist;
+    expect(res.adapterOptions.tester).to.haveOwnProperty('key');
+    expect(res.adapterOptions.tester.key).to.be.equal('value')
+    expect(res.adapterOptions.thetradedesk).to.not.exist;
+  });
+  it('thetradedesk bidder param defaults are set if defaults configured', () => {
+    _ttdParamDefaults = {
+      thetradedesk: {
+        publisherId: '1',
+        supplySourceId: 'tester'
+      }
+    }
+
+    cfg2.adapterOptions = {tester: {key: 'value'}}
+
+    const res = validateConfig([cfg1, cfg2])
+    expect(res[0].adapterOptions).to.exist;
+    expect(res[0].adapterOptions.thetradedesk).to.exist;
+    expect(res[0].adapterOptions.thetradedesk).to.haveOwnProperty('publisherId');
+    expect(res[0].adapterOptions.thetradedesk.publisherId).to.be.equal('1')
+    expect(res[0].adapterOptions.thetradedesk).to.haveOwnProperty('supplySourceId');
+    expect(res[0].adapterOptions.thetradedesk.supplySourceId).to.be.equal('tester');
+
+    expect(res[1].adapterOptions).to.exist;
+    expect(res[1].adapterOptions.thetradedesk).to.exist;
+    expect(res[1].adapterOptions.thetradedesk).to.haveOwnProperty('publisherId');
+    expect(res[1].adapterOptions.thetradedesk.publisherId).to.be.equal('1')
+    expect(res[1].adapterOptions.thetradedesk).to.haveOwnProperty('supplySourceId');
+    expect(res[1].adapterOptions.thetradedesk.supplySourceId).to.be.equal('tester');
+    expect(res[1].adapterOptions.tester).to.exist;
+    expect(res[1].adapterOptions.tester).to.haveOwnProperty('key');
+    expect(res[1].adapterOptions.tester.key).to.be.equal('value')
+
+  });
+  it('thetradedesk bidder param defaults are not set if thetradedesk params are supplied', () => {
+    _ttdParamDefaults = {
+      thetradedesk: {
+        publisherId: '1',
+        supplySourceId: 'tester'
+      }
+    }
+
+    cfg1.adapterOptions = {
+      thetradedesk: {
+        publisherId: '2',
+        supplySourceId: 'tester2'
+      }
+    }
+
+    const res = validateConfig(cfg1)[0]
+    expect(res.adapterOptions).to.exist;
+    expect(res.adapterOptions.thetradedesk).to.exist;
+    expect(res.adapterOptions.thetradedesk).to.haveOwnProperty('publisherId');
+    expect(res.adapterOptions.thetradedesk.publisherId).to.be.equal('2')
+    expect(res.adapterOptions.thetradedesk).to.haveOwnProperty('supplySourceId');
+    expect(res.adapterOptions.thetradedesk.supplySourceId).to.be.equal('tester2')
+  });
 });
 
 describe('S2S Adapter', function () {
@@ -2112,8 +2175,9 @@ describe('S2S Adapter', function () {
     it('adds s2sConfig adapterOptions to request for ORTB', function () {
       const s2sConfig = Object.assign({}, CONFIG, {
         adapterOptions: {
-          appnexus: {
-            key: 'value'
+          thetradedesk: {
+            publisherId: '1',
+            supplySourceId: 'test'
           }
         }
       });
@@ -2130,8 +2194,10 @@ describe('S2S Adapter', function () {
       adapter.callBids(s2sBidRequest, BID_REQUESTS, addBidResponse, done, ajax);
       const requestBid = JSON.parse(server.requests[0].requestBody);
       const requestParams = requestBid.imp[0].ext.openads.bidder;
-      expect(requestParams.appnexus).to.haveOwnProperty('key');
-      expect(requestParams.appnexus.key).to.be.equal('value')
+      expect(requestParams.thetradedesk).to.haveOwnProperty('publisherId');
+      expect(requestParams.thetradedesk.publisherId).to.be.equal('1')
+      expect(requestParams.thetradedesk).to.haveOwnProperty('supplySourceId');
+      expect(requestParams.thetradedesk.supplySourceId).to.be.equal('test')
     });
 
     describe('config site value is added to the oRTB request', function () {

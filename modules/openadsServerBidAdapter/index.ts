@@ -3,6 +3,7 @@ import {
   compressDataWithGZip,
   debugTurnedOn,
   deepClone,
+  mergeDeep,
   flatten,
   generateUUID,
   getParameterByName,
@@ -35,12 +36,21 @@ import type {Metrics} from "../../src/utils/perfMetrics.ts";
 import type {ORTBResponse} from "../../src/types/ortb/response.d.ts";
 import type {NativeRequest} from '../../src/types/ortb/native.d.ts';
 import type {SyncType} from "../../src/userSync.ts";
+import {GDPR_GVLIDS} from '../../src/consentHandler.js';
+import {MODULE_TYPE_BIDDER} from '../../src/activities/modules.js';
 
 const getConfig = config.getConfig;
 
 const TYPE = S2S.SRC;
 let _syncCount = 0;
 let _s2sConfigs: S2SConfig[];
+
+let _ttdParamDefaults = {
+  thetradedesk: {
+    publisherId: '$prebid.defaultTTDPublisherId$',
+    supplySourceId: '$prebid.defaultTTDSupplySourceId$'
+  }
+}
 
 type Endpoint = string | {
   /**
@@ -178,6 +188,13 @@ declare module '../../src/config' {
 
 function updateConfigDefaults(s2sConfig: S2SConfig) {
   s2sConfig.adapter = 'openadsServer';
+
+  if (_ttdParamDefaults.thetradedesk.publisherId != '' && _ttdParamDefaults.thetradedesk.supplySourceId != '') {
+    if (s2sConfig.adapterOptions?.thetradedesk === undefined) {
+      s2sConfig.adapterOptions = mergeDeep({}, s2sConfig.adapterOptions, _ttdParamDefaults)
+    }
+  }
+
   return true;
 }
 
@@ -690,3 +707,4 @@ function getAtagData(response) {
 }
 
 adapterManager.registerBidAdapter(new OpenAdsServer(), 'openadsServer');
+GDPR_GVLIDS.register(MODULE_TYPE_BIDDER, 'thetradedesk', 21);
