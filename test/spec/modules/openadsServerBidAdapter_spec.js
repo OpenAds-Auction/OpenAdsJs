@@ -2166,9 +2166,8 @@ describe('S2S Adapter', function () {
     it('adds s2sConfig adapterOptions to request for ORTB', function () {
       const s2sConfig = Object.assign({}, CONFIG, {
         adapterOptions: {
-          thetradedesk: {
-            publisherId: '1',
-            supplySourceId: 'test'
+          appnexus: {
+            key: 'value'
           }
         }
       });
@@ -2185,11 +2184,8 @@ describe('S2S Adapter', function () {
       adapter.callBids(s2sBidRequest, BID_REQUESTS, addBidResponse, done, ajax);
       const requestBid = JSON.parse(server.requests[0].requestBody);
       const requestParams = requestBid.imp[0].ext.openads.bidder;
-      expect(requestParams.thetradedesk).to.exist;
-      expect(requestParams.thetradedesk).to.haveOwnProperty('publisherId');
-      expect(requestParams.thetradedesk.publisherId).to.be.equal('1')
-      expect(requestParams.thetradedesk).to.haveOwnProperty('supplySourceId');
-      expect(requestParams.thetradedesk.supplySourceId).to.be.equal('test')
+      expect(requestParams.appnexus).to.haveOwnProperty('key');
+      expect(requestParams.appnexus.key).to.be.equal('value')
     });
 
     describe('config site value is added to the oRTB request', function () {
