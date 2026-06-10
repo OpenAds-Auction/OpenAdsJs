@@ -4,7 +4,8 @@ import {
   resetSyncedStatus,
   validateConfig,
   s2sDefaultConfig,
-  processPBSRequest
+  processPBSRequest,
+  setTheTradeDeskDefaultParams
 } from 'modules/openadsServerBidAdapter/index.js';
 import adapterManager, {PBS_ADAPTER_NAME} from 'src/adapterManager.js';
 import * as utils from 'src/utils.js';
