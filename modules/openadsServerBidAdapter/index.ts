@@ -176,7 +176,7 @@ type S2SConfig = {
    * If true, exclude ad units that have no bidders defined.
    */
   filterBidderlessCalls?: boolean;
-}
+};
 
 export const s2sDefaultConfig: Partial<S2SConfig> = {
   bidders: Object.freeze([]) as any,
@@ -309,14 +309,14 @@ export function validateConfig(options: S2SConfig[]) {
             activeBidders.add(bidder);
             return true;
           }
-        })
+        });
       }
       return true;
     } else {
       logWarn('openadsServer: s2s config is disabled', s2sConfig);
       return false
     }
-  })
+  });
 }
 
 /**
@@ -446,7 +446,7 @@ function doPreBidderSync(type, url, bidder, done, s2sConfig) {
   if (s2sConfig.syncUrlModifier && typeof s2sConfig.syncUrlModifier[bidder] === 'function') {
     url = s2sConfig.syncUrlModifier[bidder](type, url, bidder);
   }
-  doBidderSync(type, url, bidder, done, s2sConfig.syncTimeout)
+  doBidderSync(type, url, bidder, done, s2sConfig.syncTimeout);
 }
 
 /**
@@ -499,7 +499,7 @@ function doClientSideSyncs(bidders, gdprConsent, uspConsent, gppConsent) {
 
 function getMatchingConsentUrl(urlProp, gdprConsent) {
   const hasPurpose = hasPurpose1Consent(gdprConsent);
-  const url = hasPurpose ? urlProp.p1Consent : urlProp.noP1Consent
+  const url = hasPurpose ? urlProp.p1Consent : urlProp.noP1Consent;
   if (!url) {
     logWarn('Missing matching consent URL when gdpr=' + hasPurpose);
   }
@@ -534,14 +534,14 @@ export type SeatNonBid = {
    */
   response: ORTBResponse;
   adapterMetrics: Metrics;
-}
+};
 
 export type PbsAnalytics = SeatNonBid & {
   /**
    * The PBS response's `ext.openads.analytics.tags`.
    */
   atag: unknown;
-}
+};
 
 declare module '../../src/events' {
   interface Events {
@@ -560,7 +560,7 @@ export function OpenAdsServer() {
   baseAdapter.callBids = function(s2sBidRequest, bidRequests, addBidResponse, done, ajax) {
     const adapterMetrics = s2sBidRequest.metrics = useMetrics(bidRequests?.[0]?.metrics)
       .newMetrics()
-      .renameWith((n) => [`adapter.s2s.${n}`, `adapters.s2s.${s2sBidRequest.s2sConfig.defaultVendor}.${n}`])
+      .renameWith((n) => [`adapter.s2s.${n}`, `adapters.s2s.${s2sBidRequest.s2sConfig.defaultVendor}.${n}`]);
     done = adapterMetrics.startTiming('total').stopBefore(done);
     bidRequests.forEach(req => useMetrics(req.metrics).join(adapterMetrics, { stopPropagation: true }));
 
@@ -581,7 +581,7 @@ export function OpenAdsServer() {
           if (isValid) {
             bidRequests.forEach(bidderRequest => events.emit(EVENTS.BIDDER_DONE, bidderRequest));
           }
-          const { seatNonBidData, atagData } = getAnalyticsFlags(s2sBidRequest.s2sConfig, response)
+          const { seatNonBidData, atagData } = getAnalyticsFlags(s2sBidRequest.s2sConfig, response);
           // pbs analytics event
           if (seatNonBidData || atagData) {
             const data: PbsAnalytics = {
@@ -591,7 +591,7 @@ export function OpenAdsServer() {
               requestedBidders,
               response,
               adapterMetrics
-            }
+            };
             events.emit(EVENTS.PBS_ANALYTICS, data);
           }
           done(false);
@@ -621,7 +621,7 @@ export function OpenAdsServer() {
             }
           }
         }
-      })
+      });
     }
   };
 
@@ -636,7 +636,7 @@ type PbsRequestData = {
   endpointUrl: string;
   requestJson: string;
   customHeaders: Record<string, string>;
-}
+};
 
 /**
  * Build and send the appropriate HTTP request over the network, then interpret the response.
@@ -664,7 +664,7 @@ export const processPBSRequest = hook('async', function (s2sBidRequest, bidReque
     requestJson: request && JSON.stringify(request),
     customHeaders: s2sBidRequest?.s2sConfig?.customHeaders ?? {},
   };
-  events.emit(EVENTS.BEFORE_PBS_HTTP, requestData)
+  events.emit(EVENTS.BEFORE_PBS_HTTP, requestData);
   logInfo('BidRequest: ' + requestData);
   if (request && requestData.requestJson && requestData.endpointUrl) {
     const callAjax = (payload, endpointUrl) => {
@@ -702,7 +702,7 @@ export const processPBSRequest = hook('async', function (s2sBidRequest, bidReque
           customHeaders: requestData.customHeaders
         }
       );
-    }
+    };
 
     const enableGZipCompression = s2sBidRequest.s2sConfig.endpointCompression && !requestData.customHeaders['Content-Encoding'];
     const debugMode = getParameterByName(DEBUG_MODE).toUpperCase() === 'TRUE' || debugTurnedOn();
@@ -728,7 +728,7 @@ function getAnalyticsFlags(s2sConfig, response) {
   return {
     atagData: getAtagData(response),
     seatNonBidData: getNonBidData(s2sConfig, response)
-  }
+  };
 }
 function getNonBidData(s2sConfig, response) {
   var extOpenAdsAll = s2sConfig?.extOpenAds?.returnallbidstatus ?? false

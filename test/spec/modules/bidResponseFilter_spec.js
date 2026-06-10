@@ -11,7 +11,7 @@ import { addBidResponse } from '../../../src/auction.js';
 import { config } from '../../../src/config.js';
 
 describe('bidResponseFilter', () => {
-  let mockAuctionIndex
+  let mockAuctionIndex;
   before(() => {
     addBidResponse.removeAll();
   });
@@ -26,7 +26,7 @@ describe('bidResponseFilter', () => {
   afterEach(() => {
     config.resetConfig();
     reset();
-  })
+  });
 
   describe('enable/disable', () => {
     let reject, dispatch;
@@ -50,7 +50,7 @@ describe('bidResponseFilter', () => {
       addBidResponse.call({ dispatch }, 'au', {}, reject);
       sinon.assert.called(reject);
       sinon.assert.notCalled(dispatch);
-    })
+    });
   });
 
   it('should pass the bid after successful ortb2 rules validation', () => {
@@ -65,7 +65,7 @@ describe('bidResponseFilter', () => {
         banner: {}
       },
       ortb2Imp: {}
-    })
+    });
 
     const bid = {
       meta: {
@@ -245,7 +245,7 @@ describe('bidResponseFilter', () => {
           battr: 'BANNED_ATTR'
         }
       }
-    })
+    });
 
     addBidResponseHook(call, 'adcode', bid, reject, mockAuctionIndex);
     sinon.assert.calledWith(reject, BID_ATTR_REJECTION_REASON);
@@ -268,7 +268,7 @@ describe('bidResponseFilter', () => {
         banner: {}
       },
       ortb2Imp: {}
-    })
+    });
 
     mockAuctionIndex.getOrtb2 = () => ({
       badv: ['domain2.com'], bcat: ['BANNED_CAT1', 'BANNED_CAT2']
@@ -302,7 +302,7 @@ describe('bidResponseFilter', () => {
         banner: {}
       },
       ortb2Imp: {}
-    })
+    });
 
     config.setConfig({ [MODULE_NAME]: { cat: { blockUnknown: false } } });
 
@@ -333,7 +333,7 @@ describe('bidResponseFilter', () => {
         banner: {},
       },
       ortb2Imp: {}
-    })
+    });
 
     addBidResponseHook(call, 'adcode', bid, reject, mockAuctionIndex);
     sinon.assert.calledWith(reject, BID_MEDIA_TYPE_REJECTION_REASON);
@@ -406,4 +406,4 @@ describe('bidResponseFilter', () => {
     sinon.assert.calledWith(reject, BID_MEDIA_TYPE_REJECTION_REASON);
     sinon.assert.notCalled(call);
   });
-})
+});

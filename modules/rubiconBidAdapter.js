@@ -270,10 +270,10 @@ export const spec = {
     }
     // validate account, site, zone have numeric values
     for (let i = 0, props = ['accountId', 'siteId', 'zoneId']; i < props.length; i++) {
-      bid.params[props[i]] = parseInt(bid.params[props[i]])
+      bid.params[props[i]] = parseInt(bid.params[props[i]]);
       if (isNaN(bid.params[props[i]])) {
-        logError('Rubicon: wrong format of accountId or siteId or zoneId.')
-        return false
+        logError('Rubicon: wrong format of accountId or siteId or zoneId.');
+        return false;
       }
     }
     const bidFormats = bidType(bid, true);
@@ -312,7 +312,7 @@ export const spec = {
         (video && mediaTypes.includes(VIDEO)) ||
         // if bidonmultiformat is on, send everything to PBS
         (bidonmultiformat && (mediaTypes.includes(VIDEO) || mediaTypes.includes(NATIVE)))
-      )
+      );
     });
 
     if (filteredRequests && filteredRequests.length) {
@@ -395,9 +395,9 @@ export const spec = {
   },
 
   getOrderedParams: function(params) {
-    const containsTgV = /^tg_v/
-    const containsTgI = /^tg_i/
-    const containsUId = /^eid_|^tpid_/
+    const containsTgV = /^tg_v/;
+    const containsTgI = /^tg_i/;
+    const containsUId = /^eid_|^tpid_/;
 
     const orderedParams = [
       'account_id',
@@ -548,7 +548,7 @@ export const spec = {
     }
     // If the bid request contains a 'mobile' property under 'ortb2.site', add it to 'data' as 'p_site.mobile'.
     if (typeof bidRequest?.ortb2?.site?.mobile === 'number') {
-      data['p_site.mobile'] = bidRequest.ortb2.site.mobile
+      data['p_site.mobile'] = bidRequest.ortb2.site.mobile;
     }
 
     addDesiredSegtaxes(bidderRequest, data);
@@ -971,7 +971,7 @@ function applyFPD(bidRequest, mediaType, data) {
       if (key !== 'adserver') {
         addBannerData(impExtData[key], 'site', key);
       } else if (impExtData[key].name === 'gam') {
-        addBannerData(impExtData[key].adslot, name, key)
+        addBannerData(impExtData[key].adslot, name, key);
       }
     });
 
@@ -1004,7 +1004,7 @@ function applyFPD(bidRequest, mediaType, data) {
 
               // finally we will add this one, if param has been added already, add our separator
               if (param) {
-                param += '~~'
+                param += '~~';
               }
 
               param += `${domain}~${dsaParamArray.join('_')}`;
@@ -1012,7 +1012,7 @@ function applyFPD(bidRequest, mediaType, data) {
             }, '');
           }
         }
-      ])
+      ]);
     }
 
     // only send one of pbadslot or dfp adunit code (prefer pbadslot)
@@ -1047,7 +1047,7 @@ function applyFPD(bidRequest, mediaType, data) {
           data.m_ch_platform = platform?.brand;
           data.m_ch_platform_ver = platform?.version?.join?.('.');
         }
-      ])
+      ]);
     }
   } else {
     if (Object.keys(impExt).length) {
@@ -1257,14 +1257,14 @@ export function hasValidVideoParams(bid) {
     mimes: arrayType,
     protocols: arrayType,
     linearity: numberType
-  }
+  };
   // loop through each param and verify it has the correct
   Object.keys(requiredParams).forEach(function(param) {
     if (Object.prototype.toString.call(deepAccess(bid, 'mediaTypes.video.' + param)) !== requiredParams[param]) {
       isValid = false;
       logError('Rubicon: mediaTypes.video.' + param + ' is required and must be of type: ' + requiredParams[param]);
     }
-  })
+  });
   return isValid;
 }
 
@@ -1334,7 +1334,7 @@ function setBidFloors(bidRequest, imp) {
 
 function addOrtbFirstPartyData(data, nonBannerRequests, ortb2) {
   let fpd = {};
-  const keywords = getAllOrtbKeywords(ortb2, ...nonBannerRequests.map(req => req.params.keywords))
+  const keywords = getAllOrtbKeywords(ortb2, ...nonBannerRequests.map(req => req.params.keywords));
   nonBannerRequests.forEach(bidRequest => {
     const bidFirstPartyData = {
       user: { ext: { data: { ...bidRequest.params.visitor } } },
@@ -1346,7 +1346,7 @@ function addOrtbFirstPartyData(data, nonBannerRequests, ortb2) {
     if (impThatHasVideoLanguage) {
       bidFirstPartyData.site.content = {
         language: impThatHasVideoLanguage.ext?.prebid?.bidder?.rubicon?.video?.language
-      }
+      };
     }
 
     fpd = mergeDeep(fpd, bidRequest.ortb2 || {}, bidFirstPartyData);
