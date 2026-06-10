@@ -26,6 +26,8 @@ document.write('<script'+' src="'+encodeURI(u)+'"><'+'/script>');
 
 <script>
     // The OpenAds global must match OpenAds.js setting. This example file is not preprocessed so below we refer to global as `oajs`.
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
     var $$PREBID_GLOBAL$$ = oajs;
     var openadsSrc = 'https://publisher.com:9999/build/dev/openads.js';
     var adUnits;
@@ -39,9 +41,6 @@ document.write('<script'+' src="'+encodeURI(u)+'"><'+'/script>');
         var target = document.getElementsByTagName("head")[0];
         target.insertBefore(pbs, target.firstChild);
     })();
-
-    var oajs = oajs || {};
-    oajs.que = oajs.que || [];
 
     var date = new Date().getTime();
 
