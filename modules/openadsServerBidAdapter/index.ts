@@ -52,6 +52,15 @@ let _ttdParamDefaults = {
   }
 }
 
+export function getTheTradeDeskDefaultParams() {
+  return _ttdParamDefaults
+}
+
+export function setTheTradeDeskDefaultParams(publihserId, supplySourceId) {
+  _ttdParamDefaults.thetradedesk.publisherId = publihserId
+  _ttdParamDefaults.thetradedesk.supplySourceId = supplySourceId
+}
+
 type Endpoint = string | {
   /**
    * Defines the auction endpoint or the cookie_sync endpoint for the OpenAds Server cluster for non-consent requests or users who grant consent.
