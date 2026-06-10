@@ -607,13 +607,7 @@ describe('s2s configuration', () => {
     expect(res.adapterOptions.thetradedesk).to.not.exist;
   });
   it('thetradedesk bidder param defaults are set if defaults configured', () => {
-    _ttdParamDefaults = {
-      thetradedesk: {
-        publisherId: '1',
-        supplySourceId: 'tester'
-      }
-    }
-
+    setTheTradeDeskDefaultParams('1', 'tester')
     cfg2.adapterOptions = {tester: {key: 'value'}}
 
     const res = validateConfig([cfg1, cfg2])
@@ -636,13 +630,7 @@ describe('s2s configuration', () => {
 
   });
   it('thetradedesk bidder param defaults are not set if thetradedesk params are supplied', () => {
-    _ttdParamDefaults = {
-      thetradedesk: {
-        publisherId: '1',
-        supplySourceId: 'tester'
-      }
-    }
-
+    setTheTradeDeskDefaultParams('1', 'tester')
     cfg1.adapterOptions = {
       thetradedesk: {
         publisherId: '2',

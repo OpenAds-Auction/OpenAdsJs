@@ -189,7 +189,7 @@ declare module '../../src/config' {
 function updateConfigDefaults(s2sConfig: S2SConfig) {
   s2sConfig.adapter = 'openadsServer';
 
-  if (_ttdParamDefaults.thetradedesk.publisherId != '' && _ttdParamDefaults.thetradedesk.supplySourceId != '') {
+  if (_ttdParamDefaults.thetradedesk.publisherId !== '' && _ttdParamDefaults.thetradedesk.supplySourceId !== '') {
     if (s2sConfig.adapterOptions?.thetradedesk === undefined) {
       s2sConfig.adapterOptions = mergeDeep({}, s2sConfig.adapterOptions, _ttdParamDefaults)
     }
