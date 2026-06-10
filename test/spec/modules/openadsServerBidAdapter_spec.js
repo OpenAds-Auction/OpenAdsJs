@@ -627,7 +627,6 @@ describe('s2s configuration', () => {
     expect(res[1].adapterOptions.tester).to.exist;
     expect(res[1].adapterOptions.tester).to.haveOwnProperty('key');
     expect(res[1].adapterOptions.tester.key).to.be.equal('value')
-
   });
   it('thetradedesk bidder param defaults are not set if thetradedesk params are supplied', () => {
     setTheTradeDeskDefaultParams('1', 'tester')
