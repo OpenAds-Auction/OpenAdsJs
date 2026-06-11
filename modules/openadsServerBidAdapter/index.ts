@@ -48,8 +48,8 @@ let _s2sConfigs: S2SConfig[];
 const ttdServerBidAdapterCode = 'thetradedesk';
 const defaultEndpoint = 'https://openads.adsrvr.org/openrtb2/auction';
 const defaultSyncEndpoint = 'https://openads.adsrvr.org/cookie_sync';
-let defaultTTDPublisherId = '$prebid.ttd.defaults.ttdPublisherId$';
-let defaultTTDSupplySourceId = '$prebid.ttd.defaults.ttdSupplySourceId$';
+let defaultTTDPublisherId = '$prebid.ttd.defaults.publisherId$';
+let defaultTTDSupplySourceId = '$prebid.ttd.defaults.supplySourceId$';
 
 let defaultTTDParamDefaults = {
   thetradedesk: {
@@ -86,7 +86,7 @@ type S2SConfig = {
   /**
    * Your OpenAds Server account ID. This is obtained from whoever’s hosting your OpenAds Server.
    */
-  c: string;
+  accountId: string;
   /**
    * A handle for this configuration, used to reference a specific server (when multiple are present) from ad unit configuration
    */
@@ -290,7 +290,7 @@ export function validateConfig(options: S2SConfig[]) {
   return options.filter(s2sConfig => {
     formatUrlParams(s2sConfig);
     setConfigDefaults(s2sConfig)
-    
+
     if (
       validateConfigRequiredProps(s2sConfig) &&
       checkOpenAdsValueRestriction(s2sConfig) &&
