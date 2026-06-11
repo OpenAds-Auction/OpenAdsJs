@@ -228,7 +228,7 @@ function setConfigDefaults(s2sConfig: S2SConfig) {
   }
 
   if (defaultTTDSupplySourceId !== '' && defaultTTDPublisherId !== '') {
-    logInfo(`merging s2sConfig.adapterOptions with ${defaultTTDParamDefaults}`)
+    logInfo(`merging s2sConfig.adapterOptions with ${JSON.stringify(defaultTTDParamDefaults)}`)
     s2sConfig.adapterOptions = mergeDeep({}, s2sConfig.adapterOptions, defaultTTDParamDefaults)
   }
 
