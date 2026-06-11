@@ -214,7 +214,7 @@ function setConfigDefaults(s2sConfig: S2SConfig) {
     p1Consent: defaultEndpoint
   }
 
-  if (s2sConfig.syncEndpoint !== null && s2sConfig.syncEndpoint !== undefined) {
+  if (s2sConfig.syncEndpoint) {
     logInfo(`setting s2sConfig.syncEndpoint to default value: ${defaultSyncEndpoint}`)
     s2sConfig.syncEndpoint = {
       noP1Consent: defaultSyncEndpoint,
