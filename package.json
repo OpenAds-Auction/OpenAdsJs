@@ -18,6 +18,12 @@
     "./customize/*.mjs": "./customize/*.mjs",
     "./customize/*": "./customize/*.mjs"
   },
+  "ttd": {
+    "defaults": {
+      "supplySourceId": "",
+      "publisherId": ""
+    }
+  },
   "scripts": {
     "serve": "gulp serve",
     "test": "gulp test",

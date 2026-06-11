@@ -98,18 +98,14 @@ function setBrowsers(karmaConf, browserstack) {
     karmaConf.browsers = Object.keys(karmaConf.customLaunchers);
   } else {
     var isDocker = require('is-docker')();
-    if (isDocker) {
-      karmaConf.customLaunchers = karmaConf.customLaunchers || {};
-      karmaConf.customLaunchers.ChromeCustom = {
-        base: 'ChromeHeadless',
-        // We must disable the Chrome sandbox when running Chrome inside Docker (Chrome's sandbox needs
-        // more permissions than Docker allows by default)
-        flags: ['--no-sandbox']
-      }
-      karmaConf.browsers = ['ChromeCustom'];
-    } else {
-      karmaConf.browsers = ['ChromeHeadless'];
+    karmaConf.customLaunchers = karmaConf.customLaunchers || {};
+    karmaConf.customLaunchers.ChromeCustom = {
+      base: 'ChromeHeadless',
+      // We must disable the Chrome sandbox when running Chrome inside Docker (Chrome's sandbox needs
+      // more permissions than Docker allows by default)
+      flags: ['--no-sandbox']
     }
+    karmaConf.browsers = ['ChromeCustom'];
   }
 }
 

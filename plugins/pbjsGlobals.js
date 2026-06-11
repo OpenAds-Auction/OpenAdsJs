@@ -10,8 +10,8 @@ module.exports = function(api, options) {
   let replace = {
     '$prebid.version$': prebid.version,
     '$prebid.oaVersion$': prebid.oaVersion,
-    '$prebid.defaultTTDPublisherId$': '',
-    '$prebid.defaultTTDSupplySourceId$': '',
+    '$prebid.ttd.defaults.publisherId$': prebid.ttd.defaults.publisherId,
+    '$prebid.ttd.defaults.supplySourceId$': prebid.ttd.defaults.supplySourceId,
     '$$PREBID_GLOBAL$$': false,
     '$$DEFINE_PREBID_GLOBAL$$': false,
     '$$REPO_AND_VERSION$$': `${prebid.repository.url.split('/')[3]}_prebid_${prebid.version}`,
