@@ -715,6 +715,11 @@ describe('s2s configuration', () => {
     res = validateConfig(cfg1)[0]
     expect(res.bidders.length).to.be.equal(1);
     expect(res.bidders[0]).to.be.equal('thetradedesk');
+
+    cfg1.bidders = ['thetradedesk']
+    res = validateConfig(cfg1)[0]
+    expect(res.bidders.length).to.be.equal(1);
+    expect(res.bidders[0]).to.be.equal('thetradedesk');
   });
 });
 
