@@ -86,7 +86,7 @@ type S2SConfig = {
   /**
    * Your OpenAds Server account ID. This is obtained from whoever’s hosting your OpenAds Server.
    */
-  accountId: string;
+  c: string;
   /**
    * A handle for this configuration, used to reference a specific server (when multiple are present) from ad unit configuration
    */
@@ -242,8 +242,6 @@ function setConfigDefaults(s2sConfig: S2SConfig) {
     logInfo(`adding '${ttdServerBidAdapterCode}' to s2sConfig.bidder`)
     s2sConfig.bidders.push(ttdServerBidAdapterCode)
   }
-
-  return true;
 }
 
 function validateConfigRequiredProps(s2sConfig: S2SConfig) {
@@ -291,8 +289,9 @@ export function validateConfig(options: S2SConfig[]) {
   const activeBidders = new Set();
   return options.filter(s2sConfig => {
     formatUrlParams(s2sConfig);
+    setConfigDefaults(s2sConfig)
+    
     if (
-      setConfigDefaults(s2sConfig) &&
       validateConfigRequiredProps(s2sConfig) &&
       checkOpenAdsValueRestriction(s2sConfig) &&
       s2sConfig.enabled
