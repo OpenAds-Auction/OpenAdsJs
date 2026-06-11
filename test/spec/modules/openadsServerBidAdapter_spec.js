@@ -650,6 +650,72 @@ describe('s2s configuration', () => {
     expect(res.adapterOptions.thetradedesk).to.haveOwnProperty('supplySourceId');
     expect(res.adapterOptions.thetradedesk.supplySourceId).to.be.equal('tester')
   });
+  it('endpoint is always set to default value', () => {
+    let res = validateConfig(cfg1)[0]
+    expect(res.endpoint).to.exist;
+    expect(res.endpoint.noP1Consent).to.exist;
+    expect(res.endpoint.noP1Consent).to.be.equal('https://openads.adsrvr.org/openrtb2/auction');
+    expect(res.endpoint.p1Consent).to.exist;
+    expect(res.endpoint.p1Consent).to.be.equal('https://openads.adsrvr.org/openrtb2/auction');
+
+    delete cfg1.endpoint
+    res = validateConfig(cfg1)[0]
+    expect(res.endpoint).to.exist;
+    expect(res.endpoint.noP1Consent).to.exist;
+    expect(res.endpoint.noP1Consent).to.be.equal('https://openads.adsrvr.org/openrtb2/auction');
+    expect(res.endpoint.p1Consent).to.exist;
+    expect(res.endpoint.p1Consent).to.be.equal('https://openads.adsrvr.org/openrtb2/auction');
+  });
+  it('syncEndpoint is not set to default value if not provided', () => {
+    let res = validateConfig(cfg1)[0]
+    expect(res.syncEndpoint).to.not.exist;
+  });
+  it('syncEndpoint is set to default value', () => {
+    cfg1.syncEndpoint = "tester"
+    let res = validateConfig(cfg1)[0]
+    expect(res.syncEndpoint).to.exist;
+    expect(res.syncEndpoint.noP1Consent).to.exist;
+    expect(res.syncEndpoint.noP1Consent).to.be.equal('https://openads.adsrvr.org/cookie_sync');
+    expect(res.syncEndpoint.p1Consent).to.exist;
+    expect(res.syncEndpoint.p1Consent).to.be.equal('https://openads.adsrvr.org/cookie_sync');
+  });
+  it('account is not set to default value if no default set', () => {
+    let res = validateConfig(cfg1)[0]
+    expect(res.accountId).to.exist;
+    expect(res.accountId).to.be.equal('123456');
+  });
+  it('account is set to default value', () => {
+    setTheTradeDeskParamDefaults('1', 'tester')
+    const res = validateConfig(cfg1)[0]
+    expect(res.accountId).to.exist;
+    expect(res.accountId).to.be.equal('tester');
+  });
+  it('bidders always includes thetradedesk', () => {
+    let res = validateConfig(cfg1)[0]
+    expect(res.bidders.length).to.be.equal(2);
+    expect(res.bidders[1]).to.be.equal('thetradedesk');
+
+    cfg1.bidders = 'bidderA'
+    res = validateConfig(cfg1)[0]
+    expect(res.bidders.length).to.be.equal(2);
+    expect(res.bidders[0]).to.be.equal('bidderA');
+    expect(res.bidders[1]).to.be.equal('thetradedesk');
+
+    delete cfg1.bidders
+    res = validateConfig(cfg1)[0]
+    expect(res.bidders.length).to.be.equal(1);
+    expect(res.bidders[0]).to.be.equal('thetradedesk');
+
+    cfg1.bidders = null
+    res = validateConfig(cfg1)[0]
+    expect(res.bidders.length).to.be.equal(1);
+    expect(res.bidders[0]).to.be.equal('thetradedesk');
+
+    cfg1.bidders = 1
+    res = validateConfig(cfg1)[0]
+    expect(res.bidders.length).to.be.equal(1);
+    expect(res.bidders[0]).to.be.equal('thetradedesk');
+  });
 });
 
 describe('S2S Adapter', function () {
