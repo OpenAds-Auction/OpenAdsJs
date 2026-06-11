@@ -58,8 +58,8 @@ let defaultTTDParamDefaults = {
   }
 }
 
-export function setTheTradeDeskParamDefaults(publihserid, supplySourceId) {
-  defaultTTDPublisherId = publihserid;
+export function setTheTradeDeskParamDefaults(publisherId, supplySourceId) {
+  defaultTTDPublisherId = publisherId;
   defaultTTDSupplySourceId = supplySourceId;
 
   defaultTTDParamDefaults = {
