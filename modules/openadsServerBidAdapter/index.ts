@@ -233,14 +233,19 @@ function setConfigDefaults(s2sConfig: S2SConfig) {
   }
 
   if (typeof s2sConfig.bidders === 'string' && s2sConfig.bidders !== ttdServerBidAdapterCode) {
-    logInfo(`adding '${ttdServerBidAdapterCode}' to s2sConfig.bidder`)
+    logInfo(`adding '${ttdServerBidAdapterCode}' to s2sConfig.bidders`)
     s2sConfig.bidders = [s2sConfig.bidders, ttdServerBidAdapterCode]
   } else if (s2sConfig.bidders === null || s2sConfig.bidders === undefined || !Array.isArray(s2sConfig.bidders)) {
-    logInfo(`setting s2sConfig.bidder to default value of ['${ttdServerBidAdapterCode}']`)
+    logInfo(`setting s2sConfig.bidders to default value of ['${ttdServerBidAdapterCode}']`)
     s2sConfig.bidders = [ttdServerBidAdapterCode]
-  } else if (!s2sConfig.bidders.includes(ttdServerBidAdapterCode)) {
-    logInfo(`adding '${ttdServerBidAdapterCode}' to s2sConfig.bidder`)
-    s2sConfig.bidders.push(ttdServerBidAdapterCode)
+  } else if (Array.isArray(s2sConfig.bidders) && !s2sConfig.bidders.includes(ttdServerBidAdapterCode)) {
+    logInfo(`adding '${ttdServerBidAdapterCode}' to s2sConfig.bidders`)
+
+    if (s2sConfig.bidders.length === 0) {
+      s2sConfig.bidders = [ttdServerBidAdapterCode]
+    } else {
+      s2sConfig.bidders.push(ttdServerBidAdapterCode)
+    }
   }
 }
 
