@@ -4,7 +4,8 @@ import {
   resetSyncedStatus,
   validateConfig,
   s2sDefaultConfig,
-  processPBSRequest
+  processPBSRequest,
+  setTheTradeDeskParamDefaults
 } from 'modules/openadsServerBidAdapter/index.js';
 import adapterManager, {PBS_ADAPTER_NAME} from 'src/adapterManager.js';
 import * as utils from 'src/utils.js';
@@ -570,6 +571,7 @@ async function addFpdEnrichmentsToS2SRequest(s2sReq, bidderRequests) {
 
 describe('s2s configuration', () => {
   let cfg1, cfg2;
+
   beforeEach(() => {
     cfg1 = {
       enabled: true,
@@ -588,13 +590,137 @@ describe('s2s configuration', () => {
       }
     };
   })
+  afterEach(() => {
+    setTheTradeDeskParamDefaults('', '')
+  })
   it('sets openads server adapter by default', () => {
     expect(validateConfig(cfg1)[0].adapter).to.eql('openadsServer');
   });
   it('filters out disabled configs', () => {
     cfg1.enabled = false;
     expect(validateConfig([cfg1, cfg2])).to.eql([cfg2]);
-  })
+  });
+  it('thetradedesk bidder param defaults are not set if no defaults configured', () => {
+    expect(validateConfig(cfg1)[0].adapterOptions).to.not.exist;
+
+    cfg1.adapterOptions = {tester: {key: 'value'}}
+    const res = validateConfig(cfg1)[0]
+    expect(res.adapterOptions).to.exist;
+    expect(res.adapterOptions.tester).to.exist;
+    expect(res.adapterOptions.tester).to.haveOwnProperty('key');
+    expect(res.adapterOptions.tester.key).to.be.equal('value')
+    expect(res.adapterOptions.thetradedesk).to.not.exist;
+  });
+  it('thetradedesk bidder param defaults are set if defaults configured', () => {
+    setTheTradeDeskParamDefaults('1', 'tester')
+    cfg2.adapterOptions = {tester: {key: 'value'}}
+
+    const res = validateConfig([cfg1, cfg2])
+    expect(res[0].adapterOptions).to.exist;
+    expect(res[0].adapterOptions.thetradedesk).to.exist;
+    expect(res[0].adapterOptions.thetradedesk).to.haveOwnProperty('publisherId');
+    expect(res[0].adapterOptions.thetradedesk.publisherId).to.be.equal('1')
+    expect(res[0].adapterOptions.thetradedesk).to.haveOwnProperty('supplySourceId');
+    expect(res[0].adapterOptions.thetradedesk.supplySourceId).to.be.equal('tester');
+
+    expect(res[1].adapterOptions).to.exist;
+    expect(res[1].adapterOptions.thetradedesk).to.exist;
+    expect(res[1].adapterOptions.thetradedesk).to.haveOwnProperty('publisherId');
+    expect(res[1].adapterOptions.thetradedesk.publisherId).to.be.equal('1')
+    expect(res[1].adapterOptions.thetradedesk).to.haveOwnProperty('supplySourceId');
+    expect(res[1].adapterOptions.thetradedesk.supplySourceId).to.be.equal('tester');
+    expect(res[1].adapterOptions.tester).to.exist;
+    expect(res[1].adapterOptions.tester).to.haveOwnProperty('key');
+    expect(res[1].adapterOptions.tester.key).to.be.equal('value')
+  });
+  it('thetradedesk bidder param defaults take precedence over publisher provided values', () => {
+    setTheTradeDeskParamDefaults('1', 'tester')
+    cfg1.adapterOptions = {
+      thetradedesk: {
+        publisherId: '2',
+        supplySourceId: 'tester2'
+      }
+    }
+
+    const res = validateConfig(cfg1)[0]
+    expect(res.adapterOptions).to.exist;
+    expect(res.adapterOptions.thetradedesk).to.exist;
+    expect(res.adapterOptions.thetradedesk).to.haveOwnProperty('publisherId');
+    expect(res.adapterOptions.thetradedesk.publisherId).to.be.equal('1')
+    expect(res.adapterOptions.thetradedesk).to.haveOwnProperty('supplySourceId');
+    expect(res.adapterOptions.thetradedesk.supplySourceId).to.be.equal('tester')
+  });
+  it('endpoint is always set to default value', () => {
+    let res = validateConfig(cfg1)[0]
+    expect(res.endpoint).to.exist;
+    expect(res.endpoint.noP1Consent).to.exist;
+    expect(res.endpoint.noP1Consent).to.be.equal('https://openads.adsrvr.org/openrtb2/auction');
+    expect(res.endpoint.p1Consent).to.exist;
+    expect(res.endpoint.p1Consent).to.be.equal('https://openads.adsrvr.org/openrtb2/auction');
+
+    delete cfg1.endpoint
+    res = validateConfig(cfg1)[0]
+    expect(res.endpoint).to.exist;
+    expect(res.endpoint.noP1Consent).to.exist;
+    expect(res.endpoint.noP1Consent).to.be.equal('https://openads.adsrvr.org/openrtb2/auction');
+    expect(res.endpoint.p1Consent).to.exist;
+    expect(res.endpoint.p1Consent).to.be.equal('https://openads.adsrvr.org/openrtb2/auction');
+  });
+  it('syncEndpoint is not set to default value if not provided', () => {
+    let res = validateConfig(cfg1)[0]
+    expect(res.syncEndpoint).to.not.exist;
+  });
+  it('syncEndpoint is set to default value', () => {
+    cfg1.syncEndpoint = "tester"
+    let res = validateConfig(cfg1)[0]
+    expect(res.syncEndpoint).to.exist;
+    expect(res.syncEndpoint.noP1Consent).to.exist;
+    expect(res.syncEndpoint.noP1Consent).to.be.equal('https://openads.adsrvr.org/cookie_sync');
+    expect(res.syncEndpoint.p1Consent).to.exist;
+    expect(res.syncEndpoint.p1Consent).to.be.equal('https://openads.adsrvr.org/cookie_sync');
+  });
+  it('account is not set to default value if no default set', () => {
+    let res = validateConfig(cfg1)[0]
+    expect(res.accountId).to.exist;
+    expect(res.accountId).to.be.equal('123456');
+  });
+  it('account is set to default value', () => {
+    setTheTradeDeskParamDefaults('1', 'tester')
+    const res = validateConfig(cfg1)[0]
+    expect(res.accountId).to.exist;
+    expect(res.accountId).to.be.equal('tester');
+  });
+  it('bidders always includes thetradedesk', () => {
+    let res = validateConfig(cfg1)[0]
+    expect(res.bidders.length).to.be.equal(2);
+    expect(res.bidders[1]).to.be.equal('thetradedesk');
+
+    cfg1.bidders = 'bidderA'
+    res = validateConfig(cfg1)[0]
+    expect(res.bidders.length).to.be.equal(2);
+    expect(res.bidders[0]).to.be.equal('bidderA');
+    expect(res.bidders[1]).to.be.equal('thetradedesk');
+
+    delete cfg1.bidders
+    res = validateConfig(cfg1)[0]
+    expect(res.bidders.length).to.be.equal(1);
+    expect(res.bidders[0]).to.be.equal('thetradedesk');
+
+    cfg1.bidders = null
+    res = validateConfig(cfg1)[0]
+    expect(res.bidders.length).to.be.equal(1);
+    expect(res.bidders[0]).to.be.equal('thetradedesk');
+
+    cfg1.bidders = 1
+    res = validateConfig(cfg1)[0]
+    expect(res.bidders.length).to.be.equal(1);
+    expect(res.bidders[0]).to.be.equal('thetradedesk');
+
+    cfg1.bidders = ['thetradedesk']
+    res = validateConfig(cfg1)[0]
+    expect(res.bidders.length).to.be.equal(1);
+    expect(res.bidders[0]).to.be.equal('thetradedesk');
+  });
 });
 
 describe('S2S Adapter', function () {
@@ -877,60 +1003,6 @@ describe('S2S Adapter', function () {
       expect(reqHeaders.customHeader1).to.equal('customHeader1Value');
     });
 
-    it('should block request if config did not define p1Consent URL in endpoint object config', function () {
-      const badConfig = utils.deepClone(CONFIG);
-      badConfig.endpoint = { noP1Consent: 'https://prebid.adnxs.com/pbs/v1/openrtb2/auction' };
-      config.setConfig({ s2sConfig: badConfig });
-
-      const badCfgRequest = utils.deepClone(REQUEST);
-      badCfgRequest.s2sConfig = badConfig;
-
-      adapter.callBids(badCfgRequest, BID_REQUESTS, addBidResponse, done, ajax);
-
-      expect(server.requests.length).to.equal(0);
-    });
-
-    it('should block request if config did not define noP1Consent URL in endpoint object config', function () {
-      const badConfig = utils.deepClone(CONFIG);
-      badConfig.endpoint = { p1Consent: 'https://prebid.adnxs.com/pbs/v1/openrtb2/auction' };
-      config.setConfig({ s2sConfig: badConfig });
-
-      const badCfgRequest = utils.deepClone(REQUEST);
-      badCfgRequest.s2sConfig = badConfig;
-
-      const badBidderRequest = utils.deepClone(BID_REQUESTS);
-      badBidderRequest[0].gdprConsent = {
-        consentString: 'abc123',
-        addtlConsent: 'superduperconsent',
-        gdprApplies: true,
-        apiVersion: 2,
-        vendorData: {
-          purpose: {
-            consents: {
-              1: false
-            }
-          }
-        }
-      };
-
-      adapter.callBids(badCfgRequest, badBidderRequest, addBidResponse, done, ajax);
-
-      expect(server.requests.length).to.equal(0);
-    });
-
-    it('should block request if config did not define any URLs in endpoint object config', function () {
-      const badConfig = utils.deepClone(CONFIG);
-      badConfig.endpoint = {};
-      config.setConfig({ s2sConfig: badConfig });
-
-      const badCfgRequest = utils.deepClone(REQUEST);
-      badCfgRequest.s2sConfig = badConfig;
-
-      adapter.callBids(badCfgRequest, BID_REQUESTS, addBidResponse, done, ajax);
-
-      expect(server.requests.length).to.equal(0);
-    });
-
     it('filters ad units without bidders when filterBidderlessCalls is true', function () {
       const cfg = {...CONFIG, filterBidderlessCalls: true};
       config.setConfig({s2sConfig: cfg});
@@ -1171,7 +1243,8 @@ describe('S2S Adapter', function () {
         expect(requestBid.us_privacy).is.equal('1YNN');
         expect(requestBid.gdpr).is.equal(1);
         expect(requestBid.gdpr_consent).is.equal('mockConsent');
-        expect(requestBid.bidders).to.contain('appnexus').and.to.have.lengthOf(1);
+        expect(requestBid.bidders).to.contain('appnexus').and.to.have.lengthOf(2);
+        expect(requestBid.bidders).to.contain('thetradedesk').and.to.have.lengthOf(2);
         expect(requestBid.account).is.equal('1');
       });
     });
@@ -4028,30 +4101,6 @@ describe('S2S Adapter', function () {
         endpoint: {
           p1Consent: 'https://prebid.adnxs.com/pbs/v1/openrtb2/auction'
         }
-      };
-
-      config.setConfig({ s2sConfig: options });
-      sinon.assert.calledOnce(logErrorSpy);
-    });
-
-    it('should log an error when endpoint is missing', function () {
-      const options = {
-        accountId: '1',
-        bidders: ['appnexus'],
-        timeout: 1000,
-        enabled: true,
-        adapter: 'openadsServer'
-      };
-
-      config.setConfig({ s2sConfig: options });
-      sinon.assert.calledOnce(logErrorSpy);
-    });
-
-    it('should log an error when using an unknown vendor', function () {
-      const options = {
-        accountId: '1',
-        bidders: ['appnexus'],
-        defaultVendor: 'mytest'
       };
 
       config.setConfig({ s2sConfig: options });

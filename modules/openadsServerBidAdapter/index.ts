@@ -3,6 +3,7 @@ import {
   compressDataWithGZip,
   debugTurnedOn,
   deepClone,
+  mergeDeep,
   flatten,
   generateUUID,
   getParameterByName,
@@ -35,12 +36,39 @@ import type {Metrics} from "../../src/utils/perfMetrics.ts";
 import type {ORTBResponse} from "../../src/types/ortb/response.d.ts";
 import type {NativeRequest} from '../../src/types/ortb/native.d.ts';
 import type {SyncType} from "../../src/userSync.ts";
+import {GDPR_GVLIDS} from '../../src/consentHandler.js';
+import {MODULE_TYPE_BIDDER} from '../../src/activities/modules.js';
 
 const getConfig = config.getConfig;
 
 const TYPE = S2S.SRC;
 let _syncCount = 0;
 let _s2sConfigs: S2SConfig[];
+
+const ttdServerBidAdapterCode = 'thetradedesk';
+const defaultEndpoint = 'https://openads.adsrvr.org/openrtb2/auction';
+const defaultSyncEndpoint = 'https://openads.adsrvr.org/cookie_sync';
+let defaultTTDPublisherId = '$prebid.ttd.defaults.publisherId$';
+let defaultTTDSupplySourceId = '$prebid.ttd.defaults.supplySourceId$';
+
+let defaultTTDParamDefaults = {
+  thetradedesk: {
+    publisherId: defaultTTDPublisherId,
+    supplySourceId: defaultTTDSupplySourceId
+  }
+}
+
+export function setTheTradeDeskParamDefaults(publisherId, supplySourceId) {
+  defaultTTDPublisherId = publisherId;
+  defaultTTDSupplySourceId = supplySourceId;
+
+  defaultTTDParamDefaults = {
+    thetradedesk: {
+      publisherId: defaultTTDPublisherId,
+      supplySourceId: defaultTTDSupplySourceId
+    }
+  }
+}
 
 type Endpoint = string | {
   /**
@@ -176,9 +204,49 @@ declare module '../../src/config' {
   }
 }
 
-function updateConfigDefaults(s2sConfig: S2SConfig) {
+function setConfigDefaults(s2sConfig: S2SConfig) {
+  logInfo('setting s2sConfig.adapter to default value: openadsServer')
   s2sConfig.adapter = 'openadsServer';
-  return true;
+
+  logInfo(`setting s2sConfig.endpoint to default value: ${defaultEndpoint}`)
+  s2sConfig.endpoint = {
+    noP1Consent: defaultEndpoint,
+    p1Consent: defaultEndpoint
+  }
+
+  if (s2sConfig.syncEndpoint) {
+    logInfo(`setting s2sConfig.syncEndpoint to default value: ${defaultSyncEndpoint}`)
+    s2sConfig.syncEndpoint = {
+      noP1Consent: defaultSyncEndpoint,
+      p1Consent: defaultSyncEndpoint
+    }
+  }
+
+  if (defaultTTDSupplySourceId !== '') {
+    logInfo(`setting s2sConfig.accountId to default value: ${defaultTTDSupplySourceId}`)
+    s2sConfig.accountId = defaultTTDSupplySourceId
+  }
+
+  if (defaultTTDSupplySourceId !== '' && defaultTTDPublisherId !== '') {
+    logInfo(`merging s2sConfig.adapterOptions with ${JSON.stringify(defaultTTDParamDefaults)}`)
+    s2sConfig.adapterOptions = mergeDeep({}, s2sConfig.adapterOptions, defaultTTDParamDefaults)
+  }
+
+  if (typeof s2sConfig.bidders === 'string' && s2sConfig.bidders !== ttdServerBidAdapterCode) {
+    logInfo(`adding '${ttdServerBidAdapterCode}' to s2sConfig.bidders`)
+    s2sConfig.bidders = [s2sConfig.bidders, ttdServerBidAdapterCode]
+  } else if (s2sConfig.bidders === null || s2sConfig.bidders === undefined || !Array.isArray(s2sConfig.bidders)) {
+    logInfo(`setting s2sConfig.bidders to default value of ['${ttdServerBidAdapterCode}']`)
+    s2sConfig.bidders = [ttdServerBidAdapterCode]
+  } else if (Array.isArray(s2sConfig.bidders) && !s2sConfig.bidders.includes(ttdServerBidAdapterCode)) {
+    logInfo(`adding '${ttdServerBidAdapterCode}' to s2sConfig.bidders`)
+
+    if (s2sConfig.bidders.length === 0) {
+      s2sConfig.bidders = [ttdServerBidAdapterCode]
+    } else {
+      s2sConfig.bidders.push(ttdServerBidAdapterCode)
+    }
+  }
 }
 
 function validateConfigRequiredProps(s2sConfig: S2SConfig) {
@@ -226,8 +294,9 @@ export function validateConfig(options: S2SConfig[]) {
   const activeBidders = new Set();
   return options.filter(s2sConfig => {
     formatUrlParams(s2sConfig);
+    setConfigDefaults(s2sConfig)
+
     if (
-      updateConfigDefaults(s2sConfig) &&
       validateConfigRequiredProps(s2sConfig) &&
       checkOpenAdsValueRestriction(s2sConfig) &&
       s2sConfig.enabled
@@ -690,3 +759,4 @@ function getAtagData(response) {
 }
 
 adapterManager.registerBidAdapter(new OpenAdsServer(), 'openadsServer');
+GDPR_GVLIDS.register(MODULE_TYPE_BIDDER, ttdServerBidAdapterCode, 21);

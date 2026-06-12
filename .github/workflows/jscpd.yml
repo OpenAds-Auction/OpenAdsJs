@@ -26,9 +26,8 @@ jobs:
       with:
         node-version: '20'
 
-    - name: Install dependencies
-      run: |
-        npm install -g jscpd diff-so-fancy
+    - name: Install jscpd
+      run: npm install -g jscpd cpd-linux-x64-gnu
 
     - name: Create jscpd config file
       run: |
