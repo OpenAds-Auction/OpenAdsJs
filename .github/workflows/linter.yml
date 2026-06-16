@@ -2,7 +2,8 @@ name: Check for linter warnings / exceptions
 
 permissions:
   issues: write
-  
+  pull-requests: write
+
 on:
   pull_request_target:
     branches:
