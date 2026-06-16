@@ -1,87 +1,23 @@
 # OpenAds.js
 
-> A header bidding library built on Prebid.js for use within The Trade Desk's OpenAds platform.
+> A header bidding library built on Prebid.js for use to connect to TheTradeDesk's OpenAds service
 
 This README is for developers who want to contribute to OpenAds.js.
 
+[Activation Guide](https://partner.thetradedesk.com/v3/portal/openads/doc/OpenAdsActivation)
+
 **Table of Contents**
 
-- [Usage](#Usage)
 - [Install](#Install)
 - [Build](#Build)
 - [Run](#Run)
 - [Contribute](#Contribute)
 
-<a name="Usage"></a>
-
-## Usage (as a npm dependency)
-
-```javascript
-import pbjs from 'openads.js';
-import 'openads.js/modules/rubiconBidAdapter'; // imported modules will register themselves automatically
-import 'openads.js/modules/appnexusBidAdapter';
-pbjs.processQueue();  // required to process existing pbjs.queue blocks and setup any further pbjs.queue execution
-
-pbjs.requestBids({
-  ...
-})
-```
-
-You can import just type definitions for every module from `types.d.ts`, and for the `pbjs` global from `global.d.ts`:
-
-```typescript
-import 'openads.js/types.d.ts';
-import 'openads.js/global.d.ts';
-pbjs.que.push(/* ... */)
-```
-
-Or, if your bundle uses a different global variable name:
-
-```typescript
-import type {PrebidJS} from 'openads.js/types.d.ts';
-declare global {
-    interface Window {
-        myCustomGlobal: PrebidJS;
-    }
-}
-```
-
-<a id="customize-options"></a>
-
-### Customize build options
-
-If you're using Webpack, you can use the `openads.js/customize/webpackLoader` loader to set the following options:
-
-| Name | Type | Description | Default |
-| ---- | ---- | ----------- | ------- |
-| globalVarName | String | Global variable name | `"pbjs"` |
-| defineGlobal | Boolean | If false, do not set a global variable | `true` |
-| distUrlBase | String | Base URL to use for dynamically loaded modules | `"https://cdn.jsdelivr.net/npm/prebid.js/dist/chunks/"` |
-
-For example, to set a custom global variable name:
-
-```javascript
-// webpack.conf.js
-module.exports = {
-  module: {
-    rules: [
-      {
-        loader: 'openads.js/customize/webpackLoader',
-        options: {
-          globalVarName: 'myCustomGlobal'
-        }
-      },
-    ]
-  }
-}
-```
-
-
 <a name="Install"></a>
 
 ## Install
 
-    $ git clone <repository-url>
+    $ git clone https://github.com/OpenAds-Auction/OpenAdsJs.git
     $ cd OpenAdsJs
     $ npm ci
 
@@ -106,8 +42,8 @@ This will run testing but not linting. A web server will start at `http://localh
 
 + `./build/dev/openads.js` - Full source code for dev and debug
 + `./build/dev/openads.js.map` - Source map for dev and debug
-+ `./build/dev/openads-core.js`
-+ `./build/dev/openads-core.js.map`
++ `./build/dev/prebid-core.js`
++ `./build/dev/prebid-core.js.map`
 
 Development may be a bit slower but if you prefer linting and additional watch files you can also run:
 
@@ -120,14 +56,14 @@ The standard build output contains all the available modules from within the `mo
 
 You can specify the modules to be included with the `--modules` CLI argument.
 
-For example: `gulp serve --modules=openxBidAdapter,rubiconBidAdapter,sovrnBidAdapter`
+For example: `gulp serve --modules=openadsServerBidAdapter,userId,uid2IdSystem`
 
 **Build standalone openads.js**
 
 - Clone the repo, run `npm ci`
 - Then run the build:
 
-        $ gulp build --modules=openxBidAdapter,rubiconBidAdapter,sovrnBidAdapter
+        $ gulp build --modules=openadsServerBidAdapter,userId,uid2IdSystem
 
 Alternatively, a `.json` file can be specified that contains a list of modules:
 
@@ -136,9 +72,9 @@ Alternatively, a `.json` file can be specified that contains a list of modules:
 With `modules.json` containing the following:
 ```json
 [
-  "openxBidAdapter",
-  "rubiconBidAdapter",
-  "sovrnBidAdapter"
+  "openadsServerBidAdapter",
+  "userId",
+  "uid2IdSystem"
 ]
 ```
 
@@ -159,7 +95,7 @@ gulp bundle --tag two --modules=two.json
 You may instruct the build to exclude code for some features:
 
 ```
-gulp build --disable NATIVE --modules=openxBidAdapter,rubiconBidAdapter,sovrnBidAdapter
+gulp build --disable NATIVE --modules=openadsServerBidAdapter,userId,uid2IdSystem
 ```
 
 Features that can be disabled this way are:
@@ -205,7 +141,7 @@ gulp test
 
 To run the unit tests for a particular file:
 ```bash
-gulp test --file "test/spec/modules/pubmaticBidAdapter_spec.js" --nolint
+gulp test --file "test/spec/modules/openadsServerBidAdapter_spec.js" --nolint
 ```
 
 To generate and view the code coverage reports:
@@ -259,7 +195,7 @@ As you make code changes, the bundles will be rebuilt and the page reloaded auto
 
 ## Contribute
 
-For guidelines, see [Contributing](./CONTRIBUTING.md).
+We welcome contributions to OpenAdsJs in form of issues and PRs in this repository. If your change applies to both Prebid.js as well as OpenAdsJs, please submit it to the [Prebid.js repository](https://github.com/prebid/Prebid.js) as we will pull in relevant upstream changes.
 
 ### Code Quality
 
