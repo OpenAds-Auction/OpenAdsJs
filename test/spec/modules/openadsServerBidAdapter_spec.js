@@ -1614,13 +1614,11 @@ describe('S2S Adapter', function () {
               }
             }).forEach(([t, { expectDesc, expectedFloor, expectedCur, conversionFn }]) => {
               describe(`and currency conversion ${t}`, () => {
-                let mockConvertCurrency;
                 const origConvertCurrency = getGlobal().convertCurrency;
                 beforeEach(() => {
                   if (conversionFn) {
-                    getGlobal().convertCurrency = mockConvertCurrency = sinon.stub().callsFake(conversionFn);
+                    getGlobal().convertCurrency = sinon.stub().callsFake(conversionFn);
                   } else {
-                    mockConvertCurrency = null;
                     delete getGlobal().convertCurrency;
                   }
                 });
@@ -3589,7 +3587,7 @@ describe('S2S Adapter', function () {
       server.requests[0].respond(200, {}, JSON.stringify(RESPONSE_OPENRTB));
 
       sinon.assert.calledTwice(events.emit);
-      const event = events.emit.firstCall.args;
+
       sinon.assert.calledOnce(addBidResponse);
       const response = addBidResponse.firstCall.args[1];
       expect(response).to.have.property('ttl', 30);
