@@ -12,6 +12,10 @@ concurrency:
   group: test-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   checkout:
     name: "Check out source and install dependencies"
