@@ -6,7 +6,6 @@ import {isValidPriceConfig} from './cpmBucketManager.js';
 import {
   deepAccess,
   deepClone,
-  getParameterByName,
   isArray,
   isBoolean,
   isPlainObject,
@@ -16,13 +15,13 @@ import {
   logWarn,
   mergeDeep
 } from './utils.js';
-import {DEBUG_MODE} from './constants.js';
 import type {UserSyncConfig} from "./userSync.ts";
 import type {DeepPartial, DeepProperty, DeepPropertyName, TypeOfDeepProperty} from "./types/objects.d.ts";
 import type {BidderCode} from "./types/common.d.ts";
 import type {ORTBRequest} from "./types/ortb/request.d.ts";
 
-const DEFAULT_DEBUG = getParameterByName(DEBUG_MODE).toUpperCase() === 'TRUE';
+// Forced on: debug is always enabled regardless of the URL `pbjs_debug` parameter.
+const DEFAULT_DEBUG = true;
 const DEFAULT_BIDDER_TIMEOUT = 3000;
 const DEFAULT_ENABLE_SEND_ALL_BIDS = true;
 const DEFAULT_DISABLE_AJAX_TIMEOUT = false;
