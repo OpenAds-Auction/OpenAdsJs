@@ -1,7 +1,5 @@
 import { config } from '../src/config.js';
 import { startAuction, type StartAuctionOptions } from '../src/prebid.js';
-import * as events from '../src/events.js';
-import { EVENTS } from '../src/constants.js';
 import { PbPromise, delay } from '../src/utils/promise.js';
 import { deepClone, deepSetValue, isArray, isNumber, logError, logWarn, logInfo } from '../src/utils.js';
 import type { ORTBRequest } from '../src/types/ortb/request.d.ts';
