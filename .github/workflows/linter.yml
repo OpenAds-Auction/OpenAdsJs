@@ -1,7 +1,7 @@
 name: Check for linter warnings / exceptions
 
 on:
-  pull_request:
+  pull_request_target:
     branches:
       - master
 
@@ -30,47 +30,21 @@ jobs:
         run: npm ci
 
       - name: Get the diff
-        id: diff
-        run: |
-          git diff --name-only origin/${{ github.event.pull_request.base.ref }}...refs/remotes/pull/${{ github.event.pull_request.number }}/merge \
-            | grep '^\(modules\|src\|libraries\|creative\)/.*\.js$' > __changed_files.txt || true
-          if [ -s __changed_files.txt ]; then
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "No relevant changed files; skipping lint."
-            echo "has_changes=false" >> "$GITHUB_OUTPUT"
-          fi
+        run: git diff --name-only origin/${{ github.event.pull_request.base.ref }}...refs/remotes/pull/${{ github.event.pull_request.number }}/merge | grep '^\(modules\|src\|libraries\|creative\)/.*\.js$' > __changed_files.txt || true
 
       - name: Run linter on base branch
-        if: steps.diff.outputs.has_changes == 'true'
-        run: |
-          FILES=$(xargs -r stat --printf '%n\n' < __changed_files.txt 2> /dev/null || true)
-          if [ -n "$FILES" ]; then
-            npx eslint --no-inline-config --format json $FILES > __base.json || true
-          else
-            echo '[]' > __base.json
-          fi
+        run: npx eslint --no-inline-config --format json $(cat __changed_files.txt | xargs stat --printf '%n\n' 2> /dev/null) > __base.json || true
 
       - name: Check out PR
-        if: steps.diff.outputs.has_changes == 'true'
         run: git checkout ${{ github.event.pull_request.head.sha }}
 
       - name: Install dependencies
-        if: steps.diff.outputs.has_changes == 'true'
         run: npm ci
 
       - name: Run linter on PR
-        if: steps.diff.outputs.has_changes == 'true'
-        run: |
-          FILES=$(xargs -r stat --printf '%n\n' < __changed_files.txt 2> /dev/null || true)
-          if [ -n "$FILES" ]; then
-            npx eslint --no-inline-config --format json $FILES > __pr.json || true
-          else
-            echo '[]' > __pr.json
-          fi
+        run: npx eslint --no-inline-config --format json $(cat __changed_files.txt | xargs stat --printf '%n\n' 2> /dev/null) > __pr.json || true
 
       - name: Compare them and post comment if necessary
-        if: steps.diff.outputs.has_changes == 'true'
         uses: actions/github-script@v8
         with:
           script: |
