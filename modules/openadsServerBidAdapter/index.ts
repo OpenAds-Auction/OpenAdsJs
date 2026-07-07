@@ -265,7 +265,7 @@ function checkOpenAdsValueRestriction(s2sConfig: S2SConfig) {
     logError('s2sConfig.endpoint should match "https://*.adsrvr.org/openrtb2/auction", but was set to ' + s2sConfig['endpoint']['p1Consent']);
   }
 
-  return true;            
+  return true;
 }
 
 // temporary change to modify the s2sConfig for new format used for endpoint URLs;

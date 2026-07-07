@@ -1,0 +1,16 @@
+[
+	"userId", 
+	"consentManagementGpp", 
+	"consentManagementTcf", 
+	"gppControl_usnat",
+	"gppControl_usstates", 
+	"gptPreAuction", 
+	"storageControl", 
+	"tcfControl", 
+	"openadsServerBidAdapter",
+	"identityLinkIdSystem",
+	"unifiedIdSystem",
+	"uid2IdSystem",
+	"id5IdSystem",
+	"euidIdSystem"
+]
