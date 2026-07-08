@@ -60,13 +60,13 @@ jobs:
         run: npm ci
 
       - name: Cache source
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: .
           key: source-${{ github.run_id }}
 
       - name: Verify cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: .
           key: source-${{ github.run_id }}
@@ -83,7 +83,7 @@ jobs:
         with:
           node-version: '20'
       - name: Restore source
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: .
           key: source-${{ github.run_id }}
@@ -131,7 +131,7 @@ jobs:
         with:
           node-version: '20'
       - name: Restore source
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: .
           key: source-${{ github.run_id }}
@@ -168,7 +168,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Restore working directory
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: .
           key: ${{ needs.test.outputs.wdir }}
