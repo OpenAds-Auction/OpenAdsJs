@@ -296,7 +296,7 @@ function bundle(dev, moduleArr) {
   });
   const entries = _.uniq([coreFile].concat(Array.from(dependencies), moduleFiles));
 
-  var outputFileName = argv.bundleName ? argv.bundleName : 'prebid.js';
+  var outputFileName = argv.bundleName ? argv.bundleName : 'openads.js';
 
   // change output filename if argument --tag given
   if (argv.tag && argv.tag.length) {
