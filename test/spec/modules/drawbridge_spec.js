@@ -5,12 +5,14 @@ import {
   federateEidsHook,
   prewarmHost,
   resetHostAuctionDelayCheck,
-  validateConfig
-} from 'modules/eidFederation.js';
+  validateConfig,
+  validateFilterPolicy,
+  loadFilterPolicy
+} from 'modules/drawbridge.js';
 import { config } from 'src/config.js';
 import * as utils from 'src/utils.js';
 
-describe('eidFederation module', () => {
+describe('drawbridge module', () => {
   const HOST = 'pbjs';
 
   // build a fake foreign Prebid instance with a drainable command queue
@@ -31,7 +33,7 @@ describe('eidFederation module', () => {
 
   afterEach(() => {
     delete window[HOST];
-    config.setConfig({ eidFederation: {} });
+    config.setConfig({ drawbridge: {} });
     config.resetConfig();
   });
 
@@ -63,14 +65,19 @@ describe('eidFederation module', () => {
       expect(filterProvenancedEids(eids)).to.deep.equal(eids);
     });
 
-    it('drops EIDs missing inserter', () => {
-      const eids = [{ source: 's', mm: 3, uids: [{ id: '1', atype: 1 }] }];
-      expect(filterProvenancedEids(eids)).to.deep.equal([]);
+    it('default policy keeps EIDs with source + uid atype even without inserter/mm', () => {
+      const eids = [{ source: 's', uids: [{ id: '1', atype: 1 }] }];
+      expect(filterProvenancedEids(eids)).to.deep.equal(eids);
     });
 
-    it('drops EIDs missing mm', () => {
+    it('drops EIDs missing inserter when requireInserter policy is set', () => {
+      const eids = [{ source: 's', mm: 3, uids: [{ id: '1', atype: 1 }] }];
+      expect(filterProvenancedEids(eids, { requireInserter: true })).to.deep.equal([]);
+    });
+
+    it('drops EIDs missing mm when requireMm policy is set', () => {
       const eids = [{ source: 's', inserter: 'x.com', uids: [{ id: '1', atype: 1 }] }];
-      expect(filterProvenancedEids(eids)).to.deep.equal([]);
+      expect(filterProvenancedEids(eids, { requireMm: true })).to.deep.equal([]);
     });
 
     it('drops EIDs where no uid has an atype', () => {
@@ -88,11 +95,12 @@ describe('eidFederation module', () => {
       expect(filterProvenancedEids(eids)).to.deep.equal([]);
     });
 
-    it('filters a mixed list, keeping only fully-provenanced EIDs', () => {
+    it('filters a mixed list against a full policy, keeping only fully-provenanced EIDs', () => {
+      const fullPolicy = { requireSource: true, requireInserter: true, requireMm: true, requireAtype: true };
       const keep = { source: 'a', inserter: 'x.com', mm: 3, uids: [{ id: '1', atype: 1 }] };
       const dropNoMm = { source: 'b', inserter: 'x.com', uids: [{ id: '2', atype: 3 }] };
       const dropNoAtype = { source: 'c', inserter: 'x.com', mm: 1, uids: [{ id: '3' }] };
-      expect(filterProvenancedEids([keep, dropNoMm, dropNoAtype])).to.deep.equal([keep]);
+      expect(filterProvenancedEids([keep, dropNoMm, dropNoAtype], fullPolicy)).to.deep.equal([keep]);
     });
 
     it('treats mm of 0 and atype of 0 as set', () => {
@@ -103,6 +111,97 @@ describe('eidFederation module', () => {
     it('handles empty / malformed input', () => {
       expect(filterProvenancedEids()).to.deep.equal([]);
       expect(filterProvenancedEids([null, undefined])).to.deep.equal([]);
+    });
+
+    it('applies a relaxed policy passed explicitly (only source required)', () => {
+      const eids = [{ source: 's', uids: [{ id: '1' }] }];
+      expect(filterProvenancedEids(eids, { requireSource: true })).to.deep.equal(eids);
+    });
+
+    it('honors an allowedSources list in the policy', () => {
+      const eids = [{ source: 'a', uids: [{ id: '1' }] }, { source: 'b', uids: [{ id: '2' }] }];
+      expect(filterProvenancedEids(eids, { allowedSources: ['a'] }).map(e => e.source)).to.deep.equal(['a']);
+    });
+
+    it('uses config.filterPolicy directly (replacing the default) when no policy arg is passed', () => {
+      // config policy has no requireAtype; the default requires it — proving the config policy
+      // replaces the default rather than merging over it
+      config.setConfig({ drawbridge: { filterPolicy: { requireSource: true } } });
+      const eids = [{ source: 's', uids: [{ id: '1' }] }]; // no atype
+      expect(filterProvenancedEids(eids)).to.deep.equal(eids);
+    });
+  });
+
+  describe('loadFilterPolicy', () => {
+    it('defaults to the production CDN policy URL', () => {
+      let requestedUrl;
+      loadFilterPolicy(undefined, { ajaxFn: (url) => { requestedUrl = url; } });
+      expect(requestedUrl).to.equal('https://openads-cdn.adsrvr.org/drawbridge/config/v1/filterpolicy.json');
+    });
+
+    it('fetches a JSON policy and applies it via setConfig', () => {
+      const ajaxFn = (url, cbs) => cbs.success('{"requireInserter":false,"requireMm":false,"requireAtype":false}');
+      loadFilterPolicy('https://cdn.example.com/policy.json', { ajaxFn });
+      expect(config.getConfig('drawbridge').filterPolicy).to.deep.equal({
+        requireInserter: false, requireMm: false, requireAtype: false
+      });
+    });
+
+    it('keeps the default (logs error) on unparseable JSON', () => {
+      const spy = sinon.spy(utils, 'logError');
+      loadFilterPolicy('https://cdn.example.com/x', { ajaxFn: (url, cbs) => cbs.success('not-json{') });
+      spy.restore();
+      expect(spy.called).to.be.true;
+      expect(config.getConfig('drawbridge')?.filterPolicy).to.be.undefined;
+    });
+
+    it('keeps the default (logs error) when the policy is not an object', () => {
+      const spy = sinon.spy(utils, 'logError');
+      loadFilterPolicy('https://cdn.example.com/x', { ajaxFn: (url, cbs) => cbs.success('[1,2,3]') });
+      spy.restore();
+      expect(spy.called).to.be.true;
+      expect(config.getConfig('drawbridge')?.filterPolicy).to.be.undefined;
+    });
+
+    it('keeps the default (logs error) on network error', () => {
+      const spy = sinon.spy(utils, 'logError');
+      loadFilterPolicy('https://cdn.example.com/x', { ajaxFn: (url, cbs) => cbs.error('boom') });
+      spy.restore();
+      expect(spy.called).to.be.true;
+    });
+
+    it('rejects a fetched policy with an invalid field type (keeps default)', () => {
+      const spy = sinon.spy(utils, 'logError');
+      loadFilterPolicy('https://cdn.example.com/x', { ajaxFn: (url, cbs) => cbs.success('{"requireInserter":"yes"}') });
+      spy.restore();
+      expect(spy.called).to.be.true;
+      expect(config.getConfig('drawbridge')?.filterPolicy).to.be.undefined;
+    });
+  });
+
+  describe('validateFilterPolicy', () => {
+    it('returns true for a valid policy', () => {
+      expect(validateFilterPolicy({ requireSource: true, requireAtype: false, allowedSources: ['a'] })).to.be.true;
+    });
+
+    it('returns true for an empty policy', () => {
+      expect(validateFilterPolicy({})).to.be.true;
+    });
+
+    it('returns false and logs for a non-object', () => {
+      const spy = sinon.spy(utils, 'logError');
+      const result = validateFilterPolicy('nope');
+      spy.restore();
+      expect(result).to.be.false;
+      expect(spy.called).to.be.true;
+    });
+
+    it('returns false for a non-boolean require flag', () => {
+      expect(validateFilterPolicy({ requireMm: 1 })).to.be.false;
+    });
+
+    it('returns false for allowedSources with non-string elements', () => {
+      expect(validateFilterPolicy({ allowedSources: ['a', 5] })).to.be.false;
     });
   });
 
@@ -143,9 +242,9 @@ describe('eidFederation module', () => {
       expect(spy.called).to.be.false;
     });
 
-    it('runs on setConfig for the eidFederation topic', () => {
+    it('runs on setConfig for the drawbridge topic', () => {
       const spy = sinon.spy(utils, 'logError');
-      config.setConfig({ eidFederation: { auctionDelay: 'nope' } });
+      config.setConfig({ drawbridge: { auctionDelay: 'nope' } });
       spy.restore();
       expect(spy.called).to.be.true;
     });
@@ -165,39 +264,39 @@ describe('eidFederation module', () => {
       return done;
     }
 
-    it("adopts the host's userSync.auctionDelay into eidFederation config on first call", () => {
+    it("adopts the host's userSync.auctionDelay into drawbridge config on first call", () => {
       window[TEST_HOST] = { que: [], getConfig: (path) => (path === 'userSync.auctionDelay' ? 1500 : undefined) };
-      config.setConfig({ eidFederation: { hostGlobal: TEST_HOST } });
+      config.setConfig({ drawbridge: { hostGlobal: TEST_HOST } });
       return runHook().then(() => {
-        expect(config.getConfig('eidFederation').auctionDelay).to.equal(1500);
+        expect(config.getConfig('drawbridge').auctionDelay).to.equal(1500);
       });
     });
 
     it('does not overwrite an explicitly-configured auctionDelay, even if the host exposes one', () => {
       window[TEST_HOST] = { que: [], getConfig: (path) => (path === 'userSync.auctionDelay' ? 1500 : undefined) };
-      config.setConfig({ eidFederation: { hostGlobal: TEST_HOST, auctionDelay: 250 } });
+      config.setConfig({ drawbridge: { hostGlobal: TEST_HOST, auctionDelay: 250 } });
       return runHook().then(() => {
-        expect(config.getConfig('eidFederation').auctionDelay).to.equal(250);
+        expect(config.getConfig('drawbridge').auctionDelay).to.equal(250);
       });
     });
 
     it('writes DEFAULT_AUCTION_DELAY back to config when neither config nor host provide one', () => {
       window[TEST_HOST] = { que: [], getConfig: () => undefined };
-      config.setConfig({ eidFederation: { hostGlobal: TEST_HOST } });
+      config.setConfig({ drawbridge: { hostGlobal: TEST_HOST } });
       return runHook().then(() => {
-        expect(config.getConfig('eidFederation').auctionDelay).to.equal(500);
+        expect(config.getConfig('drawbridge').auctionDelay).to.equal(500);
       });
     });
 
     it('only adopts on the first call, not subsequent ones', () => {
       window[TEST_HOST] = { que: [], getConfig: (path) => (path === 'userSync.auctionDelay' ? 1500 : undefined) };
-      config.setConfig({ eidFederation: { hostGlobal: TEST_HOST } });
+      config.setConfig({ drawbridge: { hostGlobal: TEST_HOST } });
       return runHook().then(() => {
-        expect(config.getConfig('eidFederation').auctionDelay).to.equal(1500);
+        expect(config.getConfig('drawbridge').auctionDelay).to.equal(1500);
         // host now reports a different value; a second call must NOT re-adopt it
         window[TEST_HOST].getConfig = (path) => (path === 'userSync.auctionDelay' ? 3000 : undefined);
         return runHook().then(() => {
-          expect(config.getConfig('eidFederation').auctionDelay).to.equal(1500);
+          expect(config.getConfig('drawbridge').auctionDelay).to.equal(1500);
         });
       });
     });
@@ -352,7 +451,7 @@ describe('eidFederation module', () => {
       const hostEids = [{ source: 'id5-sync.com', inserter: 'x.com', mm: 3, uids: [{ id: 'AAA', atype: 1 }] }];
       const host = makeHost({ eids: hostEids });
       window[HOST] = host;
-      config.setConfig({ eidFederation: { enabled: false } });
+      config.setConfig({ drawbridge: { enabled: false } });
 
       const options = {};
       const next = sinon.spy();

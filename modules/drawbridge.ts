@@ -1,14 +1,16 @@
 import { config } from '../src/config.js';
 import { startAuction, type StartAuctionOptions } from '../src/prebid.js';
 import { PbPromise, delay } from '../src/utils/promise.js';
-import { deepClone, deepSetValue, isArray, isNumber, logError, logWarn, logInfo } from '../src/utils.js';
+import { deepClone, deepSetValue, isArray, isNumber, isPlainObject, logError, logWarn, logInfo } from '../src/utils.js';
+import { ajax } from '../src/ajax.js';
 import type { ORTBRequest } from '../src/types/ortb/request.d.ts';
 
 type Eid = ORTBRequest['user']['eids'][number];
 
-const MODULE_NAME = 'eidFederation';
+const MODULE_NAME = 'drawbridge';
 const DEFAULT_HOST_GLOBAL = 'pbjs';
 const DEFAULT_AUCTION_DELAY_IN_MS = 500;
+const FILTER_POLICY_URL = 'https://openads-cdn.adsrvr.org/drawbridge/config/v1/filterpolicy.json';
 
 // Whether we've already attempted the one-time adoption of the host's userSync.auctionDelay.
 let hostAuctionDelayChecked = false;
@@ -18,7 +20,30 @@ export function resetHostAuctionDelayCheck(): void {
   hostAuctionDelayChecked = false;
 }
 
-export interface EidFederationConfig {
+/**
+ * these parameters can be swapped at runtime via the CDN-hosted JSON policy).
+ */
+export interface FilterPolicy {
+  /** Require a non-empty eid.source. */
+  requireSource?: boolean;
+  /** Require an eid-level inserter. */
+  requireInserter?: boolean;
+  /** Require an eid-level mm. */
+  requireMm?: boolean;
+  /** Require at least one uid with an atype. */
+  requireAtype?: boolean;
+  /** If set, only keep EIDs whose source (lowercased) is in this list. */
+  allowedSources?: string[];
+}
+
+const DEFAULT_FILTER_POLICY: FilterPolicy = {
+  requireSource: true,
+  requireInserter: false,
+  requireMm: false,
+  requireAtype: true
+};
+
+export interface DrawbridgeConfig {
   /**
    * Global variable name of the foreign Prebid instance to read EIDs from. Defaults to 'pbjs'.
    */
@@ -29,25 +54,49 @@ export interface EidFederationConfig {
    */
   auctionDelay?: number;
   /**
-   * Whether EID federation runs at all. Defaults to true; set to false to disable.
+   * Whether module runs at all. Defaults to true; set to false to disable.
    */
   enabled?: boolean;
+  /**
+   * Declarative EID filtering policy.
+   */
+  filterPolicy?: FilterPolicy;
 }
 
 declare module '../src/config' {
   interface Config {
-    eidFederation?: EidFederationConfig;
+    drawbridge?: DrawbridgeConfig;
   }
 }
 
-function getConf(): EidFederationConfig {
-  return (config.getConfig(MODULE_NAME) || {}) as EidFederationConfig;
+function getConf(): DrawbridgeConfig {
+  return (config.getConfig(MODULE_NAME) || {}) as DrawbridgeConfig;
 }
 
-config.setDefaults({ eidFederation: { hostGlobal: DEFAULT_HOST_GLOBAL, enabled: true } });
+config.setDefaults({ drawbridge: { hostGlobal: DEFAULT_HOST_GLOBAL, enabled: true, filterPolicy: DEFAULT_FILTER_POLICY } });
 config.getConfig(MODULE_NAME, (cfg: any) => validateConfig(cfg?.[MODULE_NAME]));
 
-export function validateConfig(cfg: EidFederationConfig = {}): void {
+export function validateFilterPolicy(policy: any): policy is FilterPolicy {
+  if (!isPlainObject(policy)) {
+    logError(`${MODULE_NAME}: filterPolicy must be an object, got ${typeof policy}`);
+    return false;
+  }
+  let valid = true;
+  (['requireSource', 'requireInserter', 'requireMm', 'requireAtype'] as const).forEach(key => {
+    if (policy[key] != null && typeof policy[key] !== 'boolean') {
+      logError(`${MODULE_NAME}: filterPolicy.${key} must be a boolean, got ${typeof policy[key]}`);
+      valid = false;
+    }
+  });
+  if (policy.allowedSources != null &&
+      (!isArray(policy.allowedSources) || !policy.allowedSources.every((s: unknown) => typeof s === 'string'))) {
+    logError(`${MODULE_NAME}: filterPolicy.allowedSources must be an array of strings`);
+    valid = false;
+  }
+  return valid;
+}
+
+export function validateConfig(cfg: DrawbridgeConfig = {}): void {
   if (cfg.hostGlobal != null && typeof cfg.hostGlobal !== 'string') {
     logError(`${MODULE_NAME}: config.hostGlobal must be a string, got ${typeof cfg.hostGlobal}`);
   }
@@ -106,7 +155,7 @@ export function readHostEids({ hostGlobal } = { hostGlobal: getConf().hostGlobal
           resolve([]);
         }
       };
-      // getUserIdsAsync resolves only after the host finishes its *initial* ID resolution,
+      // getUserIdsAsync resolves only after the host finishes its initial ID resolution,
       // which is exactly what prevents the first-auction race.
       if (typeof host.getUserIdsAsync === 'function') {
         host.getUserIdsAsync().then(collect, collect);
@@ -117,25 +166,22 @@ export function readHostEids({ hostGlobal } = { hostGlobal: getConf().hostGlobal
   });
 }
 
-/**
- * Keep only fully-provenanced EIDs: those with a `source`, an eid-level `inserter` AND `mm`, AND at
- * least one uid with an `atype`. EIDs missing any of these are dropped.
- */
-export function filterProvenancedEids(eids: Eid[] = []): Eid[] {
+export function filterProvenancedEids(eids: Eid[] = [], policy: FilterPolicy = getConf().filterPolicy ?? DEFAULT_FILTER_POLICY): Eid[] {
   return (isArray(eids) ? eids : []).filter(eid => {
     if (!eid) return false;
-    const hasSource = !!eid.source;
-    const hasInserter = eid.inserter != null;
-    const hasMm = eid.mm != null;
-    const hasAtype = isArray(eid.uids) && eid.uids.some(uid => uid && uid.atype != null);
-    return hasSource && hasInserter && hasMm && hasAtype;
+    if (policy.requireSource && !eid.source) return false;
+    if (policy.requireInserter && eid.inserter == null) return false;
+    if (policy.requireMm && eid.mm == null) return false;
+    if (policy.requireAtype && !(isArray(eid.uids) && eid.uids.some(uid => uid && uid.atype != null))) return false;
+    if (isArray(policy.allowedSources) && !policy.allowedSources.includes((eid.source || '').toLowerCase())) return false;
+    return true;
   });
 }
 
 /**
  * Add `incoming` EIDs to `existing` for any source `existing` doesn't already have. A source
  * OpenAds already has an EID for is left untouched — OpenAds' own EID always wins over a
- * federated one for that source. Returns a new array; inputs are not mutated.
+ * federated one for that source.
  */
 export function mergeEids(existing: Eid[] = [], incoming: Eid[] = []): Eid[] {
   const out = (isArray(existing) ? existing : []).map(e => ({ ...e, uids: isArray(e.uids) ? [...e.uids] : [] }));
@@ -151,7 +197,7 @@ export function mergeEids(existing: Eid[] = [], incoming: Eid[] = []): Eid[] {
   return out;
 }
 
-export function federateEidsHook(
+export function drawbridgeHook(
   next: (options: StartAuctionOptions) => void,
   options: StartAuctionOptions,
   { mkDelay = delay } = {}
@@ -172,7 +218,7 @@ export function federateEidsHook(
     if (!isNumber(conf.auctionDelay)) {
       const hostDelay = getHostAuctionDelay(hostGlobal);
       const resolved = isNumber(hostDelay) ? hostDelay : DEFAULT_AUCTION_DELAY_IN_MS;
-      config.setConfig({ eidFederation: { ...conf, auctionDelay: resolved } });
+      config.setConfig({ drawbridge: { ...conf, auctionDelay: resolved } });
     }
   }
 
@@ -231,8 +277,38 @@ export function prewarmHost({ hostGlobal } = { hostGlobal: getConf().hostGlobal 
   });
 }
 
+/**
+ * Fetch a version-controlled JSON filter policy and apply it via setConfig. 
+ * The fetched policy applies from the next auction onward. 
+ * The bundled default governs any auctions that happen before it arrives.
+ */
+export function loadFilterPolicy(url = FILTER_POLICY_URL, { ajaxFn = ajax } = {}): void {
+  if (!url) return;
+  ajaxFn(url, {
+    success: (response: string) => {
+      let policy;
+      try {
+        policy = JSON.parse(response);
+      } catch (e) {
+        logError(`${MODULE_NAME}: could not parse filter policy from ${url}; keeping default`, e);
+        return;
+      }
+      if (!validateFilterPolicy(policy)) {
+        logError(`${MODULE_NAME}: invalid filter policy from ${url}; keeping default`, policy);
+        return;
+      }
+      config.setConfig({ drawbridge: { ...getConf(), filterPolicy: policy } });
+      logInfo(`${MODULE_NAME}: loaded filter policy from ${url}`, policy);
+    },
+    error: (err: any) => {
+      logError(`${MODULE_NAME}: could not load filter policy from ${url}; keeping default`, err);
+    }
+  }, undefined, { method: 'GET', withCredentials: false });
+}
+
 startAuction.before((next: (o: StartAuctionOptions) => void, options?: StartAuctionOptions) => {
-  federateEidsHook(next, options as StartAuctionOptions);
+  drawbridgeHook(next, options as StartAuctionOptions);
 });
 
 prewarmHost();
+loadFilterPolicy();
