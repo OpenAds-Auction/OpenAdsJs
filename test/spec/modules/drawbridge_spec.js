@@ -2,7 +2,7 @@ import {
   mergeEids,
   filterProvenancedEids,
   readHostEids,
-  federateEidsHook,
+  drawbridgeHook,
   prewarmHost,
   resetHostAuctionDelayCheck,
   validateConfig,
@@ -250,14 +250,14 @@ describe('drawbridge module', () => {
     });
   });
 
-  describe('host auctionDelay adoption (first federateEidsHook call)', () => {
+  describe('host auctionDelay adoption (first drawbridgeHook call)', () => {
     // dedicated global name so tests don't collide with the ambient `window.pbjs`
     const TEST_HOST = 'eidFedTestHost';
     beforeEach(() => resetHostAuctionDelayCheck());
     afterEach(() => { delete window[TEST_HOST]; });
 
     function runHook() {
-      const done = federateEidsHook(sinon.spy(), {}, { mkDelay: () => new Promise(() => {}) });
+      const done = drawbridgeHook(sinon.spy(), {}, { mkDelay: () => new Promise(() => {}) });
       if (window[TEST_HOST] && Array.isArray(window[TEST_HOST].que)) {
         window[TEST_HOST].que.splice(0).forEach(cb => cb());
       }
@@ -337,7 +337,7 @@ describe('drawbridge module', () => {
     });
   });
 
-  describe('federateEidsHook', () => {
+  describe('drawbridgeHook', () => {
     it('merges host EIDs into ortb2Fragments.global.user.ext.eids and calls next', () => {
       const hostEids = [{ source: 'id5-sync.com', inserter: 'x.com', mm: 3, uids: [{ id: 'AAA', atype: 1 }] }];
       const host = makeHost({ eids: hostEids });
@@ -350,7 +350,7 @@ describe('drawbridge module', () => {
       // never let the budget win the race
       const neverDelay = () => new Promise(() => {});
 
-      const done = federateEidsHook(next, options, { mkDelay: neverDelay });
+      const done = drawbridgeHook(next, options, { mkDelay: neverDelay });
       host.flush();
       return done.then(() => {
         const result = options.ortb2Fragments.global.user.ext.eids;
@@ -370,7 +370,7 @@ describe('drawbridge module', () => {
       window[HOST] = host;
       const logInfoSpy = sinon.spy(utils, 'logInfo');
 
-      const done = federateEidsHook(sinon.spy(), {}, { mkDelay: () => new Promise(() => {}) });
+      const done = drawbridgeHook(sinon.spy(), {}, { mkDelay: () => new Promise(() => {}) });
       host.flush();
       return done.then(() => {
         const messages = logInfoSpy.getCalls().map(c => c.args[0]);
@@ -385,7 +385,7 @@ describe('drawbridge module', () => {
       window[HOST] = host;
       const logInfoSpy = sinon.spy(utils, 'logInfo');
 
-      const done = federateEidsHook(sinon.spy(), {}, { mkDelay: () => new Promise(() => {}) });
+      const done = drawbridgeHook(sinon.spy(), {}, { mkDelay: () => new Promise(() => {}) });
       host.flush();
       return done.then(() => {
         const messages = logInfoSpy.getCalls().map(c => c.args[0]);
@@ -401,7 +401,7 @@ describe('drawbridge module', () => {
 
       const options = {};
       const next = sinon.spy();
-      const done = federateEidsHook(next, options, { mkDelay: () => new Promise(() => {}) });
+      const done = drawbridgeHook(next, options, { mkDelay: () => new Promise(() => {}) });
       host.flush();
       return done.then(() => {
         expect(next.calledOnceWith(options)).to.be.true;
@@ -418,7 +418,7 @@ describe('drawbridge module', () => {
       const next = sinon.spy();
       const immediateTimeout = () => Promise.resolve();
 
-      const done = federateEidsHook(next, options, { mkDelay: immediateTimeout });
+      const done = drawbridgeHook(next, options, { mkDelay: immediateTimeout });
       host.que.splice(0).forEach(cb => cb());
       return done.then(() => {
         expect(next.calledOnceWith(options)).to.be.true;
@@ -429,7 +429,7 @@ describe('drawbridge module', () => {
     it('calls next even when no host instance is present', () => {
       const options = {};
       const next = sinon.spy();
-      return federateEidsHook(next, options, { mkDelay: () => new Promise(() => {}) }).then(() => {
+      return drawbridgeHook(next, options, { mkDelay: () => new Promise(() => {}) }).then(() => {
         expect(next.calledOnceWith(options)).to.be.true;
       });
     });
@@ -440,7 +440,7 @@ describe('drawbridge module', () => {
       window[HOST] = host;
 
       const options = {};
-      const done = federateEidsHook(sinon.spy(), options, { mkDelay: () => new Promise(() => {}) });
+      const done = drawbridgeHook(sinon.spy(), options, { mkDelay: () => new Promise(() => {}) });
       host.flush();
       return done.then(() => {
         expect(options.ortb2Fragments.global.user.ext.eids.map(e => e.source)).to.deep.equal(['id5-sync.com']);
@@ -456,7 +456,7 @@ describe('drawbridge module', () => {
       const options = {};
       const next = sinon.spy();
       // if the hook tried to read the host, it would hang forever on this delay/queue never being flushed
-      const done = federateEidsHook(next, options, { mkDelay: () => new Promise(() => {}) });
+      const done = drawbridgeHook(next, options, { mkDelay: () => new Promise(() => {}) });
       return done.then(() => {
         expect(next.calledOnceWith(options)).to.be.true;
         expect(options.ortb2Fragments).to.be.undefined;

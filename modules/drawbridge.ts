@@ -278,8 +278,8 @@ export function prewarmHost({ hostGlobal } = { hostGlobal: getConf().hostGlobal 
 }
 
 /**
- * Fetch a version-controlled JSON filter policy and apply it via setConfig. 
- * The fetched policy applies from the next auction onward. 
+ * Fetch a version-controlled JSON filter policy and apply it via setConfig.
+ * The fetched policy applies from the next auction onward.
  * The bundled default governs any auctions that happen before it arrives.
  */
 export function loadFilterPolicy(url = FILTER_POLICY_URL, { ajaxFn = ajax } = {}): void {
@@ -310,5 +310,5 @@ startAuction.before((next: (o: StartAuctionOptions) => void, options?: StartAuct
   drawbridgeHook(next, options as StartAuctionOptions);
 });
 
-prewarmHost();
 loadFilterPolicy();
+prewarmHost();
