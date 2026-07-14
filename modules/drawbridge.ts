@@ -21,14 +21,16 @@ export function resetHostAuctionDelayCheck(): void {
 }
 
 /**
- * these parameters can be swapped at runtime via the CDN-hosted JSON policy).
+ * these parameters can be swapped at runtime via the CDN-hosted JSON policy.
  */
 export interface FilterPolicy {
-  /** Require a non-empty eid.source. */
+  /** Require eid.source. */
   requireSource?: boolean;
-  /** Require an eid-level inserter. */
+  /** Require eid.inserter. */
   requireInserter?: boolean;
-  /** Require an eid-level mm. */
+  /** Require eid.matcher. */
+  requireMatcher?: boolean;
+  /** Require eid.mm. */
   requireMm?: boolean;
   /** Require at least one uid with an atype. */
   requireAtype?: boolean;
@@ -39,6 +41,7 @@ export interface FilterPolicy {
 const DEFAULT_FILTER_POLICY: FilterPolicy = {
   requireSource: true,
   requireInserter: false,
+  requireMatcher: false,
   requireMm: false,
   requireAtype: true
 };
@@ -82,7 +85,7 @@ export function validateFilterPolicy(policy: any): policy is FilterPolicy {
     return false;
   }
   let valid = true;
-  (['requireSource', 'requireInserter', 'requireMm', 'requireAtype'] as const).forEach(key => {
+  (['requireSource', 'requireInserter', 'requireMatcher', 'requireMm', 'requireAtype'] as const).forEach(key => {
     if (policy[key] != null && typeof policy[key] !== 'boolean') {
       logError(`${MODULE_NAME}: filterPolicy.${key} must be a boolean, got ${typeof policy[key]}`);
       valid = false;
@@ -155,8 +158,7 @@ export function readHostEids({ hostGlobal } = { hostGlobal: getConf().hostGlobal
           resolve([]);
         }
       };
-      // getUserIdsAsync resolves only after the host finishes its initial ID resolution,
-      // which is exactly what prevents the first-auction race.
+      // getUserIdsAsync resolves only after the host finishes its initial ID resolution
       if (typeof host.getUserIdsAsync === 'function') {
         host.getUserIdsAsync().then(collect, collect);
       } else {
@@ -171,6 +173,7 @@ export function filterProvenancedEids(eids: Eid[] = [], policy: FilterPolicy = g
     if (!eid) return false;
     if (policy.requireSource && !eid.source) return false;
     if (policy.requireInserter && eid.inserter == null) return false;
+    if (policy.requireMatcher && eid.matcher == null) return false;
     if (policy.requireMm && eid.mm == null) return false;
     if (policy.requireAtype && !(isArray(eid.uids) && eid.uids.some(uid => uid && uid.atype != null))) return false;
     if (isArray(policy.allowedSources) && !policy.allowedSources.includes((eid.source || '').toLowerCase())) return false;
@@ -258,8 +261,7 @@ export function drawbridgeHook(
 }
 
 /**
- * Pre-warm the host: kick its ID resolution as early as possible so the first auction's
- * readiness gate usually resolves with no added latency.
+ * Pre-warm the host: kick off foreign host's ID resolution as early as possible to give drawbridge the best chances to retrieve eids on the first auction
  */
 export function prewarmHost({ hostGlobal } = { hostGlobal: getConf().hostGlobal || DEFAULT_HOST_GLOBAL }): void {
   const host = getHost(hostGlobal);

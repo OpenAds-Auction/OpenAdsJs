@@ -65,7 +65,7 @@ describe('drawbridge module', () => {
       expect(filterProvenancedEids(eids)).to.deep.equal(eids);
     });
 
-    it('default policy keeps EIDs with source + uid atype even without inserter/mm', () => {
+    it('default policy keeps EIDs with source + uid atype even without inserter/matcher/mm', () => {
       const eids = [{ source: 's', uids: [{ id: '1', atype: 1 }] }];
       expect(filterProvenancedEids(eids)).to.deep.equal(eids);
     });
@@ -73,6 +73,16 @@ describe('drawbridge module', () => {
     it('drops EIDs missing inserter when requireInserter policy is set', () => {
       const eids = [{ source: 's', mm: 3, uids: [{ id: '1', atype: 1 }] }];
       expect(filterProvenancedEids(eids, { requireInserter: true })).to.deep.equal([]);
+    });
+
+    it('drops EIDs missing matcher when requireMatcher policy is set', () => {
+      const eids = [{ source: 's', inserter: 'x.com', mm: 3, uids: [{ id: '1', atype: 1 }] }];
+      expect(filterProvenancedEids(eids, { requireMatcher: true })).to.deep.equal([]);
+    });
+
+    it('keeps EIDs with a matcher when requireMatcher policy is set', () => {
+      const eids = [{ source: 's', matcher: 'm.com', uids: [{ id: '1', atype: 1 }] }];
+      expect(filterProvenancedEids(eids, { requireMatcher: true })).to.deep.equal(eids);
     });
 
     it('drops EIDs missing mm when requireMm policy is set', () => {
@@ -198,6 +208,14 @@ describe('drawbridge module', () => {
 
     it('returns false for a non-boolean require flag', () => {
       expect(validateFilterPolicy({ requireMm: 1 })).to.be.false;
+    });
+
+    it('returns false for a non-boolean requireMatcher flag', () => {
+      expect(validateFilterPolicy({ requireMatcher: 'yes' })).to.be.false;
+    });
+
+    it('returns true for a valid requireMatcher flag', () => {
+      expect(validateFilterPolicy({ requireMatcher: true })).to.be.true;
     });
 
     it('returns false for allowedSources with non-string elements', () => {
