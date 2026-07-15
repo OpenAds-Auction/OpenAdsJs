@@ -1,4 +1,4 @@
-var prebidTestUtils = prebidTestUtils || {};
+var openadsTestUtils = openadsTestUtils || {};
 
 function getIndustry(id) {
   var mapping = window.localStorage.getItem('iabToFwMappingkey');
@@ -20,7 +20,7 @@ function getIndustry(id) {
   }
 }
 
-prebidTestUtils.loadKv = function (targetingArr) {
+openadsTestUtils.loadKv = function (targetingArr) {
   var div = document.getElementById('collapseThree').children[0];
   var html = '<table class="table"><tbody>';
   Object.keys(targetingArr).forEach(function(adUnitCode) {
@@ -34,7 +34,7 @@ prebidTestUtils.loadKv = function (targetingArr) {
   div.innerHTML = html;
 }
 
-prebidTestUtils.loadBids = function (targetingArr, brandCatExclusion) {
+openadsTestUtils.loadBids = function (targetingArr, brandCatExclusion) {
   var div = document.getElementById('collapseTwo').children[0];
   var html = '<table class="table"><thead><tr><th>#</th><th>CPM</th><th>Industry</th><th>Duration</th><th>Status</th><th>Comm Break #</th></tr></thead><tbody>';
   var index = 1;
@@ -65,7 +65,7 @@ prebidTestUtils.loadBids = function (targetingArr, brandCatExclusion) {
   div.innerHTML = html;
 }
 
-prebidTestUtils.setMockCategories = function () {
+openadsTestUtils.setMockCategories = function () {
   const key = 'iabToFwMappingkey';
   const keyPub = 'iabToFwMappingkeyPub';
   const keyBidder = 'appnexus';

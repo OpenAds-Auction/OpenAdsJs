@@ -7,7 +7,7 @@
   <!-- <script async src="//acdn.adnxs.com/prebid/not-for-prod/1/prebid.js"></script> -->
   <script src="longformTestUtils.js"></script>
   <script>
-    prebidTestUtils.setMockCategories();
+    openadsTestUtils.setMockCategories();
   </script>
   <script src="/build/dist/openads.js" async=true></script>
   <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
@@ -66,14 +66,14 @@
       });
     });
 
-    function loadPrebidRequest() {
+    function loadOpenAdsRequest() {
       oajs.que.push(function () {
         oajs.requestBids({
           bidsBackHandler: function (bids) {
             oajs.adServers.freewheel.getTargeting({
               callback: function (err, targeting) {
-                prebidTestUtils.loadKv(targeting);
-                prebidTestUtils.loadBids(targeting, true);
+                openadsTestUtils.loadKv(targeting);
+                openadsTestUtils.loadBids(targeting, true);
                 console.log(targeting);
               }
             });
@@ -90,7 +90,7 @@
   <h2 style="margin:20px">requireExactDuration = false</h2>
   <div class="row" style="margin: 20px">
     <div class="col-lg-6">
-      <button id="loadPrebidRequestBtn" class="btn btn-secondary" type="button" onclick="loadPrebidRequest()">Load
+      <button id="loadOpenAdsRequestBtn" class="btn btn-secondary" type="button" onclick="loadOpenAdsRequest()">Load
         OpenAds</button>
       <div class="row">
         <div class="accordion" id="accordionExample">

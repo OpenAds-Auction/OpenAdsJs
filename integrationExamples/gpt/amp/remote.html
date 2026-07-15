@@ -27,7 +27,7 @@ document.write('<script'+' src="'+encodeURI(u)+'"><'+'/script>');
 <script>
     // The OpenAds global must match OpenAds.js setting. This example file is not preprocessed so below we refer to global as `oajs`.
     var $$PREBID_GLOBAL$$ = oajs;
-    var prebidSrc = 'https://publisher.com:9999/build/dev/openads.js';
+    var openadsSrc = 'https://publisher.com:9999/build/dev/openads.js';
     var adUnits;
     var requestBidsDuration;
 
@@ -35,7 +35,7 @@ document.write('<script'+' src="'+encodeURI(u)+'"><'+'/script>');
     (function () {
         var d = document, pbs = d.createElement("script");
         pbs.type = "text/javascript";
-        pbs.src = prebidSrc;
+        pbs.src = openadsSrc;
         var target = document.getElementsByTagName("head")[0];
         target.insertBefore(pbs, target.firstChild);
     })();
@@ -50,7 +50,7 @@ document.write('<script'+' src="'+encodeURI(u)+'"><'+'/script>');
      * this example for more info:
      * https://dfp-amp-testing-1185.appspot.com/amp_tests/dfp-3p-iframe.html
      * */
-     function loadPrebidJS() {
+     function loadOpenAdsJS() {
         oajs.que.push(function () {
             oajs.setConfig({ debug: true });
             oajs.addAdUnits(adUnits);
@@ -87,10 +87,10 @@ document.write('<script'+' src="'+encodeURI(u)+'"><'+'/script>');
 
   function initAdserver() {
       var i;
-      var prebidAdCalls = window.context.master.prebidAdCalls;
-      var len = prebidAdCalls.length;
+      var openadsAdCalls = window.context.master.openadsAdCalls;
+      var len = openadsAdCalls.length;
       for (i = 0; i < len; i++) {
-        prebidAdCalls.pop()();
+        openadsAdCalls.pop()();
       }
     }
 
@@ -138,16 +138,16 @@ document.write('<script'+' src="'+encodeURI(u)+'"><'+'/script>');
         */
     draw3p(function(config, done) {
       if (config.prebid) {
-        if (typeof window.context.master.prebidAdCalls === 'undefined') {
-          window.context.master.prebidAdCalls = [];
+        if (typeof window.context.master.openadsAdCalls === 'undefined') {
+          window.context.master.openadsAdCalls = [];
         }
         if (window.context && window.context.isMaster) {
           var prebid = config.prebid;
           adUnits = prebid.adUnits;
           requestBidsDuration = prebid.requestBidsDuration;
-          loadPrebidJS();
+          loadOpenAdsJS();
         }
-        window.context.master.prebidAdCalls.push(setTargeting.bind(null, config, done));
+        window.context.master.openadsAdCalls.push(setTargeting.bind(null, config, done));
       } else {
         // if the slot doesn't have prebid config then fire callback
         done(config);
