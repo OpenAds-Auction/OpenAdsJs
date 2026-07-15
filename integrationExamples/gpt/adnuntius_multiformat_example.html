@@ -1,7 +1,7 @@
 <html>
 <head>
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
-    <script async src="../../build/dev/prebid.js"></script>
+    <script async src="../../build/dev/openads.js"></script>
     <script>
         var FAILSAFE_TIMEOUT = 3000;
 
@@ -60,11 +60,11 @@
             googletag.pubads().disableInitialLoad();
         });
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
-        pbjs.que.push(function() {
-            pbjs.setConfig({
+        oajs.que.push(function() {
+            oajs.setConfig({
                 enableSendAllBids: true,
                 targetingControls: {
                     alwaysIncludeDeals: true
@@ -74,30 +74,30 @@
                 }
             });
 
-            pbjs.setBidderConfig({
+            oajs.setBidderConfig({
                 bidders: ['adnuntius'],
                 config: {
                     bidType: 'netBid'
                 }
             });
 
-            pbjs.bidderSettings = {
+            oajs.bidderSettings = {
                 standard: {
                     storageAllowed: true
                 }
             };
 
-            pbjs.addAdUnits(adUnits);
-            pbjs.requestBids({bidsBackHandler: initAdserver});
+            oajs.addAdUnits(adUnits);
+            oajs.requestBids({bidsBackHandler: initAdserver});
         });
 
         function initAdserver() {
-            if (pbjs.initAdserverSet) return;
-            pbjs.initAdserverSet = true;
+            if (oajs.initAdserverSet) return;
+            oajs.initAdserverSet = true;
             googletag.cmd.push(function() {
-                if (pbjs.libLoaded) {
-                    pbjs.que.push(function() {
-                        pbjs.setTargetingForGPTAsync('div-gpt-ad-1683695049516-0');
+                if (oajs.libLoaded) {
+                    oajs.que.push(function() {
+                        oajs.setTargetingForGPTAsync('div-gpt-ad-1683695049516-0');
                         googletag.pubads().refresh();
                     });
                 } else {

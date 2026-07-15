@@ -2,7 +2,7 @@
 
 <head>
   <script src="https://cdn.jwplayer.com/libraries/l5MchIxB.js"></script>
-  <script async src="../../../build/dev/prebid.js"></script>
+  <script async src="../../../build/dev/openads.js"></script>
 
   <title>JW Player with Local Cache</title>
 
@@ -35,11 +35,11 @@
     }];
     const vastXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><VAST version=\"3.0\"><Ad><InLine><AdSystem>GDFP</AdSystem><AdTitle>Demo</AdTitle><Description><![CDATA[Demo]]></Description><Creatives><Creative><Linear ><Duration>00:00:11</Duration><VideoClicks><ClickThrough><![CDATA[https://adplayer.pro/]]></ClickThrough></VideoClicks><MediaFiles><MediaFile delivery=\"progressive\" width=\"640\" height=\"360\" type=\"video/mp4\" scalable=\"true\" maintainAspectRatio=\"true\"><![CDATA[https://static.adplayer.pro/video/demo_v2.mp4]]></MediaFile></MediaFiles></Linear></Creative></Creatives></InLine></Ad></VAST>"
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
 
-    pbjs.que.push(function () {
-      pbjs.setConfig({
+    oajs.que.push(function () {
+      oajs.setConfig({
         cache: {
             useLocal: true
         },
@@ -59,34 +59,34 @@
           ]
         }
       });
-      pbjs.addAdUnits(adUnits);
+      oajs.addAdUnits(adUnits);
 
-      pbjs.onEvent('videoSetupComplete', e => {
+      oajs.onEvent('videoSetupComplete', e => {
         console.log('player setup complete: ', e);
       });
 
-      pbjs.onEvent('videoSetupFailed', e => {
+      oajs.onEvent('videoSetupFailed', e => {
         console.log('player setup failed: ', e);
       });
 
-      pbjs.onEvent('videoPlaylist', (e) => {
+      oajs.onEvent('videoPlaylist', (e) => {
         console.log('videos pb playlist: ', e);
       });
 
       // request a bid when media is loaded
-      pbjs.onEvent('videoContentLoaded', (e) => {
+      oajs.onEvent('videoContentLoaded', (e) => {
         console.log('videos pb contentLoaded: ', e);
       });
 
-      pbjs.onEvent('videoComplete', (e) => {
+      oajs.onEvent('videoComplete', (e) => {
         console.log('videos pb complete: ', e);
       });
 
-      pbjs.onEvent('videoPlaylistComplete', (e) => {
+      oajs.onEvent('videoPlaylistComplete', (e) => {
         console.log('videos pb playlistComplete: ', e);
       });
 
-      pbjs.requestBids({
+      oajs.requestBids({
         bidsBackHandler: async function(bidResponses) {
             const bidResponse = bidResponses['div-gpt-ad-51545-0'];
             if (!bidResponse) {
@@ -95,7 +95,7 @@
 
             const bid = bidResponse.bids[0];
 
-            const vastXml = await pbjs.adServers.gam.getVastXml({
+            const vastXml = await oajs.adServers.gam.getVastXml({
               bid,
               adUnit: 'div-gpt-ad-51545-0',
               params: {

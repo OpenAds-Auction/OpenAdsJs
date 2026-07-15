@@ -18,7 +18,7 @@
           crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="../../../node_modules/videojs-playlist/dist/videojs-playlist.js"></script>
 
-  <script async src="../../../build/dev/prebid.js"></script>
+  <script async src="../../../build/dev/openads.js"></script>
 
   <title>VideoJS with Playlist</title>
 
@@ -50,11 +50,11 @@
       }]
     }];
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
 
-    pbjs.que.push(function () {
-      pbjs.setConfig({
+    oajs.que.push(function () {
+      oajs.setConfig({
         video: {
           providers: [{
             divId: 'player',
@@ -91,9 +91,9 @@
           ]
         }
       });
-      pbjs.addAdUnits(adUnits);
+      oajs.addAdUnits(adUnits);
 
-      pbjs.onEvent('videoSetupComplete', e => {
+      oajs.onEvent('videoSetupComplete', e => {
         const player = videojs('player');
         // Load the playlist items with their metadata when the video player is done instantiating.
         player.playlist([{
@@ -125,23 +125,23 @@
         player.playlist.autoadvance(0);
       });
 
-      pbjs.onEvent('videoSetupFailed', e => {
+      oajs.onEvent('videoSetupFailed', e => {
         console.log('player setup failed: ', e);
       });
 
-      pbjs.onEvent('videoPlaylist', (e) => {
+      oajs.onEvent('videoPlaylist', (e) => {
         console.log('videos pb playlist: ', e);
       });
 
-      pbjs.onEvent('videoContentLoaded', (e) => {
+      oajs.onEvent('videoContentLoaded', (e) => {
         console.log('videos pb contentLoaded: ', e);
       });
 
-      pbjs.onEvent('videoComplete', (e) => {
+      oajs.onEvent('videoComplete', (e) => {
         console.log('videos pb complete: ', e);
       });
 
-      pbjs.requestBids();
+      oajs.requestBids();
     });
   </script>
 

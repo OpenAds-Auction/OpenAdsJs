@@ -2,7 +2,7 @@
 
 <head>
     <script src="https://cdn.jwplayer.com/libraries/l5MchIxB.js"></script>
-    <script async src="../../../build/dev/prebid.js"></script>
+    <script async src="../../../build/dev/openads.js"></script>
 
     <title>JW Player with Media Metadata</title>
 
@@ -34,11 +34,11 @@
         }]
       }];
 
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
 
-      pbjs.que.push(function () {
-        pbjs.setConfig({
+      oajs.que.push(function () {
+        oajs.setConfig({
           video: {
             providers: [{
               divId: 'player',
@@ -61,21 +61,21 @@
           }
         });
 
-        pbjs.addAdUnits(adUnits);
+        oajs.addAdUnits(adUnits);
 
-        pbjs.onEvent('videoSetupComplete', e => {
+        oajs.onEvent('videoSetupComplete', e => {
           console.log('player setup complete: ', e);
         });
 
-        pbjs.onEvent('videoSetupFailed', e => {
+        oajs.onEvent('videoSetupFailed', e => {
           console.log('player setup failed: ', e);
         });
 
-        pbjs.onEvent('videoContentLoaded', (e) => {
+        oajs.onEvent('videoContentLoaded', (e) => {
           console.log('videos pb contentLoaded: ', e);
         });
 
-        pbjs.requestBids();
+        oajs.requestBids();
       });
     </script>
 

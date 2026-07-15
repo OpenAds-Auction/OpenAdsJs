@@ -3,7 +3,7 @@
 <head>
 <script async src=
 "https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
-<script async src="http://localhost:9999/build/dev/prebid.js"></script>
+<script async src="http://localhost:9999/build/dev/openads.js"></script>
 <title>Contxtful Rtd Provider Example</title>
 <script>
 var div1Sizes = [
@@ -15,7 +15,7 @@ var div2Sizes = [
   [970, 250]  
 ];
 
-var PREBID_TIMEOUT = 1000;
+var OADS_TIMEOUT = 1000;
 var FAILSAFE_TIMEOUT = 3000;
 
 var adUnits = [
@@ -101,8 +101,8 @@ var adUnits = [
   },
 ];
 
-var pbjs = pbjs || {};
-pbjs.que = pbjs.que || [];
+var oajs = oajs || {};
+oajs.que = oajs.que || [];
 
 var googletag = googletag || {};
 googletag.cmd = googletag.cmd || [];
@@ -110,8 +110,8 @@ googletag.cmd.push(function () {
   googletag.pubads().disableInitialLoad();
 });
 
-pbjs.que.push(function() {
-  pbjs.setConfig({
+oajs.que.push(function() {
+  oajs.setConfig({
     debug: true,
     realTimeData: {
       auctionDelay: 100,
@@ -131,29 +131,29 @@ pbjs.que.push(function() {
       ]}
   });
 
-  pbjs.addAdUnits(adUnits);
+  oajs.addAdUnits(adUnits);
 
   // Initial bids
-  pbjs.requestBids({
+  oajs.requestBids({
     bidsBackHandler: initAdserver,
-    timeout: PREBID_TIMEOUT
+    timeout: OADS_TIMEOUT
   });
 });
 
 function refreshBids() {
-  pbjs.que.push(function () {
-    pbjs.requestBids({
+  oajs.que.push(function () {
+    oajs.requestBids({
       bidsBackHandler: initAdserver,
-      timeout: PREBID_TIMEOUT,
+      timeout: OADS_TIMEOUT,
     });
   });
 }
 
 function initAdserver() {
   googletag.cmd.push(function () {
-    if (pbjs.libLoaded) {
-      pbjs.que.push(function () {
-        pbjs.setTargetingForGPTAsync();
+    if (oajs.libLoaded) {
+      oajs.que.push(function () {
+        oajs.setTargetingForGPTAsync();
         googletag.pubads().refresh();
       });
     } else {

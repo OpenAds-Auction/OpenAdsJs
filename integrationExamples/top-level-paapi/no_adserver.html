@@ -1,10 +1,10 @@
 <html xmlns="http://www.w3.org/1999/html">
 <head>
     <script src="shared/example-setup.js"></script>
-    <script src="../../build/dev/prebid.js"></script>
+    <script src="../../build/dev/openads.js"></script>
 
     <script>
-        var PREBID_TIMEOUT = 3000;
+        var OADS_TIMEOUT = 3000;
         var adUnits = [{
                 code: 'div-1',
                 mediaTypes: {
@@ -35,11 +35,11 @@
             ]
         ;
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
-        pbjs.que.push(function () {
-            pbjs.setConfig({
+        oajs.que.push(function () {
+            oajs.setConfig({
                 debug: true,
                 paapi: {
                     enabled: true,
@@ -56,14 +56,14 @@
                 },
             });
 
-            pbjs.addAdUnits(adUnits);
+            oajs.addAdUnits(adUnits);
             requestBids();
         });
 
         function requestBids() {
-            pbjs.requestBids({
+            oajs.requestBids({
                 bidsBackHandler: renderAd,
-                timeout: PREBID_TIMEOUT
+                timeout: OADS_TIMEOUT
             });
         }
 
@@ -76,11 +76,11 @@
         function renderSlot(adUnit, bid) {
             const frame = document.querySelector(`#${adUnit} iframe`);
 
-            pbjs.getPAAPIBids({adUnitCode: adUnit}).then((paapiBids) => {
+            oajs.getPAAPIBids({adUnitCode: adUnit}).then((paapiBids) => {
                 frame.contentDocument.body.innerHTML = '';
                 // prefer PAAPI bid over contextual bid
                 const winnerAdId = paapiBids[adUnit]?.adId ?? bid?.adId;
-                winnerAdId && pbjs.renderAd(frame.contentDocument, winnerAdId);
+                winnerAdId && oajs.renderAd(frame.contentDocument, winnerAdId);
             });
         }
 

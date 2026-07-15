@@ -43,8 +43,8 @@
             }
         ];
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
         var googletag = googletag || {};
         googletag.cmd = googletag.cmd || [];
@@ -55,8 +55,8 @@
             targetingArray.push(`${module.name}:${isEnabled ? 't1' : 't0'}`);
 
             if (isEnabled) {
-                pbjs.que.push(function () {
-                    pbjs.mergeConfig({
+                oajs.que.push(function () {
+                    oajs.mergeConfig({
                         userSync: {
                             userIds: [
                                 {
@@ -77,20 +77,20 @@
             googletag.pubads().setTargeting("abg", targetingArray);
         });
 
-        pbjs.que.push(function () {
-            pbjs.setConfig({ debug: true });
-            pbjs.addAdUnits(adUnits);
-            pbjs.requestBids({
+        oajs.que.push(function () {
+            oajs.setConfig({ debug: true });
+            oajs.addAdUnits(adUnits);
+            oajs.requestBids({
                 bidsBackHandler: sendAdserverRequest
             });
         });
 
         function sendAdserverRequest() {
-            if (pbjs.adserverRequestSent) return;
-            pbjs.adserverRequestSent = true;
+            if (oajs.adserverRequestSent) return;
+            oajs.adserverRequestSent = true;
             googletag.cmd.push(function () {
-                if (pbjs.libLoaded) {
-                    pbjs.setTargetingForGPTAsync();
+                if (oajs.libLoaded) {
+                    oajs.setTargetingForGPTAsync();
                     googletag.pubads().refresh();
                 } else {
                     googletag.pubads().refresh();
@@ -125,10 +125,10 @@
 
 <body>
     <script>
-        pbjs.que.push(function () {
-            pbjs.getUserIdsAsync().then(ids => {
+        oajs.que.push(function () {
+            oajs.getUserIdsAsync().then(ids => {
                 document.getElementById('ids-div').innerHTML = JSON.stringify(ids, null, ' ');
-                document.getElementById('eids-div').innerHTML = JSON.stringify(pbjs.getUserIdsAsEids(), null, ' ');
+                document.getElementById('eids-div').innerHTML = JSON.stringify(oajs.getUserIdsAsEids(), null, ' ');
             });
         });
     </script>

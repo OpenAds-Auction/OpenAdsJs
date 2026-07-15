@@ -3,7 +3,7 @@
 
 <head>
   <script src="https://serving.stat-rock.com/player/prebidAdPlayerPro.js"></script>
-  <script async src="../../../build/dev/prebid.js"></script>
+  <script async src="../../../build/dev/openads.js"></script>
 
   <title>AdPlayer.Pro with Local Cache & GAM</title>
 
@@ -31,11 +31,11 @@
 
     const vastXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><VAST version=\"3.0\"><Ad><InLine><AdSystem>GDFP</AdSystem><AdTitle>Demo</AdTitle><Description><![CDATA[Demo]]></Description><Creatives><Creative><Linear ><Duration>00:00:11</Duration><VideoClicks><ClickThrough><![CDATA[https://adplayer.pro/]]></ClickThrough></VideoClicks><MediaFiles><MediaFile delivery=\"progressive\" width=\"640\" height=\"360\" type=\"video/mp4\" scalable=\"true\" maintainAspectRatio=\"true\"><![CDATA[https://static.adplayer.pro/video/demo_v2.mp4]]></MediaFile></MediaFiles></Linear></Creative></Creatives></InLine></Ad></VAST>"
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
 
-    pbjs.que.push(function () {
-      pbjs.setConfig({
+    oajs.que.push(function () {
+      oajs.setConfig({
         cache: {
             useLocal: true
         },
@@ -85,73 +85,73 @@
         consentManagement: {cmpApi: 'static', consentData: {getTCData: {gdprApplies: false}}},
         bidResponseFilter: {cat: {blockUnknown: false}, adv: {blockUnknown: false}, attr: {blockUnknown: false}}
       });
-      pbjs.addAdUnits(adUnits);
+      oajs.addAdUnits(adUnits);
 
-      pbjs.onEvent('videoSetupComplete', e => {
+      oajs.onEvent('videoSetupComplete', e => {
         console.log('player setup complete: ', e);
       });
 
-      pbjs.onEvent('videoSetupFailed', e => {
+      oajs.onEvent('videoSetupFailed', e => {
         console.log('player setup failed: ', e);
       });
 
-      pbjs.onEvent('videoDestroyed', e => {
+      oajs.onEvent('videoDestroyed', e => {
         console.log('player destroyed: ', e);
       });
 
-      pbjs.onEvent('videoAdImpression', (e) => {
+      oajs.onEvent('videoAdImpression', (e) => {
         console.log('videos pb ad impression: ', e);
       });
 
-      pbjs.onEvent('videoAdStarted', (e) => {
+      oajs.onEvent('videoAdStarted', (e) => {
         console.log('videos pb ad started: ', e);
       });
 
-      pbjs.onEvent('videoAdPlay', (e) => {
+      oajs.onEvent('videoAdPlay', (e) => {
         console.log('videos pb ad play: ', e);
       });
 
-      pbjs.onEvent('videoAdPause', (e) => {
+      oajs.onEvent('videoAdPause', (e) => {
         console.log('videos pb ad pause: ', e);
       });
 
-      pbjs.onEvent('videoAdComplete', (e) => {
+      oajs.onEvent('videoAdComplete', (e) => {
         console.log('videos pb ad complete: ', e);
       });
 
-      pbjs.onEvent('videoAdSkipped', (e) => {
+      oajs.onEvent('videoAdSkipped', (e) => {
         console.log('videos pb ad skipped: ', e);
       });
 
-      pbjs.onEvent('videoAdClick', (e) => {
+      oajs.onEvent('videoAdClick', (e) => {
         console.log('videos pb ad click: ', e);
       });
 
-      pbjs.onEvent('videoAdError', (e) => {
+      oajs.onEvent('videoAdError', (e) => {
         console.log('videos pb ad error: ', e);
       });
 
-      pbjs.onEvent('videoAuctionAdLoadAttempt', (e) => {
+      oajs.onEvent('videoAuctionAdLoadAttempt', (e) => {
         console.log('videos pb auction ad load attempt: ', e);
       });
 
-      pbjs.onEvent('videoAuctionAdLoadQueued', (e) => {
+      oajs.onEvent('videoAuctionAdLoadQueued', (e) => {
         console.log('videos pb auction ad load queued: ', e);
       });
 
-      pbjs.onEvent('videoAuctionAdLoadAbort', (e) => {
+      oajs.onEvent('videoAuctionAdLoadAbort', (e) => {
         console.log('videos pb auction ad load attempt: ', e);
       });
 
-      pbjs.onEvent('videoBidImpression', (e) => {
+      oajs.onEvent('videoBidImpression', (e) => {
         console.log('videos pb bid Impression: ', e);
       });
 
-      pbjs.onEvent('videoBidError', (e) => {
+      oajs.onEvent('videoBidError', (e) => {
         console.log('videos pb bid Error: ', e);
       });
 
-      pbjs.requestBids();
+      oajs.requestBids();
     });
   </script>
 

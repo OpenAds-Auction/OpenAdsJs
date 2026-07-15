@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name=viewport content="width=device-width, initial-scale=1">
-        <script src="../../build/dev/prebid.js" async type="text/javascript"></script>
+        <script src="../../build/dev/openads.js" async type="text/javascript"></script>
         <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
         <script>
             /* adapted from https://docs.prebid.org/dev-docs/examples/basic-example.html */
@@ -15,7 +15,7 @@
                 [728, 90],
                 [970, 250]
             ];
-            var PREBID_TIMEOUT = 1000;
+            var OADS_TIMEOUT = 1000;
             var FAILSAFE_TIMEOUT = 3000;
 
             var adUnits = [
@@ -49,20 +49,20 @@
                 }
             ];         
 
-            var pbjs = pbjs || {};
-            pbjs.que = pbjs.que || [];
+            var oajs = oajs || {};
+            oajs.que = oajs.que || [];
 
             var googletag = googletag || {};
             googletag.cmd = googletag.cmd || [];
 
             // DYNAMIC CONFIGURATION BLOCK
             function requestBids() {
-                pbjs.que.push(function() {
+                oajs.que.push(function() {
                     // send requests
-                    pbjs.addAdUnits(adUnits);
-                    pbjs.requestBids({
+                    oajs.addAdUnits(adUnits);
+                    oajs.requestBids({
                         bidsBackHandler: initAdserver,
-                        timeout: PREBID_TIMEOUT
+                        timeout: OADS_TIMEOUT
                     });
                 })
             }
@@ -101,8 +101,8 @@
 
                 let urlElem = document.getElementById('url-to-use');
                 let argUrl = urlElem ? urlElem.value : undefined;
-                pbjs.que.push(function() {
-                    pbjs.setConfig({
+                oajs.que.push(function() {
+                    oajs.setConfig({
                         debug: true,
                         realTimeData: {
                             dataProviders: [
@@ -132,12 +132,12 @@
             });
 
             function initAdserver() {
-                if (pbjs.initAdserverSet) return;
-                pbjs.initAdserverSet = true;
+                if (oajs.initAdserverSet) return;
+                oajs.initAdserverSet = true;
                 googletag.cmd.push(function() {
-                    if (pbjs.libLoaded) {
-                        pbjs.que.push(function() {
-                            pbjs.setTargetingForGPTAsync();
+                    if (oajs.libLoaded) {
+                        oajs.que.push(function() {
+                            oajs.setTargetingForGPTAsync();
                             googletag.pubads().refresh();
                         });
                     } else {
@@ -159,7 +159,7 @@
         </script>
     </head>
     <body>
-        <h2>Basic Prebid.js Example using neuwoRtdProvider</h2>
+        <h2>Basic OpenAds.js Example using neuwoRtdProvider</h2>
         <div id="need-help" style="padding: 1em; border: 2px solid gray; background-color: rgb(255, 218, 218); white-space: pre-line;">
             Looks like you're not following the testing environment setup, try accessing <a href="http://localhost:9999/integrationExamples/gpt/neuwoRtdProvider_example.html">http://localhost:9999/integrationExamples/gpt/neuwoRtdProvider_example.html</a>
             after running commands in the prebid.js source folder that includes libraries/modules/neuwoRtdProvider.js

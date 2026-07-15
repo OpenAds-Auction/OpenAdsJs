@@ -5,14 +5,14 @@
     <title>weborama rtd submodule example</title>
   </head>
   <body> 
-    <script src="../../build/dev/prebid.js" async></script>
+    <script src="../../build/dev/openads.js" async></script>
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
     <script>
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
 
-      pbjs.que.push(function () {
-        pbjs.setConfig({
+      oajs.que.push(function () {
+        oajs.setConfig({
           debug: true,
           enableTIDs: false,
           consentManagement: {
@@ -113,7 +113,7 @@
       var div_1_sizes = [[300, 300]];
       var div_2_sizes = [[600, 100]];
 
-      var PREBID_TIMEOUT = 3000;
+      var OADS_TIMEOUT = 3000;
       var FAILSAFE_TIMEOUT = 5000;
 
       var adUnits = [
@@ -172,24 +172,24 @@
         googletag.pubads().disableInitialLoad();
       });
 
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
 
-      pbjs.que.push(function () {
-        pbjs.addAdUnits(adUnits);
-        pbjs.requestBids({
+      oajs.que.push(function () {
+        oajs.addAdUnits(adUnits);
+        oajs.requestBids({
           bidsBackHandler: initAdserver,
-          timeout: PREBID_TIMEOUT,
+          timeout: OADS_TIMEOUT,
         });
       });
 
       function initAdserver() {
-        if (pbjs.initAdserverSet) return;
-        pbjs.initAdserverSet = true;
+        if (oajs.initAdserverSet) return;
+        oajs.initAdserverSet = true;
         googletag.cmd.push(function () {
-          if (pbjs.libLoaded) {
-            pbjs.que.push(function () {
-              pbjs.setTargetingForGPTAsync();
+          if (oajs.libLoaded) {
+            oajs.que.push(function () {
+              oajs.setTargetingForGPTAsync();
               googletag.pubads().refresh();
             });
           } else {
@@ -219,7 +219,7 @@
     <article>
       <p>test webo rtd submodule with prebid.js</p>
     </article>
-    <h2>Basic Prebid.js Example</h2>
+    <h2>Basic OpenAds.js Example</h2>
     <h5>Div-1</h5>
     <!-- /1056029/webo-ctx-prebid -->
     <div id="div-gpt-ad-1620653642627-0" style="width: 300px; height: 300px">

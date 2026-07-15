@@ -1,19 +1,19 @@
 <html>
 <head>
 <script>
-  var pbjs = pbjs || {};
-  pbjs.que = pbjs.que || [];
+  var oajs = oajs || {};
+  oajs.que = oajs.que || [];
 
   (function() {
     var pbjsEl = document.createElement("script");
     pbjsEl.type = "text/javascript";
     pbjsEl.async = true;
-    pbjsEl.src = '../../build/dev/prebid.js';
+    pbjsEl.src = '../../build/dev/openads.js';
     var pbjsTargetEl = document.getElementsByTagName("head")[0];
     pbjsTargetEl.insertBefore(pbjsEl, pbjsTargetEl.firstChild);
   })();
 
-  pbjs.que.push(function() {
+  oajs.que.push(function() {
     var adUnits = [
       {
         code: 'regular_iframe',
@@ -49,36 +49,36 @@
       },
     ];
 
-    pbjs.setConfig({
+    oajs.setConfig({
       bidderTimeout: 1000,
       bidViewabilityIO: {
         enabled: true,
       }
     });
 
-    pbjs.onEvent('adRenderSucceeded', ({bid}) => {
+    oajs.onEvent('adRenderSucceeded', ({bid}) => {
       var p = document.createElement('p');
       p.innerHTML = bid.adUnitCode + ' was rendered';
       document.getElementById('notes').appendChild(p);
     });
 
-    pbjs.onEvent('bidViewable', (bid) => {
+    oajs.onEvent('bidViewable', (bid) => {
       var p = document.createElement('p');
       p.innerHTML = bid.adUnitCode + ' was viewed';
       document.getElementById('notes').appendChild(p);
     });
 
-    pbjs.addAdUnits(adUnits);
+    oajs.addAdUnits(adUnits);
 
-    pbjs.requestBids({
+    oajs.requestBids({
       bidsBackHandler: function(bidResponses) {
         Object.keys(bidResponses).forEach(adUnitCode => {
-          var highestCpmBids = pbjs.getHighestCpmBids(adUnitCode);
+          var highestCpmBids = oajs.getHighestCpmBids(adUnitCode);
           var winner = highestCpmBids.pop();
           var iframe = document.getElementById(adUnitCode);
           var iframeDoc = iframe.contentWindow.document;
           if (winner && winner.mediaType === 'banner') {
-            pbjs.renderAd(iframeDoc, winner.adId);
+            oajs.renderAd(iframeDoc, winner.adId);
           } else if (winner) {
             iframe.width = 300;
             iframe.height = 300;

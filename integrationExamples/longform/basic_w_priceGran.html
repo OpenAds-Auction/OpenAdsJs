@@ -2,14 +2,14 @@
 <html>
 
 <head>
-  <title>Prebid Freewheel Integration Demo</title>
+  <title>OpenAds Freewheel Integration Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- <script async src="//acdn.adnxs.com/prebid/not-for-prod/1/prebid.js"></script> -->
   <script src="longformTestUtils.js"></script>
   <script>
     prebidTestUtils.setMockCategories();
   </script>
-  <script src="/build/dist/prebid.js" async=true></script>
+  <script src="/build/dist/openads.js" async=true></script>
   <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
@@ -28,8 +28,8 @@
   <!-- <script type="text/javascript" src="player.js"></script> -->
   <link rel="stylesheet" href="longform_testpages_style.css">
   <script>
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
 
     var videoAdUnit = [{
       code: 'sample-code',
@@ -74,9 +74,9 @@
       }]
     };
 
-    pbjs.que.push(function () {
-      pbjs.addAdUnits(videoAdUnit);
-      pbjs.setConfig({
+    oajs.que.push(function () {
+      oajs.addAdUnits(videoAdUnit);
+      oajs.setConfig({
         debug: true,
         cache: {
           url: 'https://prebid.adnxs.com/pbc/v1/cache'
@@ -89,10 +89,10 @@
     });
 
     function loadPrebidRequest() {
-      pbjs.que.push(function () {
-        pbjs.requestBids({
+      oajs.que.push(function () {
+        oajs.requestBids({
           bidsBackHandler: function (bids) {
-            pbjs.adServers.freewheel.getTargeting({
+            oajs.adServers.freewheel.getTargeting({
               callback: function (err, targeting) {
                 prebidTestUtils.loadKv(targeting);
                 prebidTestUtils.loadBids(targeting, true);
@@ -108,12 +108,12 @@
 </head>
 
 <body>
-  <h1 style="margin:20px">Prebid Freewheel Test Page</h1>
+  <h1 style="margin:20px">OpenAds Freewheel Test Page</h1>
   <h2 style="margin:20px">requireExactDuration = false</h2>
   <div class="row" style="margin: 20px">
     <div class="col-lg-6">
       <button id="loadPrebidRequestBtn" class="btn btn-secondary" type="button" onclick="loadPrebidRequest()">Load
-        Prebid</button>
+        OpenAds</button>
       <div class="row">
         <div class="accordion" id="accordionExample">
           <div class="card">

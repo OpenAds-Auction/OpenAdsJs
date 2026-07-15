@@ -1,8 +1,8 @@
 <html>
     <head>
-        <title>Prebid.js Native Example</title>
+        <title>OpenAds.js Native Example</title>
 
-        <script async src="../../build/dev/prebid.js"></script>
+        <script async src="../../build/dev/openads.js"></script>
         <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
         <script>
             /*
@@ -14,7 +14,7 @@
             */
             var size = {width: 300, height: 250};
 
-            var PREBID_TIMEOUT = 10000;
+            var OADS_TIMEOUT = 10000;
             var FAILSAFE_TIMEOUT = 30000;
 
             var adUnits = [{
@@ -58,23 +58,23 @@
                 googletag.pubads().disableInitialLoad();
             });
 
-            var pbjs = pbjs || {};
-            pbjs.que = pbjs.que || [];
+            var oajs = oajs || {};
+            oajs.que = oajs.que || [];
 
-            pbjs.que.push(function() {
-                pbjs.addAdUnits(adUnits);
-                pbjs.requestBids({
+            oajs.que.push(function() {
+                oajs.addAdUnits(adUnits);
+                oajs.requestBids({
                     bidsBackHandler: initAdserver,
-                    timeout: PREBID_TIMEOUT
+                    timeout: OADS_TIMEOUT
                 });
             });
 
             function initAdserver() {
-                if (pbjs.initAdserverSet) return;
-                pbjs.initAdserverSet = true;
+                if (oajs.initAdserverSet) return;
+                oajs.initAdserverSet = true;
                 googletag.cmd.push(function() {
-                    if (pbjs.libLoaded) {
-                        pbjs.setTargetingForGPTAsync && pbjs.setTargetingForGPTAsync();
+                    if (oajs.libLoaded) {
+                        oajs.setTargetingForGPTAsync && oajs.setTargetingForGPTAsync();
                         googletag.pubads().refresh();
                     } else {
                         googletag.pubads().refresh();
@@ -99,7 +99,7 @@
     </head>
 
     <body>
-        <h2>Prebid.js Native Example</h2>
+        <h2>OpenAds.js Native Example</h2>
         <h5>Div-1</h5>
         <div id='div-1'>
             <script type='text/javascript'>

@@ -2,16 +2,16 @@
   <head>
     <title>Individual Ad Unit Refresh Example</title>
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
-    <script async src="http://localhost:9999/build/dev/prebid.js"></script>
+    <script async src="http://localhost:9999/build/dev/openads.js"></script>
     <script>
       var sizes = [[300, 250]];
-      var PREBID_TIMEOUT = 1000;
+      var OADS_TIMEOUT = 1000;
 
       var googletag = googletag || {};
       googletag.cmd = googletag.cmd || [];
 
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
 
       var adUnits = [
         {
@@ -34,13 +34,13 @@
         },
       ];
 
-      pbjs.que.push(function () {
-        pbjs.addAdUnits(adUnits);
+      oajs.que.push(function () {
+        oajs.addAdUnits(adUnits);
 
         // -----------------------------------------------
         // pubxai RTD module
 
-        pbjs.setConfig({
+        oajs.setConfig({
           debug: "true",
           realTimeData: {
             auctionDelay: 2500,
@@ -84,12 +84,12 @@
       });
 
 function refreshBid() {
-        pbjs.que.push(function () {
-          pbjs.requestBids({
-            timeout: PREBID_TIMEOUT,
+        oajs.que.push(function () {
+          oajs.requestBids({
+            timeout: OADS_TIMEOUT,
             adUnitCodes: ["/19968336/header-bid-tag-0"],
             bidsBackHandler: function () {
-              pbjs.setTargetingForGPTAsync(["/19968336/header-bid-tag-0"]);
+              oajs.setTargetingForGPTAsync(["/19968336/header-bid-tag-0"]);
               googletag.pubads().refresh([slot1]);
             },
           });

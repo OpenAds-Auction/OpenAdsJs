@@ -4,13 +4,13 @@
 <head>
   <link rel="icon" type="image/png" href="/favicon.png">
   <script async src="//securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
-  <script type="text/javascript" src="../../build/dev/prebid.js" async></script>
+  <script type="text/javascript" src="../../build/dev/openads.js" async></script>
 
   <title>Optimera RTD Example</title>
 
-  <!-- Prebid Config Section START -->
+  <!-- OpenAds Config Section START -->
   <script>
-    var PREBID_TIMEOUT = 1000;
+    var OADS_TIMEOUT = 1000;
     var FAILSAFE_TIMEOUT = 3000;
 
     var div_1_sizes = [
@@ -50,11 +50,11 @@
       }]
     }];
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
 
-    pbjs.que.push(function () {
-      pbjs.setConfig({
+    oajs.que.push(function () {
+      oajs.setConfig({
         debug: 'true',
         realTimeData: {
           dataProviders: [
@@ -72,7 +72,7 @@
     });
 
   </script>
-  <!-- Prebid Config Section END -->
+  <!-- OpenAds Config Section END -->
 
   <script>
   // ======== DO NOT EDIT BELOW THIS LINE =========== //
@@ -82,24 +82,24 @@
           googletag.pubads().disableInitialLoad();
       });
 
-  var pbjs = pbjs || {};
-  pbjs.que = pbjs.que || [];
+  var oajs = oajs || {};
+  oajs.que = oajs.que || [];
 
-  pbjs.que.push(function() {
-      pbjs.addAdUnits(adUnits);
-      pbjs.requestBids({
+  oajs.que.push(function() {
+      oajs.addAdUnits(adUnits);
+      oajs.requestBids({
           bidsBackHandler: initAdserver,
-          timeout: PREBID_TIMEOUT
+          timeout: OADS_TIMEOUT
       });
   });
 
   function initAdserver() {
-      if (pbjs.initAdserverSet) return;
-      pbjs.initAdserverSet = true;
+      if (oajs.initAdserverSet) return;
+      oajs.initAdserverSet = true;
       googletag.cmd.push(function() {
-          if (pbjs.libLoaded) {
-              pbjs.que.push(function() {
-                  pbjs.setTargetingForGPTAsync();
+          if (oajs.libLoaded) {
+              oajs.que.push(function() {
+                  oajs.setTargetingForGPTAsync();
                   googletag.pubads().refresh();
               });
           } else {
@@ -128,7 +128,7 @@
 </head>
 
 <body>
-  <h2>Basic Prebid.js Example</h2>
+  <h2>Basic OpenAds.js Example</h2>
   <h5>Div-1</h5>
   <div id='div-1'>
       <script type='text/javascript'>

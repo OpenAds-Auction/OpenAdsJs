@@ -27,7 +27,7 @@
             }
         </style>
         <script>
-            var PREBID_TIMEOUT = 3300;
+            var OADS_TIMEOUT = 3300;
 
             var googletag = googletag || {};
             googletag.cmd = googletag.cmd || [];
@@ -91,23 +91,23 @@
                     }
                 }]
             }];
-            var pbjs = pbjs || {};
-            pbjs.que = pbjs.que || [];
+            var oajs = oajs || {};
+            oajs.que = oajs.que || [];
         </script>
-        <script async src="../../build/dev/prebid.js"></script>
+        <script async src="../../build/dev/openads.js"></script>
         <script>
-            pbjs.que.push(function () {
-                pbjs.setConfig({
+            oajs.que.push(function () {
+                oajs.setConfig({
                     debug: true
                 });
-                pbjs.addAdUnits(videoAdUnits);
-                pbjs.requestBids({
-                    timeout: PREBID_TIMEOUT,
+                oajs.addAdUnits(videoAdUnits);
+                oajs.requestBids({
+                    timeout: OADS_TIMEOUT,
                     bidsBackHandler: function (bids) {
-                        var highestCpmBids = pbjs.getHighestCpmBids('banner-div');
+                        var highestCpmBids = oajs.getHighestCpmBids('banner-div');
                         if (highestCpmBids.length) {
                             var doc = document.getElementById('banner-div');
-                            pbjs.renderAd(doc.contentWindow.document, highestCpmBids[0].adId);
+                            oajs.renderAd(doc.contentWindow.document, highestCpmBids[0].adId);
                         }
                     }
                 });

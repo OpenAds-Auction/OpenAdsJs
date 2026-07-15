@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta name="keywords" content="football basketball rugby tenis" />
-    <script async src="../../build/dev/prebid.js" async></script>
+    <script async src="../../build/dev/openads.js" async></script>
     <script
       async
       src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"
@@ -9,7 +9,7 @@
 
     <script>
       const FAILSAFE_TIMEOUT = 1000;
-      const PREBID_TIMEOUT = 1000;
+      const OADS_TIMEOUT = 1000;
       const TEST_DIV = "test-div";
       const TEST_SIZES = [[300, 250]];
       const TEST_OUTPUT = "azerion-segments";
@@ -30,10 +30,10 @@
     </script>
 
     <script>
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
-      pbjs.que.push(function () {
-        pbjs.setConfig({
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
+      oajs.que.push(function () {
+        oajs.setConfig({
           debug: true,
           realTimeData: {
             dataProviders: [
@@ -45,17 +45,17 @@
             ],
           },
         });
-        pbjs.setBidderConfig({ bidders: ["improvedigital"], config: {} });
-        pbjs.addAdUnits([
+        oajs.setBidderConfig({ bidders: ["improvedigital"], config: {} });
+        oajs.addAdUnits([
           {
             code: TEST_DIV,
             mediaTypes: { banner: { sizes: TEST_SIZES } },
             bids: [{ bidder: "improvedigital", params: { placementId: 13144370 } }],
           },
         ]);
-        pbjs.requestBids({
+        oajs.requestBids({
           bidsBackHandler: sendAdserverRequest,
-          timeout: PREBID_TIMEOUT,
+          timeout: OADS_TIMEOUT,
         });
       });
 
@@ -63,12 +63,12 @@
         const output = document.getElementById(TEST_OUTPUT);
         output.innerHTML = window.localStorage.getItem(STORAGE_KEY);
 
-        if (pbjs.adserverRequestSent) return;
-        pbjs.adserverRequestSent = true;
+        if (oajs.adserverRequestSent) return;
+        oajs.adserverRequestSent = true;
         googletag.cmd.push(function () {
-          if (pbjs.libLoaded) {
-            pbjs.que.push(function () {
-              pbjs.setTargetingForGPTAsync();
+          if (oajs.libLoaded) {
+            oajs.que.push(function () {
+              oajs.setTargetingForGPTAsync();
               googletag.pubads().refresh();
             });
           } else {

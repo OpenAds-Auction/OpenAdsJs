@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Optable RTD submodule example - Prebid.js</title>
+    <title>Optable RTD submodule example - OpenAds.js</title>
     <!--Optable bundle-->
     <script async src="https://prebidtest.solutions.cdn.optable.co/public-assets/prebidtest-sdk.js"></script>
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
     <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
-    <script async src="../../build/dev/prebid.js"></script>
+    <script async src="../../build/dev/openads.js"></script>
     <meta charset="UTF-8">
     <style>
         body {
@@ -57,22 +57,22 @@
         }
     </style>
     <script>
-        var PREBID_TIMEOUT = 3000;
+        var OADS_TIMEOUT = 3000;
         var FAILSAFE_TIMEOUT = 5000;
 
         var googletag = googletag || {};
         googletag.cmd = googletag.cmd || [];
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
         function initAdserver() {
-            if (pbjs.initAdserverSet) return;
+            if (oajs.initAdserverSet) return;
 
             googletag.cmd.push(function () {
-                if (pbjs.libLoaded) {
-                    pbjs.que.push(function () {
-                        pbjs.setTargetingForGPTAsync();
+                if (oajs.libLoaded) {
+                    oajs.que.push(function () {
+                        oajs.setTargetingForGPTAsync();
                         googletag.pubads().refresh();
                     });
                 } else {
@@ -80,10 +80,10 @@
                 }
             });
 
-            pbjs.initAdserverSet = true;
+            oajs.initAdserverSet = true;
         }
 
-        pbjs.que.push(function () {
+        oajs.que.push(function () {
             var adUnits = [
                 {
                     code: '/22081946781/web-sdk-demo-gam360/header-ad',
@@ -129,7 +129,7 @@
                 },
             ];
 
-            pbjs.setConfig({
+            oajs.setConfig({
                 optableRtdConfig: { // optional, check the doc for explanation
                     email: 'email-sha256-hash',
                     phone: 'phone-sha256-hash',
@@ -170,9 +170,9 @@
                 },
             });
 
-            pbjs.addAdUnits(adUnits);
+            oajs.addAdUnits(adUnits);
 
-            pbjs.onEvent('bidRequested', function (data) {
+            oajs.onEvent('bidRequested', function (data) {
                 try {
                     window.optable.cmd.push(() => {
                         document.getElementById('enriched-optable').style.display = 'block';
@@ -183,8 +183,8 @@
                 }
             });
 
-            pbjs.requestBids({
-                timeout: PREBID_TIMEOUT,
+            oajs.requestBids({
+                timeout: OADS_TIMEOUT,
                 bidsBackHandler: function (bidResponses) {
                     initAdserver();
                 }

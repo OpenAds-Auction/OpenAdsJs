@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <script src="https://cdn.jwplayer.com/libraries/l5MchIxB.js"></script>
-    <script async src="../../../build/dev/prebid.js"></script>
+    <script async src="../../../build/dev/openads.js"></script>
 
     <title>JW Player with Bids Back Handler override</title>
 
@@ -33,11 +33,11 @@
         }]
       };
 
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
 
-      pbjs.que.push(function () {
-        pbjs.setConfig({
+      oajs.que.push(function () {
+        oajs.setConfig({
           video: {
             providers: [{
               divId: 'player',
@@ -77,33 +77,33 @@
           }
         });
 
-        pbjs.addAdUnits([videoAdUnit]);
+        oajs.addAdUnits([videoAdUnit]);
 
-        pbjs.onEvent('videoSetupComplete', e => {
+        oajs.onEvent('videoSetupComplete', e => {
           console.log('player setup successfully: ', e);
         });
 
-        pbjs.onEvent('videoSetupFailed', e => {
+        oajs.onEvent('videoSetupFailed', e => {
           console.log('player setup failed: ', e);
         });
 
-        pbjs.onEvent('videoAdError', e => {
+        oajs.onEvent('videoAdError', e => {
           console.log('Ad Error: ', e);
         });
 
-        pbjs.onEvent('videoAdImpression', e => {
+        oajs.onEvent('videoAdImpression', e => {
           console.log('Ad Impression: ', e);
         });
 
-        pbjs.onEvent('videoBidError', e => {
+        oajs.onEvent('videoBidError', e => {
           console.log('An Ad Error came from a Bid: ', e);
         });
 
-        pbjs.onEvent('videoBidImpression', e => {
+        oajs.onEvent('videoBidImpression', e => {
           console.log('An Ad Impression came from a Bid: ', e);
         });
 
-        pbjs.requestBids({
+        oajs.requestBids({
           adUnitCodes: [videoAdUnitCode],
           bidsBackHandler: function(bidResponses) {
             const bidResponse = bidResponses[videoAdUnitCode];
@@ -112,7 +112,7 @@
             }
 
             bidResponse.bids.forEach(bid => {
-              const videoUrl = pbjs.adServers.gam.buildVideoUrl({
+              const videoUrl = oajs.adServers.gam.buildVideoUrl({
                 adUnit: videoAdUnit,
                 url: bid.vastUrl,
                 params: {
@@ -128,7 +128,7 @@
               });
 
               bid.vastUrl = videoUrl;
-              pbjs.videoModule.renderBid('player', bid);
+              oajs.videoModule.renderBid('player', bid);
             });
           }
         });

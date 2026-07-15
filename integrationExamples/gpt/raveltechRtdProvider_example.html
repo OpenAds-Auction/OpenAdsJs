@@ -35,11 +35,11 @@
       }
     ];
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
   </script>
   <script async src="https://cdn.rvlproxy.net/latest/zkad.js"></script>
-  <script async src="../../build/dev/prebid.js"></script>
+  <script async src="../../build/dev/openads.js"></script>
 
   <script>
     function getHashedEmail() { }
@@ -49,8 +49,8 @@
       googletag.pubads().disableInitialLoad();
     });
 
-    pbjs.que.push(function () {
-      pbjs.setConfig({
+    oajs.que.push(function () {
+      oajs.setConfig({
         "debug": true,
 
         "realTimeData": {
@@ -86,7 +86,7 @@
               },
               "vendor": {
                 "consents": {
-                  // add your GVL ID here and set to true to give consent within pbjs
+                  // add your GVL ID here and set to true to give consent within oajs
                   "52": true,     // rubicon for adserving
                   "21": true,     // unifiedId
                   "131": true,    // id5Id
@@ -314,19 +314,19 @@
           "auctionDelay": 1000
         }
       });
-      pbjs.addAdUnits(adUnits);
-      pbjs.requestBids({
+      oajs.addAdUnits(adUnits);
+      oajs.requestBids({
         bidsBackHandler: sendAdserverRequest
       });
     });
 
     function sendAdserverRequest() {
-      if (pbjs.adserverRequestSent) return;
-      pbjs.adserverRequestSent = true;
+      if (oajs.adserverRequestSent) return;
+      oajs.adserverRequestSent = true;
       googletag.cmd.push(function () {
-        if (pbjs.libLoaded) {
-          pbjs.que.push(function () {
-            pbjs.setTargetingForGPTAsync();
+        if (oajs.libLoaded) {
+          oajs.que.push(function () {
+            oajs.setTargetingForGPTAsync();
             googletag.pubads().refresh();
           });
         } else {
@@ -365,9 +365,9 @@
 
   <h4>Generated EIDs</h4>
   <script>
-    pbjs.que.push(function () {
+    oajs.que.push(function () {
       var idsDiv = document.getElementById('ids-div');
-      idsDiv.innerHTML = JSON.stringify(pbjs.getUserIdsAsEids(), null, ' ');
+      idsDiv.innerHTML = JSON.stringify(oajs.getUserIdsAsEids(), null, ' ');
     });
   </script>
   <pre id="ids-div" style="border:1px solid #333; padding:5px; overflow: scroll"></pre>

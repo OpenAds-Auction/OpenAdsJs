@@ -9,7 +9,7 @@
   - this approach won't work for refreshed adunits. For that scenario
   you'll need to be more surgical about what's passed into the bidsbackhandler.
   - there's not a separate failsafe timeout here. Since there's no call to
-  an ad server waiting impatiently, Prebid's the only ad game in town and its
+  an ad server waiting impatiently, OpenAds's the only ad game in town and its
   timeout is sufficient.
 -->
 
@@ -68,20 +68,20 @@
         }
         ];
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
   </script>
-  <script async src="../../build/dev/prebid.js"></script>
+  <script async src="../../build/dev/openads.js"></script>
 
   <script>
-    pbjs.que.push(function() {
-        pbjs.addAdUnits(adUnits);
+    oajs.que.push(function() {
+        oajs.addAdUnits(adUnits);
     });
 
     // you could instead pass an array of adUnits
     // to getHighestCpmBids() if desired
     function renderAllAdUnits() {
-        var winners=pbjs.getHighestCpmBids();
+        var winners=oajs.getHighestCpmBids();
 	    for (var i = 0; i < winners.length; i++) {
 	        renderOne(winners[i]);
         }
@@ -95,15 +95,15 @@
                 iframe.frameBorder = '0';
                 div.appendChild(iframe);
                 var iframeDoc = iframe.contentWindow.document;
-                pbjs.renderAd(iframeDoc, winningBid.adId);
+                oajs.renderAd(iframeDoc, winningBid.adId);
             }
         }
     }
   </script>
 
 <script>
-	pbjs.que.push(function() {
-        pbjs.requestBids({
+	oajs.que.push(function() {
+        oajs.requestBids({
 	        timeout: 2000,
             bidsBackHandler: renderAllAdUnits
         });

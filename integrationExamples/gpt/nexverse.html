@@ -1,6 +1,6 @@
 <!--
   This page calls a single bidder for a single ad slot. It can be considered a "hello world" example for using
-  Prebid with the Google Publisher Tag.
+  OpenAds with the Google Publisher Tag.
   It also makes a good test page for new adapter PR submissions. Simply set your server's Bid Params object in the
   bids array inside the adUnits, and it will use your adapter to load an ad.
   NOTE that many ad servers won't send back an ad if the URL is localhost... so you might need to
@@ -10,12 +10,12 @@
 <html>
 
 <head>
-    <title>NexVerse Prebid.Js Demo</title>
-    <script async src="../../build/dev/prebid.js"></script>
+    <title>NexVerse OpenAds.js Demo</title>
+    <script async src="../../build/dev/openads.js"></script>
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
     <script>
         var FAILSAFE_TIMEOUT = 3300;
-        var PREBID_TIMEOUT = 1000;
+        var OADS_TIMEOUT = 1000;
 
         var adUnits = [{
             code: 'div-banner-native-1',
@@ -57,8 +57,8 @@
 
         }];
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
     </script>
 
@@ -69,22 +69,22 @@
             googletag.pubads().disableInitialLoad();
         });
 
-        pbjs.que.push(function () {
-            pbjs.addAdUnits(adUnits);
+        oajs.que.push(function () {
+            oajs.addAdUnits(adUnits);
 
-            pbjs.requestBids({
+            oajs.requestBids({
                 bidsBackHandler: sendAdserverRequest,
-                timeout: PREBID_TIMEOUT
+                timeout: OADS_TIMEOUT
             });
         });
 
         function sendAdserverRequest() {
-            if (pbjs.adserverRequestSent) return;
-            pbjs.adserverRequestSent = true;
+            if (oajs.adserverRequestSent) return;
+            oajs.adserverRequestSent = true;
             googletag.cmd.push(function () {
-                if (pbjs.libLoaded) {
-                    pbjs.que.push(function () {
-                        pbjs.setTargetingForGPTAsync();
+                if (oajs.libLoaded) {
+                    oajs.que.push(function () {
+                        oajs.setTargetingForGPTAsync();
                         googletag.pubads().refresh();
                     });
                 } else {
@@ -111,7 +111,7 @@
 </head>
 
 <body>
-    <h2>Nexverse Prebid.js Test</h2>
+    <h2>Nexverse OpenAds.js Test</h2>
     <h5>Div-1</h5>
     <div id='div-banner-native-1'>
         <script type='text/javascript'>

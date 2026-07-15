@@ -1,13 +1,13 @@
 <html xmlns="http://www.w3.org/1999/html">
 <head>
     <script src="shared/example-setup.js"></script>
-    <script src="../../build/dev/prebid.js"></script>
+    <script src="../../build/dev/openads.js"></script>
 
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
 
     <script>
         var FAILSAFE_TIMEOUT = 3300;
-        var PREBID_TIMEOUT = 3000;
+        var OADS_TIMEOUT = 3000;
         var adUnits = [{
                 code: 'div-1',
                 mediaTypes: {
@@ -38,8 +38,8 @@
             ]
         ;
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
         var googletag = googletag || {};
         googletag.cmd = googletag.cmd || [];
@@ -47,8 +47,8 @@
             googletag.pubads().disableInitialLoad();
         });
 
-        pbjs.que.push(function () {
-            pbjs.setConfig({
+        oajs.que.push(function () {
+            oajs.setConfig({
                 debug: true,
                 paapi: {
                     enabled: true,
@@ -66,25 +66,25 @@
                 },
             });
 
-            pbjs.addAdUnits(adUnits);
+            oajs.addAdUnits(adUnits);
             requestBids();
         });
 
         function requestBids() {
-            pbjs.adserverRequestSent = false;
-            pbjs.requestBids({
+            oajs.adserverRequestSent = false;
+            oajs.requestBids({
                 bidsBackHandler: sendAdserverRequest,
-                timeout: PREBID_TIMEOUT
+                timeout: OADS_TIMEOUT
             });
         }
 
         function sendAdserverRequest() {
-            if (pbjs.adserverRequestSent) return;
-            pbjs.adserverRequestSent = true;
+            if (oajs.adserverRequestSent) return;
+            oajs.adserverRequestSent = true;
             googletag.cmd.push(function () {
-                if (pbjs.libLoaded) {
-                    pbjs.que.push(function () {
-                        pbjs.setTargetingForGPTAsync();
+                if (oajs.libLoaded) {
+                    oajs.que.push(function () {
+                        oajs.setTargetingForGPTAsync();
                         googletag.pubads().refresh();
                     });
                 } else {
@@ -111,7 +111,7 @@
 
 <p>
    This example starts PAAPI auctions at the same time as GAM targeting. The flow is
-    similar to a typical GAM auction, but if Prebid wins, and got a
+    similar to a typical GAM auction, but if OpenAds wins, and got a
     PAAPI bid, it is rendered instead of the contextual bid.
 </p>
 <div id="controls">

@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Prebid.js Banner Example</title>
-  <script src="../../../build/dev/prebid.js"></script>
+  <title>OpenAds.js Banner Example</title>
+  <script src="../../../build/dev/openads.js"></script>
   <script>
     var adUnits = [
       {
@@ -158,24 +158,24 @@
       }
     ];
     
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
     
-    pbjs.que.push(function() {
-      pbjs.addAdUnits(adUnits);
-      pbjs.requestBids({
+    oajs.que.push(function() {
+      oajs.addAdUnits(adUnits);
+      oajs.requestBids({
         bidsBackHandler: function (e) {
-          if (pbjs.adserverRequestSent) return;
-          pbjs.adserverRequestSent = true;
+          if (oajs.adserverRequestSent) return;
+          oajs.adserverRequestSent = true;
           
           var targets = ['iib-target', 'iimb-target', 'icb-target', 'ics-target', 'as-target', 'asl-target', 'jb-target', 'icv-target', 'ocv-target']
   
           targets.forEach(function(target) {
-            var params = pbjs.getAdserverTargetingForAdUnitCode(target);
+            var params = oajs.getAdserverTargetingForAdUnitCode(target);
             var iframe = document.getElementById(target);
   
             if (params && params['hb_adid']) {
-              pbjs.renderAd(iframe.contentDocument, params['hb_adid']);
+              oajs.renderAd(iframe.contentDocument, params['hb_adid']);
             }
           })
         }

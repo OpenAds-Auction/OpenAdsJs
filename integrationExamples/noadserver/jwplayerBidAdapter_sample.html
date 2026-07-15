@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script async src="../../../build/dev/prebid.js"></script>
+    <script async src="../../../build/dev/openads.js"></script>
 
     <script>
       const adUnit = {
@@ -35,11 +35,11 @@
         }]
       };
 
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
 
-      pbjs.que.push(function() {
-          pbjs.setConfig({
+      oajs.que.push(function() {
+          oajs.setConfig({
             debug: true,
             realTimeData: {
               dataProviders: [{
@@ -62,8 +62,8 @@
               }
             }
           });
-        pbjs.addAdUnits([adUnit]);
-        pbjs.requestBids({
+        oajs.addAdUnits([adUnit]);
+        oajs.requestBids({
           timeout: 4000
         });
       });

@@ -2,10 +2,10 @@
   <head>
     <meta charset="UTF-8">
     <title>Heavy Ad Test</title>
-    <script src="../../../build/dev/prebid.js" async></script>
+    <script src="../../../build/dev/openads.js" async></script>
     <script>
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
       const adUnitCode = 'div-gpt-ad-1756369646964-0';
       const adUnits = [{
         mediaTypes: {
@@ -19,15 +19,15 @@
           params: {}
         }]
       }];
-      pbjs.que.push(function() {
-        pbjs.registerBidAdapter(null, 'testBidder', {
+      oajs.que.push(function() {
+        oajs.registerBidAdapter(null, 'testBidder', {
           supportedMediaTypes: ['banner', 'video', 'native'],
           isBidRequestValid: () => true,
           onIntervention: (param) => {
             console.log('Intervention detected for param:', param);
           }
         });
-        pbjs.setConfig({
+        oajs.setConfig({
           debugging: {
             enabled: true,
             intercept: [{
@@ -41,11 +41,11 @@
             }]
           }
         });
-        pbjs.addAdUnits(adUnits);
-        pbjs.requestBids({
+        oajs.addAdUnits(adUnits);
+        oajs.requestBids({
           adUnitCodes: [adUnitCode],
           bidsBackHandler: function() {
-            const bids = pbjs.getHighestCpmBids(adUnitCode);
+            const bids = oajs.getHighestCpmBids(adUnitCode);
             const winningBid = bids[0];
             const div = document.getElementById('div-gpt-ad-1756369646964-0')
             let iframe = document.createElement('iframe');
@@ -53,7 +53,7 @@
             iframe.frameBorder = '0';
             div.appendChild(iframe);
             var iframeDoc = iframe.contentWindow.document;
-            pbjs.renderAd(iframeDoc, winningBid.adId);
+            oajs.renderAd(iframeDoc, winningBid.adId);
           }
         });
       });

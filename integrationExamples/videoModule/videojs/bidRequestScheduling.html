@@ -17,7 +17,7 @@
             integrity="sha512-9ocW9fl8CKJhZp4cmDpLDGPuTQ93gvw1iIS6daMYc5Y0Xh1all8iwdoI+iNmZpiydpdDGyKMTriXDX0wfs2OEg=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    <script async src="../../../build/dev/prebid.js"></script>
+    <script async src="../../../build/dev/openads.js"></script>
 
     <title>VideoJS with Bid Request Scheduling</title>
 
@@ -51,11 +51,11 @@
         }]
       }];
 
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
 
-      pbjs.que.push(function () {
-        pbjs.setConfig({
+      oajs.que.push(function () {
+        oajs.setConfig({
           video: {
             providers: [{
               divId: 'player',
@@ -93,9 +93,9 @@
           }
         });
 
-        pbjs.addAdUnits(adUnits);
+        oajs.addAdUnits(adUnits);
 
-        pbjs.onEvent('videoSetupComplete', e => {
+        oajs.onEvent('videoSetupComplete', e => {
           // Load media with its Metadata when the video player is done instantiating.
           videojs('player').loadMedia({
             id: 'XYXYXYXY',
@@ -106,24 +106,24 @@
           });
         });
 
-        pbjs.onEvent('videoSetupFailed', e => {
+        oajs.onEvent('videoSetupFailed', e => {
           console.log('player setup failed: ', e);
         });
 
-        pbjs.onEvent('videoContentLoaded', (e) => {
+        oajs.onEvent('videoContentLoaded', (e) => {
           // reset the offset when media is loaded
           midrollOffset = 0;
         });
 
-        pbjs.onEvent('videoTime', (e) => {
+        oajs.onEvent('videoTime', (e) => {
           // when the video reaches the midroll, request bids and update the offset.
           if (e.position >= midrollOffset) {
-            pbjs.requestBids();
+            oajs.requestBids();
             midrollOffset += 10;
           }
         });
 
-        pbjs.onEvent('videoAdError', e => {
+        oajs.onEvent('videoAdError', e => {
           console.log('adError: ', e);
         });
       });
