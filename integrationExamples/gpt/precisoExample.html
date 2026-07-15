@@ -14,7 +14,7 @@
       [300, 250],
       [970, 250]
     ];
-    var OADS_TIMEOUT = 1000;
+    var OAJS_TIMEOUT = 1000;
     var FAILSAFE_TIMEOUT = 3000;
     var adslot1 = 'preciso-adslot-1';
     var adslot2 = 'preciso-adslot-2';
@@ -107,7 +107,6 @@
           badv: ['example.com'],
           wlang: ['fr', 'en']
         },
-        enableTIDs: true
       });
       if (oajs.libLoaded) {
         oajs.setTargetingForGPTAsync();
@@ -145,7 +144,7 @@
           oajs.setTargetingForAst();
           console.log('Rendering ads...');
         },
-        timeout: OADS_TIMEOUT
+        timeout: OAJS_TIMEOUT
       });
 
     });

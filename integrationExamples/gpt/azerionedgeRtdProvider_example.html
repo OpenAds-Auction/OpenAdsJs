@@ -9,7 +9,7 @@
 
     <script>
       const FAILSAFE_TIMEOUT = 1000;
-      const OADS_TIMEOUT = 1000;
+      const OAJS_TIMEOUT = 1000;
       const TEST_DIV = "test-div";
       const TEST_SIZES = [[300, 250]];
       const TEST_OUTPUT = "azerion-segments";
@@ -55,7 +55,7 @@
         ]);
         oajs.requestBids({
           bidsBackHandler: sendAdserverRequest,
-          timeout: OADS_TIMEOUT,
+          timeout: OAJS_TIMEOUT,
         });
       });
 

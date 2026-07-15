@@ -9,7 +9,7 @@ Feel free to play around with different settings and configurations for size map
 	<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
 	<script>
 		const FAILSAFE_TIMEOUT = 3300;
-		const OADS_TIMEOUT = 1000;
+		const OAJS_TIMEOUT = 1000;
 
 		// Example of a multi-format ad unit setup with uses the module `sizeMappingV2.js`.
 		const adUnits = [{
@@ -103,7 +103,7 @@ Feel free to play around with different settings and configurations for size map
 			oajs.setConfig({debug: true});
 			oajs.requestBids({
 				bidsBackHandler: sendAdserverRequest,
-				timeout: OADS_TIMEOUT,
+				timeout: OAJS_TIMEOUT,
 				labels: ['mobile']
 			});
 		});

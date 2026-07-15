@@ -10,8 +10,8 @@
         <script>
             // set to 10s (rather than 100ms) only to assist development as 'Local Overrides' stalls for >1s :-/
             var AUCTION_DELAY = 10000;	// recommended to be set to 100 in production
-            var OADS_TIMEOUT = 1000;
-            var FAILSAFE_TIMEOUT = AUCTION_DELAY + (3 * OADS_TIMEOUT);
+            var OAJS_TIMEOUT = 1000;
+            var FAILSAFE_TIMEOUT = AUCTION_DELAY + (3 * OAJS_TIMEOUT);
 
             var div_1_sizes = [ [728, 90] ];
             var div_2_sizes = [ [300, 250] ];
@@ -189,7 +189,7 @@
                     oajs.addAdUnits(videoAdUnit);
                     oajs.requestBids({
                         bidsBackHandler: sendAdserverRequest,
-                        timeout: OADS_TIMEOUT
+                        timeout: OAJS_TIMEOUT
                     })
                 });
             });

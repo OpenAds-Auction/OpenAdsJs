@@ -12,7 +12,7 @@
 
     var oajs = oajs || {};
     oajs.que = oajs.que || [];
-    var OADS_TIMEOUT = 3000;
+    var OAJS_TIMEOUT = 3000;
 
     var date = new Date().getTime();
 
@@ -34,7 +34,7 @@ function initAdserver() {
 }
 
     // Load GPT when timeout is reached.
-    // setTimeout(initAdserver, OADS_TIMEOUT);
+    // setTimeout(initAdserver, OAJS_TIMEOUT);
 
     oajs.que.push(function () {
 

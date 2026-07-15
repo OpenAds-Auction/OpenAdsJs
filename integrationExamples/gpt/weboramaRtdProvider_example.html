@@ -14,7 +14,6 @@
       oajs.que.push(function () {
         oajs.setConfig({
           debug: true,
-          enableTIDs: false,
           consentManagement: {
             gdpr: {
               cmpApi: "static",
@@ -113,7 +112,7 @@
       var div_1_sizes = [[300, 300]];
       var div_2_sizes = [[600, 100]];
 
-      var OADS_TIMEOUT = 3000;
+      var OAJS_TIMEOUT = 3000;
       var FAILSAFE_TIMEOUT = 5000;
 
       var adUnits = [
@@ -179,7 +178,7 @@
         oajs.addAdUnits(adUnits);
         oajs.requestBids({
           bidsBackHandler: initAdserver,
-          timeout: OADS_TIMEOUT,
+          timeout: OAJS_TIMEOUT,
         });
       });
 

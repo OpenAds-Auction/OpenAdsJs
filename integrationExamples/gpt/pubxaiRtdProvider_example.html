@@ -5,7 +5,7 @@
     <script async src="http://localhost:9999/build/dev/openads.js"></script>
     <script>
       var sizes = [[300, 250]];
-      var OADS_TIMEOUT = 1000;
+      var OAJS_TIMEOUT = 1000;
 
       var googletag = googletag || {};
       googletag.cmd = googletag.cmd || [];
@@ -86,7 +86,7 @@
 function refreshBid() {
         oajs.que.push(function () {
           oajs.requestBids({
-            timeout: OADS_TIMEOUT,
+            timeout: OAJS_TIMEOUT,
             adUnitCodes: ["/19968336/header-bid-tag-0"],
             bidsBackHandler: function () {
               oajs.setTargetingForGPTAsync(["/19968336/header-bid-tag-0"]);

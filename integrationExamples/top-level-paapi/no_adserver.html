@@ -4,7 +4,7 @@
     <script src="../../build/dev/openads.js"></script>
 
     <script>
-        var OADS_TIMEOUT = 3000;
+        var OAJS_TIMEOUT = 3000;
         var adUnits = [{
                 code: 'div-1',
                 mediaTypes: {
@@ -63,7 +63,7 @@
         function requestBids() {
             oajs.requestBids({
                 bidsBackHandler: renderAd,
-                timeout: OADS_TIMEOUT
+                timeout: OAJS_TIMEOUT
             });
         }
 

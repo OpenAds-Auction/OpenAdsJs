@@ -16,7 +16,7 @@
       var sizes = [
         [300, 250]
       ];
-      var OADS_TIMEOUT = 1000;
+      var OAJS_TIMEOUT = 1000;
       var FAILSAFE_TIMEOUT = 3000;
       var adUnits = [{
         code: '/46380388/herbeauty_prebid',
@@ -96,7 +96,7 @@
         oajs.addAdUnits(adUnits);
         oajs.requestBids({
           bidsBackHandler: initAdserver,
-          timeout: OADS_TIMEOUT,
+          timeout: OAJS_TIMEOUT,
           ortb2: {
             site: {
               content: {

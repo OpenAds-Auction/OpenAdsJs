@@ -12,7 +12,7 @@
             [728, 90],
             [970, 250]
         ];
-        var OADS_TIMEOUT = 1000;
+        var OAJS_TIMEOUT = 1000;
         var FAILSAFE_TIMEOUT = 3000;
         var adUnits = [
             {
@@ -112,7 +112,7 @@
             oajs.addAdUnits(adUnits);
             oajs.requestBids({
                 bidsBackHandler: initAdserver,
-                timeout: OADS_TIMEOUT
+                timeout: OAJS_TIMEOUT
             });
         });
         function initAdserver() {

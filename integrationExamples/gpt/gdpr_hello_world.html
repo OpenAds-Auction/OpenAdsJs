@@ -16,7 +16,7 @@
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
 
       <script>
-        var OADS_TIMEOUT = 700;
+        var OAJS_TIMEOUT = 700;
         var FAILSAFE_TIMEOUT = 2500;
 
         var adUnits = [{
@@ -62,7 +62,7 @@
           });
           oajs.requestBids({
             bidsBackHandler: sendAdserverRequest,
-            timeout: OADS_TIMEOUT
+            timeout: OAJS_TIMEOUT
           });
         });
 

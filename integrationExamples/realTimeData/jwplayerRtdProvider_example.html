@@ -9,7 +9,7 @@
     <title>JW Player RTD Provider Example</title>
     <script>
       var FAILSAFE_TIMEOUT = 3300;
-      var OADS_TIMEOUT = 1000;
+      var OAJS_TIMEOUT = 1000;
 
       var adUnits = [{
           code: 'video-ad-unit',
@@ -77,7 +77,7 @@
         oajs.addAdUnits(adUnits);
         oajs.requestBids({
           bidsBackHandler: renderHighestBid,
-          timeout: OADS_TIMEOUT
+          timeout: OAJS_TIMEOUT
         });
       });
 

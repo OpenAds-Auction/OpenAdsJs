@@ -14,7 +14,7 @@
             */
             var size = {width: 300, height: 250};
 
-            var OADS_TIMEOUT = 10000;
+            var OAJS_TIMEOUT = 10000;
             var FAILSAFE_TIMEOUT = 30000;
 
             var adUnits = [{
@@ -65,7 +65,7 @@
                 oajs.addAdUnits(adUnits);
                 oajs.requestBids({
                     bidsBackHandler: initAdserver,
-                    timeout: OADS_TIMEOUT
+                    timeout: OAJS_TIMEOUT
                 });
             });
 

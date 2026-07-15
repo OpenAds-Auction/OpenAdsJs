@@ -27,7 +27,7 @@
             }
         </style>
         <script>
-            var OADS_TIMEOUT = 3300;
+            var OAJS_TIMEOUT = 3300;
 
             var googletag = googletag || {};
             googletag.cmd = googletag.cmd || [];
@@ -102,7 +102,7 @@
                 });
                 oajs.addAdUnits(videoAdUnits);
                 oajs.requestBids({
-                    timeout: OADS_TIMEOUT,
+                    timeout: OAJS_TIMEOUT,
                     bidsBackHandler: function (bids) {
                         var highestCpmBids = oajs.getHighestCpmBids('banner-div');
                         if (highestCpmBids.length) {

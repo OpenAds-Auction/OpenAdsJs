@@ -12,7 +12,7 @@
         }
     </style>
     <script>
-        var OADS_TIMEOUT = 1000;
+        var OAJS_TIMEOUT = 1000;
         var FAILSAFE_TIMEOUT = 3000;
 
         var googletag = googletag || {};
@@ -120,7 +120,7 @@
             });
 
             oajs.requestBids({
-                timeout: OADS_TIMEOUT,
+                timeout: OAJS_TIMEOUT,
                 bidsBackHandler: function (bidResponses) {
                     initAdserver();
                 }

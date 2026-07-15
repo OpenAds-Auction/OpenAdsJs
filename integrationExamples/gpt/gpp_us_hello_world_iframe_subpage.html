@@ -14,7 +14,7 @@
   <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
   <script>
     var FAILSAFE_TIMEOUT = 3300;
-    var OADS_TIMEOUT = 1000;
+    var OAJS_TIMEOUT = 1000;
 
     var adUnits = [{
       code: 'div-gpt-ad-1460505748561-0',
@@ -76,7 +76,7 @@
       })
       oajs.requestBids({
         bidsBackHandler: sendAdserverRequest,
-        timeout: OADS_TIMEOUT
+        timeout: OAJS_TIMEOUT
       });
     });
 
@@ -132,7 +132,7 @@
   });
   oajs.requestBids({
     bidsBackHandler: sendAdserverRequest,
-    timeout: OADS_TIMEOUT
+    timeout: OAJS_TIMEOUT
   });})">Start Auction</button> -->
   <div id='div-gpt-ad-1460505748561-0'>
     <script type='text/javascript'>

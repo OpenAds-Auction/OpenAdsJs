@@ -7,7 +7,7 @@
     <title>Reconciliation RTD Provider Example</title>
     <script>
       var FAILSAFE_TIMEOUT = 3300;
-      var OADS_TIMEOUT = 1000;
+      var OAJS_TIMEOUT = 1000;
 
       var adUnits = [{
         code: "/21834411153/rsdk-2",
@@ -59,7 +59,7 @@
         oajs.addAdUnits(adUnits);
         oajs.requestBids({
           bidsBackHandler: sendAdserverRequest,
-          timeout: OADS_TIMEOUT
+          timeout: OAJS_TIMEOUT
         });
       });
 
