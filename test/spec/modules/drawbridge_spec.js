@@ -346,9 +346,21 @@ describe('drawbridge module', () => {
       expect(hostGdprConsentAsOrMoreRestrictive(host)).to.be.true;
     });
 
-    it('returns false when vendorExceptions differ', () => {
+    it('returns true when host vendorExceptions are a subset of oajs\'s', () => {
+      config.setConfig({ consentManagement: { gdpr: { rules: [{ purpose: 'storage', vendorExceptions: ['a', 'b'] }] } } });
+      const host = cmHost({ gdpr: { rules: [{ purpose: 'storage', vendorExceptions: ['a'] }] } });
+      expect(hostGdprConsentAsOrMoreRestrictive(host)).to.be.true;
+    });
+
+    it('returns false when host exempts a vendor oajs enforces', () => {
       config.setConfig({ consentManagement: { gdpr: { rules: [{ purpose: 'storage', vendorExceptions: ['a'] }] } } });
       const host = cmHost({ gdpr: { rules: [{ purpose: 'storage', vendorExceptions: ['a', 'b'] }] } });
+      expect(hostGdprConsentAsOrMoreRestrictive(host)).to.be.false;
+    });
+
+    it('returns false when host softVendorExceptions are not a subset of oajs\'s', () => {
+      config.setConfig({ consentManagement: { gdpr: { rules: [{ purpose: 'storage', softVendorExceptions: ['a'] }] } } });
+      const host = cmHost({ gdpr: { rules: [{ purpose: 'storage', softVendorExceptions: ['a', 'b'] }] } });
       expect(hostGdprConsentAsOrMoreRestrictive(host)).to.be.false;
     });
 

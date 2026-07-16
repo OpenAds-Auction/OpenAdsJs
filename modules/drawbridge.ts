@@ -1,7 +1,7 @@
 import { config } from '../src/config.js';
 import { startAuction, type StartAuctionOptions } from '../src/prebid.js';
 import { PbPromise, delay } from '../src/utils/promise.js';
-import { deepClone, deepEqual, deepSetValue, isArray, isNumber, isPlainObject, logError, logWarn, logInfo } from '../src/utils.js';
+import { deepClone, deepSetValue, isArray, isNumber, isPlainObject, logError, logWarn, logInfo } from '../src/utils.js';
 import { ACTIVITY_ENRICH_EIDS } from '../src/activities/activities.js';
 import { isActivityAllowed } from '../src/activities/rules.js';
 import { activityParams } from '../src/activities/activityParams.js';
@@ -297,7 +297,8 @@ function effectiveStorageRule(rules: any): { enforcePurpose: boolean; enforceVen
  *  - host configured, oajs not   → true  (host is stricter)
  *  - host not configured, oajs is → false (host is looser)
  *  - neither configured → true (equivalent)
- *  - both configured → true only if their effective storage rule is equal
+ *  - both configured → true if enforcePurpose and enforceVendor match and the host's vendorExceptions
+ *    (and softVendorExceptions) are a subset of oajs's aka the host exempts no vendor that oajs enforces
  */
 export function hostGdprConsentAsOrMoreRestrictive(host: HostInstance): boolean {
   const own = gdprStorageSource(config.getConfig('consentManagement'));
@@ -314,7 +315,12 @@ export function hostGdprConsentAsOrMoreRestrictive(host: HostInstance): boolean 
   if (!hostSrc.configured && own.configured) return false;
   if (!hostSrc.configured && !own.configured) return true;
 
-  return deepEqual(effectiveStorageRule(hostSrc.rules), effectiveStorageRule(own.rules));
+  const hostRule = effectiveStorageRule(hostSrc.rules);
+  const ownRule = effectiveStorageRule(own.rules);
+  return hostRule.enforcePurpose === ownRule.enforcePurpose &&
+    hostRule.enforceVendor === ownRule.enforceVendor &&
+    hostRule.vendorExceptions.every(v => ownRule.vendorExceptions.includes(v)) &&
+    hostRule.softVendorExceptions.every(v => ownRule.softVendorExceptions.includes(v));
 }
 
 export function drawbridgeHook(
