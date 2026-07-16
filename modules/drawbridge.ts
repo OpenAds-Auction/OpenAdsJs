@@ -1,14 +1,19 @@
 import { config } from '../src/config.js';
 import { startAuction, type StartAuctionOptions } from '../src/prebid.js';
 import { PbPromise, delay } from '../src/utils/promise.js';
-import { deepClone, deepSetValue, isArray, isNumber, isPlainObject, logError, logWarn, logInfo } from '../src/utils.js';
+import { deepClone, deepEqual, deepSetValue, isArray, isNumber, isPlainObject, logError, logWarn, logInfo } from '../src/utils.js';
+import { ACTIVITY_ENRICH_EIDS } from '../src/activities/activities.js';
+import { isActivityAllowed } from '../src/activities/rules.js';
+import { activityParams } from '../src/activities/activityParams.js';
+import { MODULE_TYPE_PREBID } from '../src/activities/modules.js';
+import { allConsent } from '../src/consentHandler.js';
 import { ajax } from '../src/ajax.js';
 import type { ORTBRequest } from '../src/types/ortb/request.d.ts';
 
 type Eid = ORTBRequest['user']['eids'][number];
 
 const MODULE_NAME = 'drawbridge';
-const DEFAULT_HOST_GLOBAL = 'pbjs';
+const DEFAULT_HOST_GLOBAL = ['pbjs', '_pbjsGlobals'];
 const DEFAULT_AUCTION_DELAY_IN_MS = 500;
 const FILTER_POLICY_URL = 'https://openads-cdn.adsrvr.org/drawbridge/config/v1/filterpolicy.json';
 
@@ -48,9 +53,11 @@ const DEFAULT_FILTER_POLICY: FilterPolicy = {
 
 export interface DrawbridgeConfig {
   /**
-   * Global variable name of the foreign Prebid instance to read EIDs from. Defaults to 'pbjs'.
+   * Global variable name(s) of the foreign Prebid instance to read EIDs from. May be a single name
+   * or a candidate list — the first that resolves to a live instance is used.
+   * Defaults to ['pbjs', '_pbjsGlobals'].
    */
-  hostGlobal?: string;
+  hostGlobal?: string | string[];
   /**
    * Max time (ms) to wait for the host on the first auction. If omitted, the host instance's own
    * `userSync.auctionDelay` is used, then DEFAULT_AUCTION_DELAY_IN_MS.
@@ -100,8 +107,10 @@ export function validateFilterPolicy(policy: any): policy is FilterPolicy {
 }
 
 export function validateConfig(cfg: DrawbridgeConfig = {}): void {
-  if (cfg.hostGlobal != null && typeof cfg.hostGlobal !== 'string') {
-    logError(`${MODULE_NAME}: config.hostGlobal must be a string, got ${typeof cfg.hostGlobal}`);
+  if (cfg.hostGlobal != null &&
+      !(typeof cfg.hostGlobal === 'string' ||
+        (isArray(cfg.hostGlobal) && cfg.hostGlobal.every((name) => typeof name === 'string')))) {
+    logError(`${MODULE_NAME}: config.hostGlobal must be a string or array of strings, got ${typeof cfg.hostGlobal}`);
   }
   if (cfg.auctionDelay != null && !isNumber(cfg.auctionDelay)) {
     logError(`${MODULE_NAME}: config.auctionDelay must be a number, got ${typeof cfg.auctionDelay}`);
@@ -124,13 +133,49 @@ function eidSources(eids: Eid[]): string[] {
 }
 
 function getHost(hostGlobal: string): HostInstance | null {
-  const host = (window as any)[hostGlobal] as HostInstance | undefined;
+  let host = (window as any)[hostGlobal];
+  // some globals expose an array of instances; use the first
+  if (isArray(host)) {
+    host = host[0];
+  }
   // a Prebid global always exposes a `que`/`cmd` command queue
-  return (host && (isArray(host.que) || isArray(host.cmd))) ? host : null;
+  return (host && (isArray(host.que) || isArray(host.cmd))) ? (host as HostInstance) : null;
 }
 
-function getHostAuctionDelay(hostGlobal: string): number | undefined {
-  const host = getHost(hostGlobal);
+/** Configured candidate host globals, normalized to an array. */
+function candidateHostGlobals(): string[] {
+  const configured = getConf().hostGlobal;
+  if (isArray(configured)) return configured;
+  if (typeof configured === 'string') return [configured];
+  return DEFAULT_HOST_GLOBAL;
+}
+
+// Once we've found a live host, cache it
+let resolvedHost: { host: HostInstance; hostGlobal: string } | null = null;
+
+// Test-only: clear the memoized resolved host.
+export function resetResolvedHost(): void {
+  resolvedHost = null;
+}
+
+/**
+ * Resolve the foreign host as { host, hostGlobal } — the first candidate global that is a live
+ * instance and cache it when found.
+ */
+function resolveHost(): { host: HostInstance; hostGlobal: string } | null {
+  if (resolvedHost) return resolvedHost;
+  for (const hostGlobal of candidateHostGlobals()) {
+    const host = getHost(hostGlobal);
+    if (host) {
+      resolvedHost = { host, hostGlobal };
+      return resolvedHost;
+    }
+  }
+  return null;
+}
+
+function getHostAuctionDelay(): number | undefined {
+  const host = resolveHost()?.host;
   if (!host || typeof host.getConfig !== 'function') return undefined;
   try {
     const hostDelay = host.getConfig('userSync.auctionDelay');
@@ -140,14 +185,15 @@ function getHostAuctionDelay(hostGlobal: string): number | undefined {
   }
 }
 
-export function readHostEids({ hostGlobal } = { hostGlobal: getConf().hostGlobal || DEFAULT_HOST_GLOBAL }): Promise<Eid[]> {
+export function readHostEids(): Promise<Eid[]> {
   return new PbPromise<Eid[]>(resolve => {
-    const host = getHost(hostGlobal);
-    if (!host) {
-      logInfo(`${MODULE_NAME}: no host instance found at window.${hostGlobal}`);
+    const resolved = resolveHost();
+    if (!resolved) {
+      logInfo(`${MODULE_NAME}: no host instance found at window.[${candidateHostGlobals().join(', ')}]`);
       resolve([]);
       return;
     }
+    const { host } = resolved;
     const queue = (isArray(host.que) ? host.que : host.cmd) as unknown[];
     queue.push(() => {
       const collect = () => {
@@ -200,6 +246,77 @@ export function mergeEids(existing: Eid[] = [], incoming: Eid[] = []): Eid[] {
   return out;
 }
 
+/**
+ * If a publisher/CMP has denied enrichEids for oajs, federated IDs must not sneak past it.
+ */
+function canEnrichEids(): boolean {
+  /**
+   * This governs all cases of gpp (and more), as in dont sync unwanted EIDs 
+   *
+   * host allow | own allow       = host sets eids and drawbridgeHook runs/syncs
+   * host disallow | own allow    = host does not set eids and drawbridgeHook runs, but nothing gets synced
+   * host allow | own disallow    = host sets eids and drawbridgeHook doesn't run
+   * host disallow | own disallow = host does not set eids and drawbridgeHook doesn't run
+   */
+  return isActivityAllowed(ACTIVITY_ENRICH_EIDS, activityParams(MODULE_TYPE_PREBID, MODULE_NAME));
+}
+
+/**
+ * Describe an instance's GDPR setup from its consentManagement config: whether GDPR is configured,
+ * and the gdpr.rules array (if any). Handles both the nested (gdpr/usp/gpp) and legacy flat formats.
+ */
+function gdprStorageSource(cm: any): { configured: boolean; rules: any } {
+  if (cm == null) return { configured: false, rules: undefined };
+  if (cm.gdpr != null) return { configured: true, rules: cm.gdpr.rules };                 // nested with gdpr
+  if (cm.usp != null || cm.gpp != null) return { configured: false, rules: undefined };    // nested, no gdpr
+  return { configured: true, rules: undefined };                                           // legacy flat → GDPR, default rules
+}
+
+/**
+ * The effective purpose:'storage' rule (the one that governs enrichEids), normalized to concrete
+ * values. If multiple 'storage' rules exist, the last one wins. Missing rule / flat format → defaults.
+ */
+function effectiveStorageRule(rules: any): { enforcePurpose: boolean; enforceVendor: boolean; vendorExceptions: string[]; softVendorExceptions: string[] } {
+  let rule: any = {};
+  if (isArray(rules)) {
+    for (const r of rules) {
+      if (r?.purpose === 'storage') rule = r;   // last with this purpose takes effect
+    }
+  }
+  return {
+    enforcePurpose: rule.enforcePurpose ?? true,
+    enforceVendor: rule.enforceVendor ?? true,
+    vendorExceptions: [...(rule.vendorExceptions ?? [])].sort(),
+    softVendorExceptions: [...(rule.softVendorExceptions ?? [])].sort()
+  };
+}
+
+/**
+ * True if the foreign host's GDPR enforcement is at least as restrictive as oajs's for the
+ * purpose:'storage' rule (which gates enrichEids):
+ *  - host configured, oajs not   → true  (host is stricter)
+ *  - host not configured, oajs is → false (host is looser)
+ *  - neither configured → true (equivalent)
+ *  - both configured → true only if their effective storage rule is equal
+ */
+export function hostGdprConsentAsOrMoreRestrictive(host: HostInstance): boolean {
+  const own = gdprStorageSource(config.getConfig('consentManagement'));
+
+  let hostCm: any;
+  try {
+    hostCm = typeof host.getConfig === 'function' ? host.getConfig('consentManagement') : undefined;
+  } catch (e) {
+    hostCm = undefined;
+  }
+  const hostSrc = gdprStorageSource(hostCm);
+
+  if (hostSrc.configured && !own.configured) return true;
+  if (!hostSrc.configured && own.configured) return false;
+  if (!hostSrc.configured && !own.configured) return true;
+
+  return deepEqual(effectiveStorageRule(hostSrc.rules), effectiveStorageRule(own.rules));
+}
+
 export function drawbridgeHook(
   next: (options: StartAuctionOptions) => void,
   options: StartAuctionOptions,
@@ -210,49 +327,75 @@ export function drawbridgeHook(
     next(options);
     return PbPromise.resolve();
   }
-  const hostGlobal = conf.hostGlobal || DEFAULT_HOST_GLOBAL;
-
-  // On the first auction only, resolve auctionDelay if the publisher hasn't set one: prefer the
-  // host's own userSync.auctionDelay, else DEFAULT_AUCTION_DELAY_IN_MS. Written back so subsequent reads
-  // (and getConfig) see the resolved value.
-  // do it here to give forgien prebid the most amount of time for setup and config seting
+  /**
+   *  On the first auction only, resolve auctionDelay if the publisher hasn't set one: prefer the
+   * host's own userSync.auctionDelay, else DEFAULT_AUCTION_DELAY_IN_MS. Written back so subsequent reads
+   * (and getConfig) see the resolved value.
+   * do it here to give forgien prebid the most amount of time for setup and config seting
+   */
   if (!hostAuctionDelayChecked) {
     hostAuctionDelayChecked = true;
     if (!isNumber(conf.auctionDelay)) {
-      const hostDelay = getHostAuctionDelay(hostGlobal);
-      const resolved = isNumber(hostDelay) ? hostDelay : DEFAULT_AUCTION_DELAY_IN_MS;
-      config.setConfig({ drawbridge: { ...conf, auctionDelay: resolved } });
+      const hostDelay = getHostAuctionDelay();
+      const resolvedDelay = isNumber(hostDelay) ? hostDelay : DEFAULT_AUCTION_DELAY_IN_MS;
+      config.setConfig({ drawbridge: { ...conf, auctionDelay: resolvedDelay } });
     }
   }
 
   const auctionDelay = getConf().auctionDelay ?? DEFAULT_AUCTION_DELAY_IN_MS;
 
-  return PbPromise.race<Eid[]>([
-    readHostEids({ hostGlobal }),
-    mkDelay(auctionDelay).then(() => [] as Eid[])
-  ]).then(hostEids => {
-    const retrieved = isArray(hostEids) ? hostEids : [];
-    // tag every EID we sync from the host so downstream can tell federated IDs apart and see which instance they came from
-    const eligible = filterProvenancedEids(retrieved).map(eid => {
-      const clone = deepClone(eid);
-      deepSetValue(clone, 'ext.federatedFrom', hostGlobal);
-      return clone;
+  // Single shared deadline for the whole hook
+  const deadline = mkDelay(auctionDelay);
+
+  /**
+   * Gate on OUR consent first. allConsent.promise resolves once every configured framework
+   * (gdpr / usp / gpp) has reported — important because mayEnrichEids() evaluates GPP rules too,
+   * not just GDPR. Disabled frameworks resolve immediately. Race the shared deadline so a silent
+   * CMP can't stall the auction.
+   * Note no check for host consent to be ready. If its not ready no EIDs will be set and nothing will get sync
+   */
+  const consentReady = PbPromise.race([allConsent.promise, deadline.then(() => null)]);
+
+  return consentReady.then(() => {
+    if (!canEnrichEids()) {
+      logInfo(`${MODULE_NAME}: enrichEids not permitted; skipping federation`);
+      return;                                  // ← inject nothing
+    }
+
+    const resolved = resolveHost();
+    if (resolved && !hostGdprConsentAsOrMoreRestrictive(resolved.host)) {
+      logWarn(`${MODULE_NAME}: host GDPR enforcement is less restrictive than oajs; skipping federation`);
+      return;
+    }
+    const hostGlobal = resolved?.hostGlobal ?? candidateHostGlobals()[0];
+
+    return PbPromise.race<Eid[]>([
+      readHostEids(),
+      deadline.then(() => [] as Eid[])
+    ]).then(hostEids => {
+      const retrieved = isArray(hostEids) ? hostEids : [];
+      // tag every EID we sync from the host so downstream can tell federated IDs apart and see which instance they came from
+      const eligible = filterProvenancedEids(retrieved).map(eid => {
+        const clone = deepClone(eid);
+        deepSetValue(clone, 'ext.federatedFrom', hostGlobal);
+        return clone;
+      });
+
+      if (retrieved.length) {
+        logInfo(`${MODULE_NAME}: retrieved ${retrieved.length} EID(s) from '${hostGlobal}'`, eidSources(retrieved), retrieved);
+        logInfo(`${MODULE_NAME}: syncing ${eligible.length} EID(s)`, eidSources(eligible), eligible);
+      } else {
+        logInfo(`${MODULE_NAME}: received 0 EID(s) from '${hostGlobal}'`);
+      }
+
+      if (eligible.length) {
+        const fragments = (options.ortb2Fragments = options.ortb2Fragments || {});
+        const global = (fragments.global = fragments.global || {});
+        const current = ((global as any).user?.ext?.eids ?? []) as Eid[];
+        const merged = mergeEids(current, eligible);
+        deepSetValue(global, 'user.ext.eids', merged);
+      }
     });
-
-    if (retrieved.length) {
-      logInfo(`${MODULE_NAME}: retrieved ${retrieved.length} EID(s) from '${hostGlobal}'`, eidSources(retrieved), retrieved);
-      logInfo(`${MODULE_NAME}: syncing ${eligible.length} EID(s)`, eidSources(eligible), eligible);
-    } else {
-      logInfo(`${MODULE_NAME}: received 0 EID(s) from '${hostGlobal}'`);
-    }
-
-    if (eligible.length) {
-      const fragments = (options.ortb2Fragments = options.ortb2Fragments || {});
-      const global = (fragments.global = fragments.global || {});
-      const current = ((global as any).user?.ext?.eids ?? []) as Eid[];
-      const merged = mergeEids(current, eligible);
-      deepSetValue(global, 'user.ext.eids', merged);
-    }
   }).catch(e => {
     logWarn(`${MODULE_NAME}: federation failed; proceeding without host EIDs`, e);
   }).then(() => {
@@ -263,13 +406,14 @@ export function drawbridgeHook(
 /**
  * Pre-warm the host: kick off foreign host's ID resolution as early as possible to give drawbridge the best chances to retrieve eids on the first auction
  */
-export function prewarmHost({ hostGlobal } = { hostGlobal: getConf().hostGlobal || DEFAULT_HOST_GLOBAL }): void {
-  const host = getHost(hostGlobal);
-  if (!host) {
-    logInfo(`${MODULE_NAME}: no host instance found at window.${hostGlobal} during prewarmHost`);
+export function prewarmHost(): void {
+  const resolved = resolveHost();
+  if (!resolved) {
+    logInfo(`${MODULE_NAME}: no host instance found at window.[${candidateHostGlobals().join(', ')}] during prewarmHost`);
     return;
   }
 
+  const { host, hostGlobal } = resolved;
   logInfo(`${MODULE_NAME}: Host instance found at window.${hostGlobal} during prewarmHost`);
   const queue = (isArray(host.que) ? host.que : host.cmd) as unknown[];
   queue.push(() => {
