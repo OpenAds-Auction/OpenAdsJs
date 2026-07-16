@@ -297,8 +297,9 @@ function effectiveStorageRule(rules: any): { enforcePurpose: boolean; enforceVen
  *  - host configured, oajs not   → true  (host is stricter)
  *  - host not configured, oajs is → false (host is looser)
  *  - neither configured → true (equivalent)
- *  - both configured → true if enforcePurpose and enforceVendor match and the host's vendorExceptions
- *    (and softVendorExceptions) are a subset of oajs's aka the host exempts no vendor that oajs enforces
+ *  - both configured → true if the host enforces enforcePurpose/enforceVendor wherever oajs does (the
+ *    host may enforce more, never less) and the host's vendorExceptions (and softVendorExceptions) are a
+ *    subset of oajs's aka the host exempts no vendor that oajs enforces
  */
 export function hostGdprConsentAsOrMoreRestrictive(host: HostInstance): boolean {
   const own = gdprStorageSource(config.getConfig('consentManagement'));
@@ -317,8 +318,10 @@ export function hostGdprConsentAsOrMoreRestrictive(host: HostInstance): boolean 
 
   const hostRule = effectiveStorageRule(hostSrc.rules);
   const ownRule = effectiveStorageRule(own.rules);
-  return hostRule.enforcePurpose === ownRule.enforcePurpose &&
-    hostRule.enforceVendor === ownRule.enforceVendor &&
+  // enforce=true is stricter than false; the host must enforce wherever oajs does (>=), but may enforce more
+  const atLeastAsStrict = (host: boolean, own: boolean) => host >= own;
+  return atLeastAsStrict(hostRule.enforcePurpose, ownRule.enforcePurpose) &&
+    atLeastAsStrict(hostRule.enforceVendor, ownRule.enforceVendor) &&
     hostRule.vendorExceptions.every(v => ownRule.vendorExceptions.includes(v)) &&
     hostRule.softVendorExceptions.every(v => ownRule.softVendorExceptions.includes(v));
 }

@@ -318,10 +318,17 @@ describe('drawbridge module', () => {
       expect(hostGdprConsentAsOrMoreRestrictive(host)).to.be.true;
     });
 
-    it('returns false when their effective storage rules differ', () => {
+    it('returns false when the host enforces less than oajs', () => {
       config.setConfig({ consentManagement: { gdpr: { rules: [{ purpose: 'storage', enforceVendor: true }] } } });
       const host = cmHost({ gdpr: { rules: [{ purpose: 'storage', enforceVendor: false }] } });
       expect(hostGdprConsentAsOrMoreRestrictive(host)).to.be.false;
+    });
+
+    it('returns true when the host enforces more than oajs', () => {
+      // oajs enforces neither; host enforces both → host is stricter → federation allowed
+      config.setConfig({ consentManagement: { gdpr: { rules: [{ purpose: 'storage', enforcePurpose: false, enforceVendor: false }] } } });
+      const host = cmHost({ gdpr: { rules: [{ purpose: 'storage', enforcePurpose: true, enforceVendor: true }] } });
+      expect(hostGdprConsentAsOrMoreRestrictive(host)).to.be.true;
     });
 
     it('treats the legacy flat format as the default storage rule', () => {
