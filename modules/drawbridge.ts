@@ -251,7 +251,7 @@ export function mergeEids(existing: Eid[] = [], incoming: Eid[] = []): Eid[] {
  */
 function canEnrichEids(): boolean {
   /**
-   * This governs all cases of gpp (and more), as in dont sync unwanted EIDs 
+   * This governs all cases of gpp (and more), as in dont sync unwanted EIDs
    *
    * host allow | own allow       = host sets eids and drawbridgeHook runs/syncs
    * host disallow | own allow    = host does not set eids and drawbridgeHook runs, but nothing gets synced
