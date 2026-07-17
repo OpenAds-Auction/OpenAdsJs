@@ -442,15 +442,9 @@ describe('drawbridge module', () => {
       });
     });
 
-    it('reads host EIDs after getUserIdsAsync resolves', () => {
+    it('reads host EIDs via getUserIdsAsEids', () => {
       const eids = [{ source: 'id5-sync.com', uids: [{ id: 'AAA' }] }];
       useHost(makeHost({ eids }));
-      return readHostEids().then(result => expect(result).to.deep.equal(eids));
-    });
-
-    it('falls back to a synchronous read when getUserIdsAsync is absent', () => {
-      const eids = [{ source: 'pubcid.org', uids: [{ id: 'BBB' }] }];
-      useHost(makeHost({ eids, async: false }));
       return readHostEids().then(result => expect(result).to.deep.equal(eids));
     });
   });
@@ -543,8 +537,9 @@ describe('drawbridge module', () => {
     });
 
     it('proceeds (calls next) without host EIDs when the budget elapses first', () => {
-      const host = makeHost({ eids: [{ source: 'x', inserter: 'y', mm: 1, uids: [{ id: '1', atype: 1 }] }] });
-      host.getUserIdsAsync = () => new Promise(() => {}); // host never becomes ready
+      // a host whose command queue never flushes (e.g. foreign Prebid not yet loaded), so readHostEids
+      // never resolves and the deadline wins the race
+      const host = { que: [], getUserIdsAsEids: () => [{ source: 'x', inserter: 'y', mm: 1, uids: [{ id: '1', atype: 1 }] }] };
       useHost(host);
       const options = {};
       const next = sinon.spy();

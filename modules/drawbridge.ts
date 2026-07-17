@@ -196,19 +196,11 @@ export function readHostEids(): Promise<Eid[]> {
     const { host } = resolved;
     const queue = (isArray(host.que) ? host.que : host.cmd) as unknown[];
     queue.push(() => {
-      const collect = () => {
-        try {
-          resolve(typeof host.getUserIdsAsEids === 'function' ? (host.getUserIdsAsEids() || []) : []);
-        } catch (e) {
-          logWarn(`${MODULE_NAME}: failed reading host EIDs`, e);
-          resolve([]);
-        }
-      };
-      // getUserIdsAsync resolves only after the host finishes its initial ID resolution
-      if (typeof host.getUserIdsAsync === 'function') {
-        host.getUserIdsAsync().then(collect, collect);
-      } else {
-        collect();
+      try {
+        resolve(typeof host.getUserIdsAsEids === 'function' ? (host.getUserIdsAsEids() || []) : []);
+      } catch (e) {
+        logWarn(`${MODULE_NAME}: failed reading host EIDs`, e);
+        resolve([]);
       }
     });
   });
