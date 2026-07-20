@@ -12,11 +12,13 @@ import {
   getFilterPolicy,
   resetFilterPolicy,
   hostGdprConsentAsOrMoreRestrictive,
-  gdprFederationAllowed
+  gdprFederationAllowed,
+  gppFederationAllowed
 } from 'modules/drawbridge.js';
 import { config } from 'src/config.js';
 import * as utils from 'src/utils.js';
 import { getGlobal } from 'src/prebidGlobal.js';
+import { gppDataHandler } from 'src/consentHandler.js';
 import { registerActivityControl } from 'src/activities/rules.js';
 import { ACTIVITY_ENRICH_EIDS } from 'src/activities/activities.js';
 
@@ -831,6 +833,113 @@ describe('drawbridge module', () => {
         expect(eids).to.have.length(1);
         expect(eids[0].uids.map(u => u.id)).to.deep.equal(['OWN']);   // OpenAds' own wins; host dropped
       });
+    });
+
+    describe('US privacy (GPP) leak cell', () => {
+      // oajs installedModules signals oajs-side enforcement; gppDataHandler signals what __gpp reported
+      let savedModules;
+      const usEid = [{ source: 'id5-sync.com', inserter: 'x.com', mm: 3, uids: [{ id: 'AAA', atype: 1 }] }];
+      beforeEach(() => {
+        savedModules = getGlobal().installedModules;
+        sinon.stub(gppDataHandler, 'getConsentData');
+      });
+      afterEach(() => {
+        getGlobal().installedModules = savedModules;
+        gppDataHandler.getConsentData.restore();
+      });
+      const gppInScope = () => gppDataHandler.getConsentData.returns({ applicableSections: [7] });
+
+      it('blocks federation when a US GPP section applies and neither side enforces', () => {
+        gppInScope();
+        getGlobal().installedModules = [];                       // oajs: no gpp enforcer
+        useHost(makeHost({ eids: usEid }));                      // host: no gpp enforcer either
+        const options = {};
+        return drawbridgeHook(sinon.spy(), options, { mkDelay: neverDelay }).then(() => {
+          expect(options.ortb2Fragments).to.be.undefined;
+        });
+      });
+
+      it('allows federation when oajs enforces GPP', () => {
+        gppInScope();
+        getGlobal().installedModules = ['gppControl_usnat'];
+        config.setConfig({ consentManagement: { gpp: {} } });
+        useHost(makeHost({ eids: usEid }));
+        const options = {};
+        return drawbridgeHook(sinon.spy(), options, { mkDelay: neverDelay }).then(() => {
+          expect(options.ortb2Fragments.global.user.ext.eids.map(e => e.source)).to.deep.equal(['id5-sync.com']);
+        });
+      });
+
+      it('allows federation when the host enforces GPP', () => {
+        gppInScope();
+        getGlobal().installedModules = [];                       // oajs does not
+        useHost(makeHost({ eids: usEid, installedModules: ['gppControl_usnat'], getConfig: cmGetConfig({ gpp: {} }) }));
+        const options = {};
+        return drawbridgeHook(sinon.spy(), options, { mkDelay: neverDelay }).then(() => {
+          expect(options.ortb2Fragments.global.user.ext.eids.map(e => e.source)).to.deep.equal(['id5-sync.com']);
+        });
+      });
+
+      it('does not block when no US GPP section is in scope (EU-only section 2)', () => {
+        gppDataHandler.getConsentData.returns({ applicableSections: [2] });
+        getGlobal().installedModules = [];
+        useHost(makeHost({ eids: usEid }));
+        const options = {};
+        return drawbridgeHook(sinon.spy(), options, { mkDelay: neverDelay }).then(() => {
+          expect(options.ortb2Fragments.global.user.ext.eids.map(e => e.source)).to.deep.equal(['id5-sync.com']);
+        });
+      });
+    });
+  });
+
+  describe('gppFederationAllowed', () => {
+    let savedModules;
+    const state = (over) => ({ eids: [], cm: undefined, installedModules: undefined, gdprApplies: false, ...over });
+    beforeEach(() => {
+      savedModules = getGlobal().installedModules;
+      sinon.stub(gppDataHandler, 'getConsentData');
+    });
+    afterEach(() => {
+      getGlobal().installedModules = savedModules;
+      gppDataHandler.getConsentData.restore();
+    });
+
+    it('allows when no GPP consent data is available (nothing read __gpp)', () => {
+      gppDataHandler.getConsentData.returns(null);
+      getGlobal().installedModules = [];
+      expect(gppFederationAllowed(state())).to.be.true;
+    });
+
+    it('allows when only an EU (non-US) GPP section applies', () => {
+      gppDataHandler.getConsentData.returns({ applicableSections: [2] });
+      getGlobal().installedModules = [];
+      expect(gppFederationAllowed(state())).to.be.true;
+    });
+
+    it('blocks the leak cell: a US section applies and neither side enforces', () => {
+      gppDataHandler.getConsentData.returns({ applicableSections: [8] });
+      getGlobal().installedModules = [];
+      expect(gppFederationAllowed(state())).to.be.false;
+    });
+
+    it('allows when oajs enforces (module + consentManagement.gpp)', () => {
+      gppDataHandler.getConsentData.returns({ applicableSections: [7] });
+      getGlobal().installedModules = ['gppControl_usnat'];
+      config.setConfig({ consentManagement: { gpp: {} } });
+      expect(gppFederationAllowed(state())).to.be.true;
+    });
+
+    it('does not treat a loaded module without a gpp config as enforcing', () => {
+      gppDataHandler.getConsentData.returns({ applicableSections: [7] });
+      getGlobal().installedModules = ['gppControl_usnat'];
+      config.setConfig({ consentManagement: { gdpr: {} } });   // gpp not configured → not armed
+      expect(gppFederationAllowed(state())).to.be.false;
+    });
+
+    it('allows when the host enforces, even if oajs does not', () => {
+      gppDataHandler.getConsentData.returns({ applicableSections: [7] });
+      getGlobal().installedModules = [];
+      expect(gppFederationAllowed(state({ installedModules: ['gppControl_usstates'], cm: { gpp: {} } }))).to.be.true;
     });
   });
 

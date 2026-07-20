@@ -7,7 +7,7 @@ import { ACTIVITY_ENRICH_EIDS } from '../src/activities/activities.js';
 import { isActivityAllowed } from '../src/activities/rules.js';
 import { activityParams } from '../src/activities/activityParams.js';
 import { MODULE_TYPE_PREBID } from '../src/activities/modules.js';
-import { allConsent } from '../src/consentHandler.js';
+import { allConsent, gppDataHandler } from '../src/consentHandler.js';
 import { ajax } from '../src/ajax.js';
 import type { ORTBRequest } from '../src/types/ortb/request.d.ts';
 
@@ -20,6 +20,8 @@ const PBJS_GLOBALS_REGISTRY = '_pbjsGlobals';
 const DEFAULT_HOST_GLOBAL = ['pbjs', PBJS_GLOBALS_REGISTRY];
 const DEFAULT_AUCTION_DELAY_IN_MS = 500;
 const FILTER_POLICY_URL = 'https://openads-cdn.adsrvr.org/drawbridge/config/v1/filterpolicy.json';
+const GPP_ENRICH_EIDS_ENFORCERS = ['gppControl_usnat', 'gppControl_usstates'];
+const US_GPP_SECTION_IDS = [7, 8, 9, 10, 11, 12];
 const DEFAULT_FILTER_POLICY: FilterPolicy = {
   requireSource: true,
   requireInserter: false,
@@ -438,6 +440,48 @@ export function gdprFederationAllowed(state: HostState): boolean {
   return true;
 }
 
+/**
+ * Whether an instance actually ENFORCES US privacy for enrichEids: a GPP/MSPA enforcement module
+ * (gppControl_usnat / gppControl_usstates) is loaded AND a consentManagement.gpp config exists to arm
+ * it
+ */
+function enforcesGpp(installedModules: any, cm: any): boolean {
+  return isArray(installedModules) &&
+    GPP_ENRICH_EIDS_ENFORCERS.some(m => installedModules.includes(m)) &&
+    cm?.gpp != null;
+}
+
+/**
+ * Whether a US GPP section is in scope for this user. The host's getConsentMetadata() exposes only
+ * gdprApplies, NOT GPP applicableSections — but GPP is a single page-level CMP signal (`__gpp`) shared
+ * by every Prebid on the page, so oajs's own gppDataHandler is an authoritative source for it. Returns
+ * false when oajs has no GPP consent data (nothing read `__gpp`)
+ */
+function usPrivacyApplies(): boolean {
+  try {
+    const sections = gppDataHandler.getConsentData()?.applicableSections;
+    return isArray(sections) && sections.some(sid => US_GPP_SECTION_IDS.includes(sid));
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * US-privacy (GPP/MSPA) analog of gdprFederationAllowed. If a US GPP section is in scope and NEITHER
+ * the host nor oajs enforces MSPA for enrichEids, an opt-out (Sale/Sharing/TargetedAdvertising, GPC,
+ * minors) could be ignored on both sides — the "host set EIDs ⇒ consent allowed it" assumption breaks
+ * — so federation is blocked. If either side enforces, that enforcement already dropped opted-out EIDs
+ * (host-side) or gates them via canEnrichEids (oajs-side), so federation is allowed. Unlike GDPR, MSPA
+ * interpretation is standardized (not per-instance-configurable), so there is no "both enforce, compare
+ * restrictiveness" clause.
+ */
+export function gppFederationAllowed(state: HostState): boolean {
+  if (!usPrivacyApplies()) return true;
+  const hostEnforces = enforcesGpp(state.installedModules, state.cm);
+  const oajsEnforces = enforcesGpp((getGlobal() as any).installedModules, config.getConfig('consentManagement'));
+  return hostEnforces || oajsEnforces;
+}
+
 export function drawbridgeHook(
   next: (options: StartAuctionOptions) => void,
   options: StartAuctionOptions,
@@ -487,10 +531,17 @@ export function drawbridgeHook(
       readHostState(),
       deadline.then(() => ({ eids: [], cm: undefined, installedModules: undefined, gdprApplies: false } as HostState))
     ]).then(state => {
+
+      if (resolved && !gppFederationAllowed(state)) {
+        logWarn(`${MODULE_NAME}: US privacy (GPP) federation not permitted for this host/consent state; skipping federation`);
+        return;
+      }
+
       if (resolved && !gdprFederationAllowed(state)) {
         logWarn(`${MODULE_NAME}: GDPR federation not permitted for this host/consent state; skipping federation`);
         return;
       }
+
       const retrieved = isArray(state.eids) ? state.eids : [];
       // tag every EID we sync from the host so downstream can tell federated IDs apart and see which instance they came from
       const eligible = filterProvenancedEids(retrieved).map(eid => {
