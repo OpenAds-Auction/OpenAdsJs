@@ -11,6 +11,7 @@ import {
   loadFilterPolicy,
   getFilterPolicy,
   resetFilterPolicy,
+  resetFilterPolicyReady,
   hostGdprConsentAsOrMoreRestrictive,
   gdprFederationAllowed,
   gppFederationAllowed
@@ -52,6 +53,7 @@ describe('drawbridge module', () => {
   beforeEach(() => {
     resetResolvedHost();
     resetHostAuctionDelayCheck();
+    resetFilterPolicyReady();   // bootstrap loadFilterPolicy() leaves a real-ajax promise pending in tests
   });
 
   afterEach(() => {
@@ -59,6 +61,7 @@ describe('drawbridge module', () => {
     resetResolvedHost();
     resetHostAuctionDelayCheck();
     resetFilterPolicy();
+    resetFilterPolicyReady();
     config.setConfig({ drawbridge: {} });
     config.resetConfig();
   });
@@ -780,6 +783,33 @@ describe('drawbridge module', () => {
       useHost(makeHost({ eids: hostEids }));
       const options = {};
       return drawbridgeHook(sinon.spy(), options, { mkDelay: neverDelay }).then(() => {
+        expect(options.ortb2Fragments.global.user.ext.eids.map(e => e.source)).to.deep.equal(['id5-sync.com']);
+      });
+    });
+
+    it('waits for loadFilterPolicy to finish before federating', () => {
+      let successCb;
+      // start a policy fetch that stays pending until we invoke its success callback
+      loadFilterPolicy('https://cdn.example.com/x', { ajaxFn: (url, cbs) => { successCb = cbs.success; } });
+      useHost(makeHost({ eids: [{ source: 'id5-sync.com', inserter: 'x.com', mm: 3, uids: [{ id: 'AAA', atype: 1 }] }] }));
+      const options = {};
+      // deadline never fires, so only the policy fetch settling can unblock federation
+      const p = drawbridgeHook(sinon.spy(), options, { mkDelay: neverDelay });
+      return Promise.resolve().then(() => {
+        expect(options.ortb2Fragments).to.be.undefined;                        // still waiting on the fetch
+        successCb('{"requireSource":true,"requireAtype":false}');              // fetch settles
+        return p;
+      }).then(() => {
+        expect(options.ortb2Fragments.global.user.ext.eids.map(e => e.source)).to.deep.equal(['id5-sync.com']);
+      });
+    });
+
+    it('proceeds when the policy fetch outlasts the auction-delay budget (deadline wins)', () => {
+      loadFilterPolicy('https://cdn.example.com/x', { ajaxFn: () => { /* never calls back */ } });
+      useHost(makeHost({ eids: [{ source: 'id5-sync.com', inserter: 'x.com', mm: 3, uids: [{ id: 'AAA', atype: 1 }] }] }));
+      const options = {};
+      // deadline resolves immediately → federation proceeds with the bundled default policy
+      return drawbridgeHook(sinon.spy(), options, { mkDelay: () => Promise.resolve() }).then(() => {
         expect(options.ortb2Fragments.global.user.ext.eids.map(e => e.source)).to.deep.equal(['id5-sync.com']);
       });
     });

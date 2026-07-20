@@ -17,7 +17,7 @@ const MODULE_NAME = 'drawbridge';
 const HOOK_PRIORITY = 10;
 // page-wide registry of Prebid global names (window._pbjsGlobals); used as a discovery candidate
 const PBJS_GLOBALS_REGISTRY = '_pbjsGlobals';
-const DEFAULT_HOST_GLOBAL = ['pbjs', PBJS_GLOBALS_REGISTRY];
+const DEFAULT_HOST_GLOBAL = ['pbjsa', PBJS_GLOBALS_REGISTRY];
 const DEFAULT_AUCTION_DELAY_IN_MS = 500;
 const FILTER_POLICY_URL = 'https://openads-cdn.adsrvr.org/drawbridge/config/v1/filterpolicy.json';
 const GPP_ENRICH_EIDS_ENFORCERS = ['gppControl_usnat', 'gppControl_usstates'];
@@ -35,6 +35,7 @@ const DEFAULT_FILTER_POLICY: FilterPolicy = {
 // `undefined` means "not resolved yet".
 let resolvedHostAuctionDelay: number | undefined;
 let activeFilterPolicy: FilterPolicy = DEFAULT_FILTER_POLICY;
+let filterPolicyReady: Promise<unknown> = PbPromise.resolve();
 
 // --- Test-only resets ---
 export function resetHostAuctionDelayCheck(): void {
@@ -43,6 +44,10 @@ export function resetHostAuctionDelayCheck(): void {
 
 export function resetFilterPolicy(): void {
   activeFilterPolicy = DEFAULT_FILTER_POLICY;
+}
+
+export function resetFilterPolicyReady(): void {
+  filterPolicyReady = PbPromise.resolve();
 }
 
 export function resetResolvedHost(): void {
@@ -134,26 +139,28 @@ export function getFilterPolicy(): FilterPolicy {
  */
 export function loadFilterPolicy(url = FILTER_POLICY_URL, { ajaxFn = ajax } = {}): void {
   if (!url) return;
-  ajaxFn(url, {
-    success: (response: string) => {
-      let policy;
-      try {
-        policy = JSON.parse(response);
-      } catch (e) {
-        logError(`${MODULE_NAME}: could not parse filter policy from ${url}; keeping default`, e);
-        return;
+  filterPolicyReady = new PbPromise<void>(ready => {
+    ajaxFn(url, {
+      success: (response: string) => {
+        try {
+          const policy = JSON.parse(response);
+          if (validateFilterPolicy(policy)) {
+            activeFilterPolicy = policy;
+            logInfo(`${MODULE_NAME}: loaded filter policy from ${url}`, policy);
+          } else {
+            logError(`${MODULE_NAME}: invalid filter policy from ${url}; keeping default`, policy);
+          }
+        } catch (e) {
+          logError(`${MODULE_NAME}: could not parse filter policy from ${url}; keeping default`, e);
+        }
+        ready();
+      },
+      error: (err: any) => {
+        logError(`${MODULE_NAME}: could not load filter policy from ${url}; keeping default`, err);
+        ready();
       }
-      if (!validateFilterPolicy(policy)) {
-        logError(`${MODULE_NAME}: invalid filter policy from ${url}; keeping default`, policy);
-        return;
-      }
-      activeFilterPolicy = policy;
-      logInfo(`${MODULE_NAME}: loaded filter policy from ${url}`, policy);
-    },
-    error: (err: any) => {
-      logError(`${MODULE_NAME}: could not load filter policy from ${url}; keeping default`, err);
-    }
-  }, undefined, { method: 'GET', withCredentials: false });
+    }, undefined, { method: 'GET', withCredentials: false });
+  });
 }
 
 declare module '../src/prebidGlobal' {
@@ -507,16 +514,12 @@ export function drawbridgeHook(
   // Single shared deadline for the whole hook
   const deadline = mkDelay(auctionDelay);
 
-  /**
-   * Gate on OUR consent first. allConsent.promise resolves once every configured framework
-   * (gdpr / usp / gpp) has reported — important because mayEnrichEids() evaluates GPP rules too,
-   * not just GDPR. Disabled frameworks resolve immediately. Race the shared deadline so a silent
-   * CMP can't stall the auction.
-   * Note no check for host consent to be ready. If its not ready no EIDs will be set and nothing will get sync
-   */
-  const consentReady = PbPromise.race([allConsent.promise, deadline.then(() => null)]);
+  const ready = PbPromise.race([
+    PbPromise.all([allConsent.promise, filterPolicyReady]),
+    deadline.then(() => null)
+  ]);
 
-  return consentReady.then(() => {
+  return ready.then(() => {
     if (!canEnrichEids()) {
       logInfo(`${MODULE_NAME}: enrichEids not permitted; skipping federation`);
       return;                                  // ← inject nothing
