@@ -531,7 +531,6 @@ export function drawbridgeHook(
       readHostState(),
       deadline.then(() => ({ eids: [], cm: undefined, installedModules: undefined, gdprApplies: false } as HostState))
     ]).then(state => {
-
       if (resolved && !gppFederationAllowed(state)) {
         logWarn(`${MODULE_NAME}: US privacy (GPP) federation not permitted for this host/consent state; skipping federation`);
         return;
