@@ -50,9 +50,11 @@ export function resetResolvedHost(): void {
 interface HostInstance {
   que?: unknown[];
   cmd?: unknown[];
+  installedModules?: string[];
   getUserIdsAsEids?: () => Eid[];
   getUserIdsAsync?: () => Promise<unknown>;
   getConfig?: (path: string) => unknown;
+  getConsentMetadata?: () => any;
 }
 
 /**
@@ -254,6 +256,10 @@ export interface HostState {
   eids: Eid[];
   /** The host's `consentManagement` config, read from inside its command queue. */
   cm: any;
+  /** The host's installedModules list — used to detect whether it loaded the tcfControl enforcement module. */
+  installedModules: any;
+  /** Whether the host's CMP reports GDPR as in-scope for this user (getConsentMetadata().gdpr.gdprApplies). */
+  gdprApplies: boolean;
 }
 
 /**
@@ -269,7 +275,7 @@ export function readHostState(): Promise<HostState> {
     const resolved = resolveHost();
     if (!resolved) {
       logInfo(`${MODULE_NAME}: no host instance found at window.[${candidateHostGlobals().join(', ')}]`);
-      resolve({ eids: [], cm: undefined });
+      resolve({ eids: [], cm: undefined, installedModules: undefined, gdprApplies: false });
       return;
     }
     const { host } = resolved;
@@ -281,13 +287,19 @@ export function readHostState(): Promise<HostState> {
       } catch (e) {
         cm = undefined;
       }
+      let gdprApplies = false;
+      try {
+        gdprApplies = typeof host.getConsentMetadata === 'function' && host.getConsentMetadata()?.gdpr?.gdprApplies === true;
+      } catch (e) {
+        gdprApplies = false;
+      }
       let eids: Eid[] = [];
       try {
         eids = typeof host.getUserIdsAsEids === 'function' ? (host.getUserIdsAsEids() || []) : [];
       } catch (e) {
         logWarn(`${MODULE_NAME}: failed reading host EIDs`, e);
       }
-      resolve({ eids, cm });
+      resolve({ eids, cm, installedModules: host.installedModules, gdprApplies });
     });
   });
 }
@@ -409,6 +421,23 @@ export function hostGdprConsentAsOrMoreRestrictive(hostCm: any): boolean {
     hostRule.softVendorExceptions.every(v => ownRule.softVendorExceptions.includes(v));
 }
 
+/**
+ * Whether an instance actually ENFORCES GDPR: the tcfControl enforcement module is loaded AND a
+ * consentManagement.gdpr config exists to arm it.
+ */
+function enforcesGdpr(installedModules: any, cm: any): boolean {
+  return isArray(installedModules) && installedModules.includes('tcfControl') && gdprStorageSource(cm).configured;
+}
+
+export function gdprFederationAllowed(state: HostState): boolean {
+  const hostEnforces = enforcesGdpr(state.installedModules, state.cm);
+  const oajsEnforces = enforcesGdpr((getGlobal() as any).installedModules, config.getConfig('consentManagement'));
+
+  if (state.gdprApplies && !hostEnforces && !oajsEnforces) return false;
+  if (hostEnforces && oajsEnforces && !hostGdprConsentAsOrMoreRestrictive(state.cm)) return false;
+  return true;
+}
+
 export function drawbridgeHook(
   next: (options: StartAuctionOptions) => void,
   options: StartAuctionOptions,
@@ -456,10 +485,10 @@ export function drawbridgeHook(
     // the consent verdict is made against a fully-initialized host
     return PbPromise.race<HostState>([
       readHostState(),
-      deadline.then(() => ({ eids: [], cm: undefined } as HostState))
+      deadline.then(() => ({ eids: [], cm: undefined, installedModules: undefined, gdprApplies: false } as HostState))
     ]).then(state => {
-      if (resolved && !hostGdprConsentAsOrMoreRestrictive(state.cm)) {
-        logWarn(`${MODULE_NAME}: host GDPR enforcement is less restrictive than oajs; skipping federation`);
+      if (resolved && !gdprFederationAllowed(state)) {
+        logWarn(`${MODULE_NAME}: GDPR federation not permitted for this host/consent state; skipping federation`);
         return;
       }
       const retrieved = isArray(state.eids) ? state.eids : [];

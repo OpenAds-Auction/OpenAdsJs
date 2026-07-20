@@ -11,7 +11,8 @@ import {
   loadFilterPolicy,
   getFilterPolicy,
   resetFilterPolicy,
-  hostGdprConsentAsOrMoreRestrictive
+  hostGdprConsentAsOrMoreRestrictive,
+  gdprFederationAllowed
 } from 'modules/drawbridge.js';
 import { config } from 'src/config.js';
 import * as utils from 'src/utils.js';
@@ -25,14 +26,19 @@ describe('drawbridge module', () => {
 
   // A fake foreign Prebid instance. Its `que` runs callbacks immediately, like a loaded pbjs,
   // so tests don't need to manually flush a command queue.
-  function makeHost({ eids = [], async = true, getConfig } = {}) {
+  function makeHost({ eids = [], async = true, getConfig, installedModules, gdprApplies } = {}) {
     const que = [];
     que.push = (cb) => { cb(); return 0; };
     const host = { que, getUserIdsAsEids: () => eids };
     if (async) host.getUserIdsAsync = () => Promise.resolve();
     if (getConfig) host.getConfig = getConfig;
+    if (installedModules) host.installedModules = installedModules;
+    if (gdprApplies != null) host.getConsentMetadata = () => ({ gdpr: { gdprApplies } });
     return host;
   }
+
+  // build a getConfig that answers consentManagement (and optionally userSync.auctionDelay)
+  const cmGetConfig = (cm) => (path) => (path === 'consentManagement' ? cm : undefined);
 
   // Point drawbridge at our fake host under the dedicated global.
   function useHost(host, extraConf = {}) {
@@ -467,6 +473,56 @@ describe('drawbridge module', () => {
     });
   });
 
+  describe('gdprFederationAllowed', () => {
+    // control oajs's own enforcement signals: installedModules (tcfControl?) + consentManagement
+    let savedModules;
+    beforeEach(() => { savedModules = getGlobal().installedModules; });
+    afterEach(() => { getGlobal().installedModules = savedModules; });
+
+    const state = (over) => ({ eids: [], cm: undefined, installedModules: undefined, gdprApplies: false, ...over });
+    const oajsEnforce = (cm = { gdpr: {} }) => { getGlobal().installedModules = ['tcfControl']; config.setConfig({ consentManagement: cm }); };
+    const oajsNoEnforce = () => { getGlobal().installedModules = []; };   // no enforcement module (and no consentManagement)
+
+    it('blocks the leak cell: GDPR applies and neither side enforces', () => {
+      oajsNoEnforce();
+      expect(gdprFederationAllowed(state({ gdprApplies: true }))).to.be.false;
+    });
+
+    it('allows when the host enforces (tcfControl + consent), even if oajs does not', () => {
+      oajsNoEnforce();
+      expect(gdprFederationAllowed(state({ gdprApplies: true, installedModules: ['tcfControl'], cm: { gdpr: {} } }))).to.be.true;
+    });
+
+    it('allows when oajs enforces (downstream backstop), even if the host does not', () => {
+      oajsEnforce();
+      expect(gdprFederationAllowed(state({ gdprApplies: true }))).to.be.true;
+    });
+
+    it('allows when GDPR is out of scope, even if neither enforces', () => {
+      oajsNoEnforce();
+      expect(gdprFederationAllowed(state({ gdprApplies: false }))).to.be.true;
+    });
+
+    it('requires tcfControl to be loaded — a consentManagement.gdpr key alone is not "enforces"', () => {
+      // oajs has consentManagement.gdpr but NO tcfControl module → not enforcing → leak cell
+      getGlobal().installedModules = [];
+      config.setConfig({ consentManagement: { gdpr: {} } });
+      expect(gdprFederationAllowed(state({ gdprApplies: true }))).to.be.false;
+    });
+
+    it('when both enforce, blocks a host that is less restrictive than oajs', () => {
+      oajsEnforce({ gdpr: { rules: [{ purpose: 'storage', enforcePurpose: true, enforceVendor: true }] } });
+      const s = state({ gdprApplies: true, installedModules: ['tcfControl'], cm: { gdpr: { rules: [{ purpose: 'storage', enforcePurpose: false, enforceVendor: false }] } } });
+      expect(gdprFederationAllowed(s)).to.be.false;
+    });
+
+    it('when both enforce and the host is as restrictive, allows', () => {
+      oajsEnforce({ gdpr: { rules: [{ purpose: 'storage', enforcePurpose: true, enforceVendor: true }] } });
+      const s = state({ gdprApplies: true, installedModules: ['tcfControl'], cm: { gdpr: { rules: [{ purpose: 'storage', enforcePurpose: true, enforceVendor: true }] } } });
+      expect(gdprFederationAllowed(s)).to.be.true;
+    });
+  });
+
   describe('host auctionDelay adoption (first drawbridgeHook call)', () => {
     // capture the delay budget the hook actually uses (passed to mkDelay), without config write-back
     let capturedDelay;
@@ -514,7 +570,7 @@ describe('drawbridge module', () => {
     it('resolves to empty state when no host instance exists', () => {
       config.setConfig({ drawbridge: { hostGlobal: 'noSuchHost' } });
       resetResolvedHost();
-      return readHostState().then(state => expect(state).to.deep.equal({ eids: [], cm: undefined }));
+      return readHostState().then(state => expect(state).to.deep.equal({ eids: [], cm: undefined, installedModules: undefined, gdprApplies: false }));
     });
 
     it('logs (info) when no host instance can be acquired', () => {
@@ -637,7 +693,7 @@ describe('drawbridge module', () => {
         window._pbjsGlobals = [REG];
         config.setConfig({ drawbridge: { hostGlobal: '_pbjsGlobals' } });
         resetResolvedHost();
-        return readHostState().then(state => expect(state).to.deep.equal({ eids: [], cm: undefined }));
+        return readHostState().then(state => expect(state).to.deep.equal({ eids: [], cm: undefined, installedModules: undefined, gdprApplies: false }));
       });
     });
   });
@@ -751,11 +807,11 @@ describe('drawbridge module', () => {
       }).catch((e) => { unreg(); throw e; });
     });
 
-    it('skips federation when host GDPR is less restrictive than oajs', () => {
-      config.setConfig({ consentManagement: { gdpr: {} } });   // oajs configured
+    it('skips federation in the leak cell (GDPR applies, neither side enforces)', () => {
+      // host: GDPR in scope but no tcfControl/consent → unfiltered; oajs: no consentManagement → no backstop
       const host = makeHost({
         eids: [{ source: 'id5-sync.com', inserter: 'x.com', mm: 3, uids: [{ id: 'AAA', atype: 1 }] }],
-        getConfig: () => undefined                              // host NOT consent-configured
+        gdprApplies: true
       });
       useHost(host);
       const options = {};
