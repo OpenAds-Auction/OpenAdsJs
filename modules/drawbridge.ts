@@ -1,5 +1,6 @@
 import { config } from '../src/config.js';
 import { startAuction, addApiMethod, type StartAuctionOptions } from '../src/prebid.js';
+import { getGlobal } from '../src/prebidGlobal.js';
 import { PbPromise, delay } from '../src/utils/promise.js';
 import { deepClone, deepSetValue, isArray, isNumber, isPlainObject, logError, logWarn, logInfo } from '../src/utils.js';
 import { ACTIVITY_ENRICH_EIDS } from '../src/activities/activities.js';
@@ -13,7 +14,10 @@ import type { ORTBRequest } from '../src/types/ortb/request.d.ts';
 type Eid = ORTBRequest['user']['eids'][number];
 
 const MODULE_NAME = 'drawbridge';
-const DEFAULT_HOST_GLOBAL = ['pbjs', '_pbjsGlobals'];
+const HOOK_PRIORITY = 10;
+// page-wide registry of Prebid global names (window._pbjsGlobals); used as a discovery candidate
+const PBJS_GLOBALS_REGISTRY = '_pbjsGlobals';
+const DEFAULT_HOST_GLOBAL = ['pbjs', PBJS_GLOBALS_REGISTRY];
 const DEFAULT_AUCTION_DELAY_IN_MS = 500;
 const FILTER_POLICY_URL = 'https://openads-cdn.adsrvr.org/drawbridge/config/v1/filterpolicy.json';
 const DEFAULT_FILTER_POLICY: FilterPolicy = {
@@ -24,13 +28,15 @@ const DEFAULT_FILTER_POLICY: FilterPolicy = {
   requireAtype: true
 };
 
-// Whether we've already attempted the one-time adoption of the host's userSync.auctionDelay.
-let hostAuctionDelayChecked = false;
+// The auctionDelay resolved from the host's userSync.auctionDelay (or the default), computed once on
+// the first auction. Module-local — we don't write inferred state back into the publisher config.
+// `undefined` means "not resolved yet".
+let resolvedHostAuctionDelay: number | undefined;
 let activeFilterPolicy: FilterPolicy = DEFAULT_FILTER_POLICY;
 
 // --- Test-only resets ---
 export function resetHostAuctionDelayCheck(): void {
-  hostAuctionDelayChecked = false;
+  resolvedHostAuctionDelay = undefined;
 }
 
 export function resetFilterPolicy(): void {
@@ -186,16 +192,32 @@ function getHost(hostGlobal: string): HostInstance | null {
   if (isArray(host)) {
     host = host[0];
   }
+  // never federate from our own instance (e.g. oajs's own name showing up via _pbjsGlobals)
+  if (host === getGlobal()) return null;
   // a Prebid global always exposes a `que`/`cmd` command queue
   return (host && (isArray(host.que) || isArray(host.cmd))) ? (host as HostInstance) : null;
 }
 
-/** Configured candidate host globals, normalized to an array. */
+/**
+ * Configured candidate host globals, normalized to an array. The special `_pbjsGlobals` entry is the
+ * page-wide registry of Prebid global NAMES (see src/prebidGlobal); it is expanded into those names so
+ * a foreign Prebid at any global name can be discovered. Our own instance is excluded by getHost.
+ */
 function candidateHostGlobals(): string[] {
   const configured = getConf().hostGlobal;
-  if (isArray(configured)) return configured;
-  if (typeof configured === 'string') return [configured];
-  return DEFAULT_HOST_GLOBAL;
+  const list = isArray(configured) ? configured
+    : typeof configured === 'string' ? [configured]
+      : DEFAULT_HOST_GLOBAL;
+  const out: string[] = [];
+  for (const name of list) {
+    if (name === PBJS_GLOBALS_REGISTRY) {
+      const registered = (window as any)[PBJS_GLOBALS_REGISTRY];
+      if (isArray(registered)) out.push(...registered.filter((n: unknown): n is string => typeof n === 'string'));
+    } else {
+      out.push(name);
+    }
+  }
+  return [...new Set(out)];   // de-dup while preserving order
 }
 
 // Once we've found a live host, cache it
@@ -289,7 +311,7 @@ export function filterProvenancedEids(eids: Eid[] = [], policy: FilterPolicy = a
  * federated one for that source.
  */
 export function mergeEids(existing: Eid[] = [], incoming: Eid[] = []): Eid[] {
-  const out = (isArray(existing) ? existing : []).map(e => ({ ...e, uids: isArray(e.uids) ? [...e.uids] : [] }));
+  const out = (isArray(existing) ? existing : []).filter(Boolean).map(e => ({ ...e, uids: isArray(e.uids) ? [...e.uids] : [] }));
   const sources = new Set(out.filter(e => e && e.source).map(e => e.source.toLowerCase()));
 
   (isArray(incoming) ? incoming : []).forEach(eid => {
@@ -398,21 +420,16 @@ export function drawbridgeHook(
     return PbPromise.resolve();
   }
   /**
-   *  On the first auction only, resolve auctionDelay if the publisher hasn't set one: prefer the
-   * host's own userSync.auctionDelay, else DEFAULT_AUCTION_DELAY_IN_MS. Written back so subsequent reads
-   * (and getConfig) see the resolved value.
-   * do it here to give forgien prebid the most amount of time for setup and config seting
+   * On the first auction only, resolve the host's userSync.auctionDelay (else the default) into
+   * module-local state. Done here (not at load) to give the foreign prebid the most time to finish
+   * setup / config before we read its delay. A publisher-set auctionDelay always takes precedence.
    */
-  if (!hostAuctionDelayChecked) {
-    hostAuctionDelayChecked = true;
-    if (!isNumber(conf.auctionDelay)) {
-      const hostDelay = getHostAuctionDelay();
-      const resolvedDelay = isNumber(hostDelay) ? hostDelay : DEFAULT_AUCTION_DELAY_IN_MS;
-      config.setConfig({ drawbridge: { ...conf, auctionDelay: resolvedDelay } });
-    }
+  if (resolvedHostAuctionDelay === undefined) {
+    const hostDelay = getHostAuctionDelay();
+    resolvedHostAuctionDelay = isNumber(hostDelay) ? hostDelay : DEFAULT_AUCTION_DELAY_IN_MS;
   }
 
-  const auctionDelay = getConf().auctionDelay ?? DEFAULT_AUCTION_DELAY_IN_MS;
+  const auctionDelay = isNumber(conf.auctionDelay) ? conf.auctionDelay : resolvedHostAuctionDelay;
 
   // Single shared deadline for the whole hook
   const deadline = mkDelay(auctionDelay);
@@ -497,7 +514,7 @@ export function prewarmHost(): void {
 
 startAuction.before((next: (o: StartAuctionOptions) => void, options?: StartAuctionOptions) => {
   drawbridgeHook(next, options as StartAuctionOptions);
-});
+}, HOOK_PRIORITY);
 
 addApiMethod('getDrawbridgeFilterPolicy', getFilterPolicy, false);
 loadFilterPolicy();

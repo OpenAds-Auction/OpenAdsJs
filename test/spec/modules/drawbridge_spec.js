@@ -15,6 +15,7 @@ import {
 } from 'modules/drawbridge.js';
 import { config } from 'src/config.js';
 import * as utils from 'src/utils.js';
+import { getGlobal } from 'src/prebidGlobal.js';
 import { registerActivityControl } from 'src/activities/rules.js';
 import { ACTIVITY_ENRICH_EIDS } from 'src/activities/activities.js';
 
@@ -73,6 +74,13 @@ describe('drawbridge module', () => {
     it('skips malformed incoming EIDs', () => {
       const merged = mergeEids([], [null, { source: 'x' }, { uids: [] }, b]);
       expect(merged.map(e => e.source)).to.deep.equal(['pubcid.org']);
+    });
+
+    it('tolerates malformed existing EIDs (does not throw) and still merges incoming', () => {
+      // existing comes from arbitrary FPD/ID modules; a null entry must not blow up the whole merge
+      expect(() => mergeEids([null], [])).to.not.throw();
+      const merged = mergeEids([null, a], [b]);
+      expect(merged.map(e => e.source).sort()).to.deep.equal(['id5-sync.com', 'pubcid.org']);
     });
 
     it('does not mutate its inputs and handles empty input', () => {
@@ -460,37 +468,43 @@ describe('drawbridge module', () => {
   });
 
   describe('host auctionDelay adoption (first drawbridgeHook call)', () => {
-    const runHook = () => drawbridgeHook(sinon.spy(), {}, { mkDelay: () => new Promise(() => {}) });
+    // capture the delay budget the hook actually uses (passed to mkDelay), without config write-back
+    let capturedDelay;
+    const runHook = () => {
+      capturedDelay = undefined;
+      return drawbridgeHook(sinon.spy(), {}, { mkDelay: (ms) => { capturedDelay = ms; return new Promise(() => {}); } });
+    };
 
     it("adopts the host's userSync.auctionDelay on first call", () => {
       useHost(makeHost({ getConfig: (path) => (path === 'userSync.auctionDelay' ? 1500 : undefined) }));
       return runHook().then(() => {
-        expect(config.getConfig('drawbridge').auctionDelay).to.equal(1500);
+        expect(capturedDelay).to.equal(1500);
+        expect(config.getConfig('drawbridge').auctionDelay).to.be.undefined; // not written back to config
       });
     });
 
-    it('does not overwrite an explicitly-configured auctionDelay, even if the host exposes one', () => {
+    it('lets an explicitly-configured auctionDelay win over the host value', () => {
       useHost(makeHost({ getConfig: (path) => (path === 'userSync.auctionDelay' ? 1500 : undefined) }), { auctionDelay: 250 });
       return runHook().then(() => {
-        expect(config.getConfig('drawbridge').auctionDelay).to.equal(250);
+        expect(capturedDelay).to.equal(250);
       });
     });
 
-    it('writes DEFAULT_AUCTION_DELAY back to config when neither config nor host provide one', () => {
+    it('falls back to DEFAULT_AUCTION_DELAY when neither config nor host provide one', () => {
       useHost(makeHost({ getConfig: () => undefined }));
       return runHook().then(() => {
-        expect(config.getConfig('drawbridge').auctionDelay).to.equal(500);
+        expect(capturedDelay).to.equal(500);
       });
     });
 
-    it('only adopts on the first call, not subsequent ones', () => {
+    it('resolves the host delay only on the first call, not subsequent ones', () => {
       const host = makeHost({ getConfig: (path) => (path === 'userSync.auctionDelay' ? 1500 : undefined) });
       useHost(host);
       return runHook().then(() => {
-        expect(config.getConfig('drawbridge').auctionDelay).to.equal(1500);
+        expect(capturedDelay).to.equal(1500);
         host.getConfig = (path) => (path === 'userSync.auctionDelay' ? 3000 : undefined);
         return runHook().then(() => {
-          expect(config.getConfig('drawbridge').auctionDelay).to.equal(1500);
+          expect(capturedDelay).to.equal(1500); // cached from the first call
         });
       });
     });
@@ -597,6 +611,33 @@ describe('drawbridge module', () => {
             expect(s3.eids.map(e => e.source)).to.deep.equal(['b']); // re-resolved after reset
           });
         });
+      });
+    });
+
+    describe('_pbjsGlobals discovery', () => {
+      let savedRegistry;
+      const REG = 'drawbridgeForeign';
+      beforeEach(() => { savedRegistry = window._pbjsGlobals; });
+      afterEach(() => {
+        window._pbjsGlobals = savedRegistry;
+        delete window[REG];
+      });
+
+      it('discovers a foreign host named in the _pbjsGlobals registry', () => {
+        const eids = [{ source: 'id5-sync.com', uids: [{ id: 'AAA' }] }];
+        window[REG] = makeHost({ eids });
+        window._pbjsGlobals = [REG];                              // registry lists the foreign global's name
+        config.setConfig({ drawbridge: { hostGlobal: '_pbjsGlobals' } });
+        resetResolvedHost();
+        return readHostState().then(state => expect(state.eids).to.deep.equal(eids));
+      });
+
+      it('excludes oajs\'s own instance from _pbjsGlobals (no self-federation)', () => {
+        window[REG] = getGlobal();                               // a registry name pointing at oajs itself
+        window._pbjsGlobals = [REG];
+        config.setConfig({ drawbridge: { hostGlobal: '_pbjsGlobals' } });
+        resetResolvedHost();
+        return readHostState().then(state => expect(state).to.deep.equal({ eids: [], cm: undefined }));
       });
     });
   });
