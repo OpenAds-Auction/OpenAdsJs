@@ -17,7 +17,7 @@ const MODULE_NAME = 'drawbridge';
 const HOOK_PRIORITY = 10;
 // page-wide registry of Prebid global names (window._pbjsGlobals); used as a discovery candidate
 const PBJS_GLOBALS_REGISTRY = '_pbjsGlobals';
-const DEFAULT_HOST_GLOBAL = ['pbjsa', PBJS_GLOBALS_REGISTRY];
+const DEFAULT_HOST_GLOBAL = ['pbjs', PBJS_GLOBALS_REGISTRY];
 const DEFAULT_AUCTION_DELAY_IN_MS = 500;
 const FILTER_POLICY_URL = 'https://openads-cdn.adsrvr.org/drawbridge/config/v1/filterpolicy.json';
 const GPP_ENRICH_EIDS_ENFORCERS = ['gppControl_usnat', 'gppControl_usstates'];
