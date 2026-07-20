@@ -1,5 +1,5 @@
 import { config } from '../src/config.js';
-import { startAuction, type StartAuctionOptions } from '../src/prebid.js';
+import { startAuction, addApiMethod, type StartAuctionOptions } from '../src/prebid.js';
 import { PbPromise, delay } from '../src/utils/promise.js';
 import { deepClone, deepSetValue, isArray, isNumber, isPlainObject, logError, logWarn, logInfo } from '../src/utils.js';
 import { ACTIVITY_ENRICH_EIDS } from '../src/activities/activities.js';
@@ -16,13 +16,37 @@ const MODULE_NAME = 'drawbridge';
 const DEFAULT_HOST_GLOBAL = ['pbjs', '_pbjsGlobals'];
 const DEFAULT_AUCTION_DELAY_IN_MS = 500;
 const FILTER_POLICY_URL = 'https://openads-cdn.adsrvr.org/drawbridge/config/v1/filterpolicy.json';
+const DEFAULT_FILTER_POLICY: FilterPolicy = {
+  requireSource: true,
+  requireInserter: false,
+  requireMatcher: false,
+  requireMm: false,
+  requireAtype: true
+};
 
 // Whether we've already attempted the one-time adoption of the host's userSync.auctionDelay.
 let hostAuctionDelayChecked = false;
+let activeFilterPolicy: FilterPolicy = DEFAULT_FILTER_POLICY;
 
-/** Test-only: reset the one-time host-auctionDelay adoption flag. */
+// --- Test-only resets ---
 export function resetHostAuctionDelayCheck(): void {
   hostAuctionDelayChecked = false;
+}
+
+export function resetFilterPolicy(): void {
+  activeFilterPolicy = DEFAULT_FILTER_POLICY;
+}
+
+export function resetResolvedHost(): void {
+  resolvedHost = null;
+}
+
+interface HostInstance {
+  que?: unknown[];
+  cmd?: unknown[];
+  getUserIdsAsEids?: () => Eid[];
+  getUserIdsAsync?: () => Promise<unknown>;
+  getConfig?: (path: string) => unknown;
 }
 
 /**
@@ -43,14 +67,6 @@ export interface FilterPolicy {
   allowedSources?: string[];
 }
 
-const DEFAULT_FILTER_POLICY: FilterPolicy = {
-  requireSource: true,
-  requireInserter: false,
-  requireMatcher: false,
-  requireMm: false,
-  requireAtype: true
-};
-
 export interface DrawbridgeConfig {
   /**
    * Global variable name(s) of the foreign Prebid instance to read EIDs from. May be a single name
@@ -67,10 +83,6 @@ export interface DrawbridgeConfig {
    * Whether module runs at all. Defaults to true; set to false to disable.
    */
   enabled?: boolean;
-  /**
-   * Declarative EID filtering policy.
-   */
-  filterPolicy?: FilterPolicy;
 }
 
 declare module '../src/config' {
@@ -83,28 +95,8 @@ function getConf(): DrawbridgeConfig {
   return (config.getConfig(MODULE_NAME) || {}) as DrawbridgeConfig;
 }
 
-config.setDefaults({ drawbridge: { hostGlobal: DEFAULT_HOST_GLOBAL, enabled: true, filterPolicy: DEFAULT_FILTER_POLICY } });
+config.setDefaults({ drawbridge: { hostGlobal: DEFAULT_HOST_GLOBAL, enabled: true } });
 config.getConfig(MODULE_NAME, (cfg: any) => validateConfig(cfg?.[MODULE_NAME]));
-
-export function validateFilterPolicy(policy: any): policy is FilterPolicy {
-  if (!isPlainObject(policy)) {
-    logError(`${MODULE_NAME}: filterPolicy must be an object, got ${typeof policy}`);
-    return false;
-  }
-  let valid = true;
-  (['requireSource', 'requireInserter', 'requireMatcher', 'requireMm', 'requireAtype'] as const).forEach(key => {
-    if (policy[key] != null && typeof policy[key] !== 'boolean') {
-      logError(`${MODULE_NAME}: filterPolicy.${key} must be a boolean, got ${typeof policy[key]}`);
-      valid = false;
-    }
-  });
-  if (policy.allowedSources != null &&
-      (!isArray(policy.allowedSources) || !policy.allowedSources.every((s: unknown) => typeof s === 'string'))) {
-    logError(`${MODULE_NAME}: filterPolicy.allowedSources must be an array of strings`);
-    valid = false;
-  }
-  return valid;
-}
 
 export function validateConfig(cfg: DrawbridgeConfig = {}): void {
   if (cfg.hostGlobal != null &&
@@ -120,12 +112,68 @@ export function validateConfig(cfg: DrawbridgeConfig = {}): void {
   }
 }
 
-interface HostInstance {
-  que?: unknown[];
-  cmd?: unknown[];
-  getUserIdsAsEids?: () => Eid[];
-  getUserIdsAsync?: () => Promise<unknown>;
-  getConfig?: (path: string) => unknown;
+/** Read-only view of the current filter policy. Returns a clone so callers cannot mutate the active policy. */
+export function getFilterPolicy(): FilterPolicy {
+  return deepClone(activeFilterPolicy);
+}
+
+/**
+ * Fetch a version-controlled JSON filter policy and make it the active policy.
+ * The fetched policy applies from the next auction onward.
+ * The bundled default governs any auctions that happen before it arrives.
+ */
+export function loadFilterPolicy(url = FILTER_POLICY_URL, { ajaxFn = ajax } = {}): void {
+  if (!url) return;
+  ajaxFn(url, {
+    success: (response: string) => {
+      let policy;
+      try {
+        policy = JSON.parse(response);
+      } catch (e) {
+        logError(`${MODULE_NAME}: could not parse filter policy from ${url}; keeping default`, e);
+        return;
+      }
+      if (!validateFilterPolicy(policy)) {
+        logError(`${MODULE_NAME}: invalid filter policy from ${url}; keeping default`, policy);
+        return;
+      }
+      activeFilterPolicy = policy;
+      logInfo(`${MODULE_NAME}: loaded filter policy from ${url}`, policy);
+    },
+    error: (err: any) => {
+      logError(`${MODULE_NAME}: could not load filter policy from ${url}; keeping default`, err);
+    }
+  }, undefined, { method: 'GET', withCredentials: false });
+}
+
+declare module '../src/prebidGlobal' {
+  interface PrebidJS {
+    /** Read-only view of drawbridge's current EID filter policy (a clone; mutating it has no effect). */
+    getDrawbridgeFilterPolicy?: () => FilterPolicy;
+  }
+}
+
+export function validateFilterPolicy(policy: any): policy is FilterPolicy {
+  if (!isPlainObject(policy)) {
+    logError(`${MODULE_NAME}: filterPolicy must be an object, got ${typeof policy}`);
+    return false;
+  }
+  let valid = true;
+  (['requireSource', 'requireInserter', 'requireMatcher', 'requireMm', 'requireAtype'] as const).forEach(key => {
+    if (policy[key] != null && typeof policy[key] !== 'boolean') {
+      logError(`${MODULE_NAME}: filterPolicy.${key} must be a boolean, got ${typeof policy[key]}`);
+      valid = false;
+    }
+  });
+  if (policy.allowedSources != null) {
+    if (!isArray(policy.allowedSources) || !policy.allowedSources.every((s: unknown) => typeof s === 'string')) {
+      logError(`${MODULE_NAME}: filterPolicy.allowedSources must be an array of strings`);
+      valid = false;
+    } else {
+      policy.allowedSources = policy.allowedSources.map((s: string) => s.toLowerCase());
+    }
+  }
+  return valid;
 }
 
 function eidSources(eids: Eid[]): string[] {
@@ -152,11 +200,6 @@ function candidateHostGlobals(): string[] {
 
 // Once we've found a live host, cache it
 let resolvedHost: { host: HostInstance; hostGlobal: string } | null = null;
-
-// Test-only: clear the memoized resolved host.
-export function resetResolvedHost(): void {
-  resolvedHost = null;
-}
 
 /**
  * Resolve the foreign host as { host, hostGlobal } — the first candidate global that is a live
@@ -185,28 +228,49 @@ function getHostAuctionDelay(): number | undefined {
   }
 }
 
-export function readHostEids(): Promise<Eid[]> {
-  return new PbPromise<Eid[]>(resolve => {
+export interface HostState {
+  eids: Eid[];
+  /** The host's `consentManagement` config, read from inside its command queue. */
+  cm: any;
+}
+
+/**
+ * Deferred read of the host's state (EIDs + consentManagement) from inside its command queue, so we
+ * observe the host AFTER it has drained its queue (config set, userId init done). Reading both in the
+ * same callback avoids a TOCTOU: a bare `window.pbjs = window.pbjs || {que:[]}` stub passes the
+ * liveness check long before the publisher's queued setConfig runs, so a synchronous consent read
+ * would judge a not-yet-initialized host. The EID snapshot and the consent basis therefore come from
+ * one consistent, post-init observation.
+ */
+export function readHostState(): Promise<HostState> {
+  return new PbPromise<HostState>(resolve => {
     const resolved = resolveHost();
     if (!resolved) {
       logInfo(`${MODULE_NAME}: no host instance found at window.[${candidateHostGlobals().join(', ')}]`);
-      resolve([]);
+      resolve({ eids: [], cm: undefined });
       return;
     }
     const { host } = resolved;
     const queue = (isArray(host.que) ? host.que : host.cmd) as unknown[];
     queue.push(() => {
+      let cm: any;
       try {
-        resolve(typeof host.getUserIdsAsEids === 'function' ? (host.getUserIdsAsEids() || []) : []);
+        cm = typeof host.getConfig === 'function' ? host.getConfig('consentManagement') : undefined;
+      } catch (e) {
+        cm = undefined;
+      }
+      let eids: Eid[] = [];
+      try {
+        eids = typeof host.getUserIdsAsEids === 'function' ? (host.getUserIdsAsEids() || []) : [];
       } catch (e) {
         logWarn(`${MODULE_NAME}: failed reading host EIDs`, e);
-        resolve([]);
       }
+      resolve({ eids, cm });
     });
   });
 }
 
-export function filterProvenancedEids(eids: Eid[] = [], policy: FilterPolicy = getConf().filterPolicy ?? DEFAULT_FILTER_POLICY): Eid[] {
+export function filterProvenancedEids(eids: Eid[] = [], policy: FilterPolicy = activeFilterPolicy): Eid[] {
   return (isArray(eids) ? eids : []).filter(eid => {
     if (!eid) return false;
     if (policy.requireSource && !eid.source) return false;
@@ -266,18 +330,29 @@ function gdprStorageSource(cm: any): { configured: boolean; rules: any } {
 
 /**
  * The effective purpose:'storage' rule (the one that governs enrichEids), normalized to concrete
- * values. If multiple 'storage' rules exist, the last one wins. Missing rule / flat format → defaults.
+ * values, matching how tcfControl actually reads a rule:
+ *  - no 'storage' rule present → Prebid falls back to the built-in default, which enforces both
+ *    purpose and vendor (setEnforcementConfig: `rules[name] ?? opts.default`).
+ *  - a 'storage' rule present → Prebid uses it AS-IS; it does NOT merge per-field defaults, and
+ *    validateRules treats an omitted `enforcePurpose`/`enforceVendor` as NOT enforced
+ *    (`!rule.enforcePurpose` / `rule.enforceVendor &&`). So an omitted flag means false, not true.
+ * If multiple 'storage' rules exist, the last one wins.
  */
 function effectiveStorageRule(rules: any): { enforcePurpose: boolean; enforceVendor: boolean; vendorExceptions: string[]; softVendorExceptions: string[] } {
-  let rule: any = {};
+  let rule: any;
   if (isArray(rules)) {
     for (const r of rules) {
       if (r?.purpose === 'storage') rule = r;   // last with this purpose takes effect
     }
   }
+  if (rule == null) {
+    // no storage rule → Prebid's built-in default (fully strict)
+    return { enforcePurpose: true, enforceVendor: true, vendorExceptions: [], softVendorExceptions: [] };
+  }
+  // storage rule present → used as-is; an omitted enforce flag is NOT enforcement
   return {
-    enforcePurpose: rule.enforcePurpose ?? true,
-    enforceVendor: rule.enforceVendor ?? true,
+    enforcePurpose: !!rule.enforcePurpose,
+    enforceVendor: !!rule.enforceVendor,
     vendorExceptions: [...(rule.vendorExceptions ?? [])].sort(),
     softVendorExceptions: [...(rule.softVendorExceptions ?? [])].sort()
   };
@@ -285,7 +360,8 @@ function effectiveStorageRule(rules: any): { enforcePurpose: boolean; enforceVen
 
 /**
  * True if the foreign host's GDPR enforcement is at least as restrictive as oajs's for the
- * purpose:'storage' rule (which gates enrichEids):
+ * purpose:'storage' rule (which gates enrichEids). `hostCm` is the host's already-read
+ * `consentManagement` config (read deferred, from inside the host's command queue — see readHostState):
  *  - host configured, oajs not   → true  (host is stricter)
  *  - host not configured, oajs is → false (host is looser)
  *  - neither configured → true (equivalent)
@@ -293,15 +369,8 @@ function effectiveStorageRule(rules: any): { enforcePurpose: boolean; enforceVen
  *    host may enforce more, never less) and the host's vendorExceptions (and softVendorExceptions) are a
  *    subset of oajs's aka the host exempts no vendor that oajs enforces
  */
-export function hostGdprConsentAsOrMoreRestrictive(host: HostInstance): boolean {
+export function hostGdprConsentAsOrMoreRestrictive(hostCm: any): boolean {
   const own = gdprStorageSource(config.getConfig('consentManagement'));
-
-  let hostCm: any;
-  try {
-    hostCm = typeof host.getConfig === 'function' ? host.getConfig('consentManagement') : undefined;
-  } catch (e) {
-    hostCm = undefined;
-  }
   const hostSrc = gdprStorageSource(hostCm);
 
   if (hostSrc.configured && !own.configured) return true;
@@ -364,17 +433,19 @@ export function drawbridgeHook(
     }
 
     const resolved = resolveHost();
-    if (resolved && !hostGdprConsentAsOrMoreRestrictive(resolved.host)) {
-      logWarn(`${MODULE_NAME}: host GDPR enforcement is less restrictive than oajs; skipping federation`);
-      return;
-    }
     const hostGlobal = resolved?.hostGlobal ?? candidateHostGlobals()[0];
 
-    return PbPromise.race<Eid[]>([
-      readHostEids(),
-      deadline.then(() => [] as Eid[])
-    ]).then(hostEids => {
-      const retrieved = isArray(hostEids) ? hostEids : [];
+    // Read the host's EIDs AND its consentManagement together, deferred through its command queue, so
+    // the consent verdict is made against a fully-initialized host
+    return PbPromise.race<HostState>([
+      readHostState(),
+      deadline.then(() => ({ eids: [], cm: undefined } as HostState))
+    ]).then(state => {
+      if (resolved && !hostGdprConsentAsOrMoreRestrictive(state.cm)) {
+        logWarn(`${MODULE_NAME}: host GDPR enforcement is less restrictive than oajs; skipping federation`);
+        return;
+      }
+      const retrieved = isArray(state.eids) ? state.eids : [];
       // tag every EID we sync from the host so downstream can tell federated IDs apart and see which instance they came from
       const eligible = filterProvenancedEids(retrieved).map(eid => {
         const clone = deepClone(eid);
@@ -424,38 +495,10 @@ export function prewarmHost(): void {
   });
 }
 
-/**
- * Fetch a version-controlled JSON filter policy and apply it via setConfig.
- * The fetched policy applies from the next auction onward.
- * The bundled default governs any auctions that happen before it arrives.
- */
-export function loadFilterPolicy(url = FILTER_POLICY_URL, { ajaxFn = ajax } = {}): void {
-  if (!url) return;
-  ajaxFn(url, {
-    success: (response: string) => {
-      let policy;
-      try {
-        policy = JSON.parse(response);
-      } catch (e) {
-        logError(`${MODULE_NAME}: could not parse filter policy from ${url}; keeping default`, e);
-        return;
-      }
-      if (!validateFilterPolicy(policy)) {
-        logError(`${MODULE_NAME}: invalid filter policy from ${url}; keeping default`, policy);
-        return;
-      }
-      config.setConfig({ drawbridge: { ...getConf(), filterPolicy: policy } });
-      logInfo(`${MODULE_NAME}: loaded filter policy from ${url}`, policy);
-    },
-    error: (err: any) => {
-      logError(`${MODULE_NAME}: could not load filter policy from ${url}; keeping default`, err);
-    }
-  }, undefined, { method: 'GET', withCredentials: false });
-}
-
 startAuction.before((next: (o: StartAuctionOptions) => void, options?: StartAuctionOptions) => {
   drawbridgeHook(next, options as StartAuctionOptions);
 });
 
+addApiMethod('getDrawbridgeFilterPolicy', getFilterPolicy, false);
 loadFilterPolicy();
 prewarmHost();

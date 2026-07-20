@@ -1,7 +1,7 @@
 import {
   mergeEids,
   filterProvenancedEids,
-  readHostEids,
+  readHostState,
   drawbridgeHook,
   prewarmHost,
   resetHostAuctionDelayCheck,
@@ -9,6 +9,8 @@ import {
   validateConfig,
   validateFilterPolicy,
   loadFilterPolicy,
+  getFilterPolicy,
+  resetFilterPolicy,
   hostGdprConsentAsOrMoreRestrictive
 } from 'modules/drawbridge.js';
 import { config } from 'src/config.js';
@@ -47,6 +49,7 @@ describe('drawbridge module', () => {
     delete window[HOST];
     resetResolvedHost();
     resetHostAuctionDelayCheck();
+    resetFilterPolicy();
     config.setConfig({ drawbridge: {} });
     config.resetConfig();
   });
@@ -160,12 +163,44 @@ describe('drawbridge module', () => {
       expect(filterProvenancedEids(eids, { allowedSources: ['id5-sync.com'] }).map(e => e.source)).to.deep.equal(['ID5-SYNC.COM']);
     });
 
-    it('uses config.filterPolicy directly (replacing the default) when no policy arg is passed', () => {
-      // config policy has no requireAtype; the default requires it — proving the config policy
-      // replaces the default rather than merging over it
-      config.setConfig({ drawbridge: { filterPolicy: { requireSource: true } } });
-      const eids = [{ source: 's', uids: [{ id: '1' }] }]; // no atype
-      expect(filterProvenancedEids(eids)).to.deep.equal(eids);
+    it('uses the active filter policy (bundled default) when no policy arg is passed', () => {
+      // default requires source + a uid atype
+      expect(filterProvenancedEids([{ source: 's', uids: [{ id: '1' }] }])).to.deep.equal([]);       // no atype → dropped
+      const kept = [{ source: 's', uids: [{ id: '1', atype: 1 }] }];
+      expect(filterProvenancedEids(kept)).to.deep.equal(kept);
+    });
+
+    it('is not affected by a publisher setting drawbridge.filterPolicy in config', () => {
+      // filterPolicy is no longer a config field; a stray config value must NOT change filtering
+      config.setConfig({ drawbridge: { filterPolicy: { requireSource: false, requireAtype: false } } });
+      const eids = [{ source: 's', uids: [{ id: '1' }] }]; // no atype → still dropped by the active default
+      expect(filterProvenancedEids(eids)).to.deep.equal([]);
+    });
+  });
+
+  describe('getFilterPolicy', () => {
+    it('returns the bundled default before any policy is loaded', () => {
+      expect(getFilterPolicy()).to.deep.equal({
+        requireSource: true, requireInserter: false, requireMatcher: false, requireMm: false, requireAtype: true
+      });
+    });
+
+    it('returns a clone — mutating the result does not change the active policy', () => {
+      const p = getFilterPolicy();
+      p.requireAtype = false;
+      p.allowedSources = ['x'];
+      expect(getFilterPolicy().requireAtype).to.equal(true);
+      expect(getFilterPolicy().allowedSources).to.be.undefined;
+    });
+
+    it('reflects a policy loaded from the CDN', () => {
+      loadFilterPolicy('https://cdn.example.com/x', { ajaxFn: (url, cbs) => cbs.success('{"requireAtype":false}') });
+      expect(getFilterPolicy()).to.deep.equal({ requireAtype: false });
+    });
+
+    it('lowercases allowedSources loaded from the CDN', () => {
+      loadFilterPolicy('https://cdn.example.com/x', { ajaxFn: (url, cbs) => cbs.success('{"allowedSources":["ID5-SYNC.COM","PubCID.org"]}') });
+      expect(getFilterPolicy().allowedSources).to.deep.equal(['id5-sync.com', 'pubcid.org']);
     });
   });
 
@@ -176,10 +211,10 @@ describe('drawbridge module', () => {
       expect(requestedUrl).to.equal('https://openads-cdn.adsrvr.org/drawbridge/config/v1/filterpolicy.json');
     });
 
-    it('fetches a JSON policy and applies it via setConfig', () => {
+    it('fetches a JSON policy and makes it the active policy', () => {
       const ajaxFn = (url, cbs) => cbs.success('{"requireInserter":false,"requireMm":false,"requireAtype":false}');
       loadFilterPolicy('https://cdn.example.com/policy.json', { ajaxFn });
-      expect(config.getConfig('drawbridge').filterPolicy).to.deep.equal({
+      expect(getFilterPolicy()).to.deep.equal({
         requireInserter: false, requireMm: false, requireAtype: false
       });
     });
@@ -189,7 +224,7 @@ describe('drawbridge module', () => {
       loadFilterPolicy('https://cdn.example.com/x', { ajaxFn: (url, cbs) => cbs.success('not-json{') });
       spy.restore();
       expect(spy.called).to.be.true;
-      expect(config.getConfig('drawbridge')?.filterPolicy).to.be.undefined;
+      expect(getFilterPolicy().requireAtype).to.equal(true); // still the bundled default
     });
 
     it('keeps the default (logs error) when the policy is not an object', () => {
@@ -197,7 +232,7 @@ describe('drawbridge module', () => {
       loadFilterPolicy('https://cdn.example.com/x', { ajaxFn: (url, cbs) => cbs.success('[1,2,3]') });
       spy.restore();
       expect(spy.called).to.be.true;
-      expect(config.getConfig('drawbridge')?.filterPolicy).to.be.undefined;
+      expect(getFilterPolicy().requireAtype).to.equal(true);
     });
 
     it('keeps the default (logs error) on network error', () => {
@@ -212,7 +247,7 @@ describe('drawbridge module', () => {
       loadFilterPolicy('https://cdn.example.com/x', { ajaxFn: (url, cbs) => cbs.success('{"requireInserter":"yes"}') });
       spy.restore();
       expect(spy.called).to.be.true;
-      expect(config.getConfig('drawbridge')?.filterPolicy).to.be.undefined;
+      expect(getFilterPolicy().requireAtype).to.equal(true);
     });
   });
 
@@ -247,6 +282,18 @@ describe('drawbridge module', () => {
 
     it('returns false for allowedSources with non-string elements', () => {
       expect(validateFilterPolicy({ allowedSources: ['a', 5] })).to.be.false;
+    });
+
+    it('lowercases allowedSources in place when valid', () => {
+      const policy = { allowedSources: ['ID5-SYNC.COM', 'PubCID.org'] };
+      expect(validateFilterPolicy(policy)).to.be.true;
+      expect(policy.allowedSources).to.deep.equal(['id5-sync.com', 'pubcid.org']);
+    });
+
+    it('does not lowercase (or mutate) an invalid allowedSources', () => {
+      const policy = { allowedSources: ['A', 5] };
+      expect(validateFilterPolicy(policy)).to.be.false;
+      expect(policy.allowedSources).to.deep.equal(['A', 5]); // left untouched
     });
   });
 
@@ -297,7 +344,9 @@ describe('drawbridge module', () => {
   });
 
   describe('hostGdprConsentAsOrMoreRestrictive', () => {
-    const cmHost = (cm) => ({ getConfig: (path) => (path === 'consentManagement' ? cm : undefined) });
+    // the function now takes the host's already-read consentManagement value directly (read deferred in
+    // readHostState), so this helper is just an identity/label for the host-side consentManagement.
+    const cmHost = (cm) => cm;
 
     it('returns true when the host has GDPR configured but oajs does not', () => {
       expect(hostGdprConsentAsOrMoreRestrictive(cmHost({ gdpr: {} }))).to.be.true;
@@ -328,6 +377,34 @@ describe('drawbridge module', () => {
       // oajs enforces neither; host enforces both → host is stricter → federation allowed
       config.setConfig({ consentManagement: { gdpr: { rules: [{ purpose: 'storage', enforcePurpose: false, enforceVendor: false }] } } });
       const host = cmHost({ gdpr: { rules: [{ purpose: 'storage', enforcePurpose: true, enforceVendor: true }] } });
+      expect(hostGdprConsentAsOrMoreRestrictive(host)).to.be.true;
+    });
+
+    it('treats a bare storage rule as NOT enforcing (host bare rule is looser than an enforcing oajs)', () => {
+      // oajs fully enforces storage
+      config.setConfig({ consentManagement: { gdpr: { rules: [{ purpose: 'storage', enforcePurpose: true, enforceVendor: true }] } } });
+      // host has a storage rule but omits the enforce flags → Prebid enforces nothing for it
+      const host = cmHost({ gdpr: { rules: [{ purpose: 'storage' }] } });
+      expect(hostGdprConsentAsOrMoreRestrictive(host)).to.be.false;
+    });
+
+    it('treats a partial storage rule (enforcePurpose only) as not enforcing vendor', () => {
+      // oajs enforces purpose + vendor; host enforces purpose but omits enforceVendor → vendor not enforced → looser
+      config.setConfig({ consentManagement: { gdpr: { rules: [{ purpose: 'storage', enforcePurpose: true, enforceVendor: true }] } } });
+      const host = cmHost({ gdpr: { rules: [{ purpose: 'storage', enforcePurpose: true }] } });
+      expect(hostGdprConsentAsOrMoreRestrictive(host)).to.be.false;
+    });
+
+    it('treats bare storage rules on both sides consistently (both non-enforcing → equivalent)', () => {
+      config.setConfig({ consentManagement: { gdpr: { rules: [{ purpose: 'storage' }] } } });
+      const host = cmHost({ gdpr: { rules: [{ purpose: 'storage' }] } });
+      expect(hostGdprConsentAsOrMoreRestrictive(host)).to.be.true;
+    });
+
+    it('treats an absent storage rule as the strict Prebid default', () => {
+      // oajs has a bare (non-enforcing) storage rule; host has rules but NO storage rule → default strict → stricter
+      config.setConfig({ consentManagement: { gdpr: { rules: [{ purpose: 'storage' }] } } });
+      const host = cmHost({ gdpr: { rules: [{ purpose: 'basicAds', enforcePurpose: true }] } });
       expect(hostGdprConsentAsOrMoreRestrictive(host)).to.be.true;
     });
 
@@ -376,14 +453,9 @@ describe('drawbridge module', () => {
       expect(hostGdprConsentAsOrMoreRestrictive(cmHost({ usp: {} }))).to.be.true;
     });
 
-    it('treats a host without getConfig as unconfigured', () => {
-      expect(hostGdprConsentAsOrMoreRestrictive({})).to.be.true;
-    });
-
-    it('treats a host whose getConfig throws as unconfigured', () => {
+    it('treats an undefined host consentManagement as unconfigured', () => {
       config.setConfig({ consentManagement: { gdpr: {} } });   // oajs configured
-      const host = { getConfig: () => { throw new Error('not ready'); } };
-      expect(hostGdprConsentAsOrMoreRestrictive(host)).to.be.false; // host unconfigured, oajs configured
+      expect(hostGdprConsentAsOrMoreRestrictive(undefined)).to.be.false; // host unconfigured, oajs configured
     });
   });
 
@@ -424,18 +496,18 @@ describe('drawbridge module', () => {
     });
   });
 
-  describe('readHostEids', () => {
-    it('resolves to [] when no host instance exists', () => {
+  describe('readHostState', () => {
+    it('resolves to empty state when no host instance exists', () => {
       config.setConfig({ drawbridge: { hostGlobal: 'noSuchHost' } });
       resetResolvedHost();
-      return readHostEids().then(eids => expect(eids).to.deep.equal([]));
+      return readHostState().then(state => expect(state).to.deep.equal({ eids: [], cm: undefined }));
     });
 
     it('logs (info) when no host instance can be acquired', () => {
       config.setConfig({ drawbridge: { hostGlobal: 'noSuchHost' } });
       resetResolvedHost();
       const logInfoSpy = sinon.spy(utils, 'logInfo');
-      return readHostEids().then(() => {
+      return readHostState().then(() => {
         const messages = logInfoSpy.getCalls().map(c => c.args[0]);
         logInfoSpy.restore();
         expect(messages.some(m => /no host instance found/.test(m))).to.be.true;
@@ -445,7 +517,52 @@ describe('drawbridge module', () => {
     it('reads host EIDs via getUserIdsAsEids', () => {
       const eids = [{ source: 'id5-sync.com', uids: [{ id: 'AAA' }] }];
       useHost(makeHost({ eids }));
-      return readHostEids().then(result => expect(result).to.deep.equal(eids));
+      return readHostState().then(state => expect(state.eids).to.deep.equal(eids));
+    });
+
+    it('readHostState returns both the EIDs and the host consentManagement', () => {
+      const eids = [{ source: 'id5-sync.com', uids: [{ id: 'AAA' }] }];
+      useHost(makeHost({ eids, getConfig: (p) => (p === 'consentManagement' ? { gdpr: { rules: [] } } : undefined) }));
+      return readHostState().then(state => {
+        expect(state.eids).to.deep.equal(eids);
+        expect(state.cm).to.deep.equal({ gdpr: { rules: [] } });
+      });
+    });
+
+    it('readHostState tolerates a host getConfig that throws (cm undefined, eids still read)', () => {
+      const eids = [{ source: 'x', uids: [{ id: '1' }] }];
+      useHost(makeHost({ eids, getConfig: () => { throw new Error('not ready'); } }));
+      return readHostState().then(state => {
+        expect(state.cm).to.be.undefined;
+        expect(state.eids).to.deep.equal(eids);
+      });
+    });
+
+    it('reads consentManagement from INSIDE the command queue (deferred), not synchronously (C3/TOCTOU)', () => {
+      const pending = [];
+      const que = [];
+      que.push = (cb) => { pending.push(cb); return 0; };   // capture, do not auto-run
+      let getConfigCalls = 0;
+      const host = {
+        que,
+        getUserIdsAsEids: () => [{ source: 'id5-sync.com', uids: [{ id: 'AAA' }] }],
+        getConfig: (path) => { getConfigCalls++; return path === 'consentManagement' ? { gdpr: {} } : undefined; }
+      };
+      window[HOST] = host;
+      config.setConfig({ drawbridge: { hostGlobal: HOST } });
+      resetResolvedHost();
+
+      const p = readHostState();
+      // the host hasn't drained its queue yet → nothing read
+      expect(getConfigCalls).to.equal(0);
+      expect(pending).to.have.length(1);
+      // host initializes and drains its queue → now we read
+      pending.forEach(cb => cb());
+      return p.then(state => {
+        expect(getConfigCalls).to.be.greaterThan(0);
+        expect(state.cm).to.deep.equal({ gdpr: {} });
+        expect(state.eids.map(e => e.source)).to.deep.equal(['id5-sync.com']);
+      });
     });
   });
 
@@ -455,7 +572,7 @@ describe('drawbridge module', () => {
       window[HOST] = [makeHost({ eids })];   // global is an array of instances
       config.setConfig({ drawbridge: { hostGlobal: HOST } });
       resetResolvedHost();
-      return readHostEids().then(result => expect(result).to.deep.equal(eids));
+      return readHostState().then(state => expect(state.eids).to.deep.equal(eids));
     });
 
     it('resolves the first live candidate from a hostGlobal list', () => {
@@ -463,21 +580,21 @@ describe('drawbridge module', () => {
       window[HOST] = makeHost({ eids });
       config.setConfig({ drawbridge: { hostGlobal: ['noSuchHost', HOST] } });  // first dead, second live
       resetResolvedHost();
-      return readHostEids().then(result => expect(result).to.deep.equal(eids));
+      return readHostState().then(state => expect(state.eids).to.deep.equal(eids));
     });
 
     it('memoizes the resolved host until resetResolvedHost is called', () => {
       window[HOST] = makeHost({ eids: [{ source: 'a', uids: [{ id: '1' }] }] });
       config.setConfig({ drawbridge: { hostGlobal: HOST } });
       resetResolvedHost();
-      return readHostEids().then(r1 => {
-        expect(r1.map(e => e.source)).to.deep.equal(['a']);
+      return readHostState().then(s1 => {
+        expect(s1.eids.map(e => e.source)).to.deep.equal(['a']);
         window[HOST] = makeHost({ eids: [{ source: 'b', uids: [{ id: '2' }] }] });   // swap the instance
-        return readHostEids().then(r2 => {
-          expect(r2.map(e => e.source)).to.deep.equal(['a']);   // still the cached (first) host
+        return readHostState().then(s2 => {
+          expect(s2.eids.map(e => e.source)).to.deep.equal(['a']);   // still the cached (first) host
           resetResolvedHost();
-          return readHostEids().then(r3 => {
-            expect(r3.map(e => e.source)).to.deep.equal(['b']); // re-resolved after reset
+          return readHostState().then(s3 => {
+            expect(s3.eids.map(e => e.source)).to.deep.equal(['b']); // re-resolved after reset
           });
         });
       });
@@ -537,7 +654,7 @@ describe('drawbridge module', () => {
     });
 
     it('proceeds (calls next) without host EIDs when the budget elapses first', () => {
-      // a host whose command queue never flushes (e.g. foreign Prebid not yet loaded), so readHostEids
+      // a host whose command queue never flushes (e.g. foreign Prebid not yet loaded), so readHostState
       // never resolves and the deadline wins the race
       const host = { que: [], getUserIdsAsEids: () => [{ source: 'x', inserter: 'y', mm: 1, uids: [{ id: '1', atype: 1 }] }] };
       useHost(host);
