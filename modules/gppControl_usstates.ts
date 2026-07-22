@@ -1,6 +1,10 @@
 import {config} from '../src/config.js';
 import {setupRules} from '../libraries/mspa/activityControls.js';
 import {deepSetValue, prefixLog} from '../src/utils.js';
+import {DEFAULT_SID_MAPPING} from '../libraries/mspa/usSections.js';
+
+// re-exported for backwards compatibility; the canonical definition lives in libraries/mspa/usSections
+export {DEFAULT_SID_MAPPING};
 
 const FIELDS = {
   Version: 0,
@@ -134,14 +138,6 @@ export const NORMALIZATIONS = {
       normalized.KnownChildSensitiveDataConsents = repl;
     }
   })
-};
-
-export const DEFAULT_SID_MAPPING = {
-  8: 'usca',
-  9: 'usva',
-  10: 'usco',
-  11: 'usut',
-  12: 'usct'
 };
 
 export const getSections = (() => {
