@@ -35,12 +35,11 @@ describe('drawbridge module', () => {
     que.push = (cb) => { cb(); return 0; };
     const host = { que, getUserIdsAsEids: () => eids };
     if (async) host.getUserIdsAsync = () => Promise.resolve();
-    if (getConfig || coppa != null) {
-      host.getConfig = (path) => {
-        if (path === 'coppa' && coppa != null) return coppa === true;
-        return getConfig ? getConfig(path) : undefined;
-      };
-    }
+    // a real Prebid host always exposes getConfig; model that (a missing getConfig fails coppa closed)
+    host.getConfig = (path) => {
+      if (path === 'coppa') return coppa === true;
+      return getConfig ? getConfig(path) : undefined;
+    };
     if (installedModules) host.installedModules = installedModules;
     return host;
   }
@@ -638,6 +637,19 @@ describe('drawbridge module', () => {
         expect(state.cm).to.be.undefined;
         expect(state.eids).to.deep.equal(eids);
         expect(state.coppa).to.be.true;   // fail closed: a throwing getConfig is treated as child-directed
+      });
+    });
+
+    it('treats a host with no getConfig as coppa-unset (not child-directed)', () => {
+      // a missing getConfig is a technical gap, not a COPPA declaration → coppa false (like unset).
+      // only a getConfig that throws fails closed (see the throwing-getConfig test above).
+      const que = []; que.push = (cb) => { cb(); return 0; };
+      window[HOST] = { que, getUserIdsAsEids: () => [{ source: 'x', uids: [{ id: '1' }] }] };
+      config.setConfig({ drawbridge: { hostGlobal: HOST } });
+      resetResolvedHost();
+      return readHostState().then(state => {
+        expect(state.cm).to.be.undefined;
+        expect(state.coppa).to.be.false;
       });
     });
 

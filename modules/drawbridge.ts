@@ -9,6 +9,7 @@ import { activityParams } from '../src/activities/activityParams.js';
 import { MODULE_TYPE_PREBID } from '../src/activities/modules.js';
 import { allConsent, gppDataHandler, coppaDataHandler, gdprDataHandler } from '../src/consentHandler.js';
 import { ajax } from '../src/ajax.js';
+import { US_GPP_SECTION_IDS } from '../libraries/mspa/usSections.js';
 import type { ORTBRequest } from '../src/types/ortb/request.d.ts';
 
 type Eid = ORTBRequest['user']['eids'][number];
@@ -21,7 +22,6 @@ const DEFAULT_HOST_GLOBAL = ['pbjs', PBJS_GLOBALS_REGISTRY];
 const DEFAULT_AUCTION_DELAY_IN_MS = 500;
 const FILTER_POLICY_URL = 'https://openads-cdn.adsrvr.org/drawbridge/config/v1/filterpolicy.json';
 const GPP_ENRICH_EIDS_ENFORCERS = ['gppControl_usnat', 'gppControl_usstates'];
-const US_GPP_SECTION_IDS = [7, 8, 9, 10, 11, 12];
 const DEFAULT_FILTER_POLICY: FilterPolicy = {
   requireSource: true,
   requireInserter: false,
