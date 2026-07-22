@@ -14,12 +14,13 @@ import {
   resetFilterPolicyReady,
   hostGdprConsentAsOrMoreRestrictive,
   gdprFederationAllowed,
-  gppFederationAllowed
+  gppFederationAllowed,
+  coppaFederationAllowed
 } from 'modules/drawbridge.js';
 import { config } from 'src/config.js';
 import * as utils from 'src/utils.js';
 import { getGlobal } from 'src/prebidGlobal.js';
-import { gppDataHandler } from 'src/consentHandler.js';
+import { gppDataHandler, gdprDataHandler } from 'src/consentHandler.js';
 import { registerActivityControl } from 'src/activities/rules.js';
 import { ACTIVITY_ENRICH_EIDS } from 'src/activities/activities.js';
 
@@ -29,14 +30,18 @@ describe('drawbridge module', () => {
 
   // A fake foreign Prebid instance. Its `que` runs callbacks immediately, like a loaded pbjs,
   // so tests don't need to manually flush a command queue.
-  function makeHost({ eids = [], async = true, getConfig, installedModules, gdprApplies } = {}) {
+  function makeHost({ eids = [], async = true, getConfig, installedModules, coppa } = {}) {
     const que = [];
     que.push = (cb) => { cb(); return 0; };
     const host = { que, getUserIdsAsEids: () => eids };
     if (async) host.getUserIdsAsync = () => Promise.resolve();
-    if (getConfig) host.getConfig = getConfig;
+    if (getConfig || coppa != null) {
+      host.getConfig = (path) => {
+        if (path === 'coppa' && coppa != null) return coppa === true;
+        return getConfig ? getConfig(path) : undefined;
+      };
+    }
     if (installedModules) host.installedModules = installedModules;
-    if (gdprApplies != null) host.getConsentMetadata = () => ({ gdpr: { gdprApplies } });
     return host;
   }
 
@@ -479,51 +484,73 @@ describe('drawbridge module', () => {
   });
 
   describe('gdprFederationAllowed', () => {
-    // control oajs's own enforcement signals: installedModules (tcfControl?) + consentManagement
+    // GDPR scope now comes from oajs's own gdprDataHandler (page-level, authoritative), not the host.
+    // Control it by stubbing getConsentData; control enforcement via installedModules + consentManagement.
     let savedModules;
-    beforeEach(() => { savedModules = getGlobal().installedModules; });
-    afterEach(() => { getGlobal().installedModules = savedModules; });
+    const state = (over) => ({ eids: [], cm: undefined, installedModules: undefined, coppa: false, ...over });
+    beforeEach(() => {
+      savedModules = getGlobal().installedModules;
+      sinon.stub(gdprDataHandler, 'getConsentData');
+    });
+    afterEach(() => {
+      getGlobal().installedModules = savedModules;
+      gdprDataHandler.getConsentData.restore();
+    });
 
-    const state = (over) => ({ eids: [], cm: undefined, installedModules: undefined, gdprApplies: false, ...over });
+    const applies = () => gdprDataHandler.getConsentData.returns({ gdprApplies: true });
+    const outOfScope = () => gdprDataHandler.getConsentData.returns({ gdprApplies: false });
     const oajsEnforce = (cm = { gdpr: {} }) => { getGlobal().installedModules = ['tcfControl']; config.setConfig({ consentManagement: cm }); };
     const oajsNoEnforce = () => { getGlobal().installedModules = []; };   // no enforcement module (and no consentManagement)
 
     it('blocks the leak cell: GDPR applies and neither side enforces', () => {
+      applies();
       oajsNoEnforce();
-      expect(gdprFederationAllowed(state({ gdprApplies: true }))).to.be.false;
+      expect(gdprFederationAllowed(state())).to.be.false;
     });
 
     it('allows when the host enforces (tcfControl + consent), even if oajs does not', () => {
+      applies();
       oajsNoEnforce();
-      expect(gdprFederationAllowed(state({ gdprApplies: true, installedModules: ['tcfControl'], cm: { gdpr: {} } }))).to.be.true;
+      expect(gdprFederationAllowed(state({ installedModules: ['tcfControl'], cm: { gdpr: {} } }))).to.be.true;
     });
 
     it('allows when oajs enforces (downstream backstop), even if the host does not', () => {
+      applies();
       oajsEnforce();
-      expect(gdprFederationAllowed(state({ gdprApplies: true }))).to.be.true;
+      expect(gdprFederationAllowed(state())).to.be.true;
     });
 
     it('allows when GDPR is out of scope, even if neither enforces', () => {
+      outOfScope();
       oajsNoEnforce();
-      expect(gdprFederationAllowed(state({ gdprApplies: false }))).to.be.true;
+      expect(gdprFederationAllowed(state())).to.be.true;
+    });
+
+    it('allows when oajs has no resolved GDPR consent (getConsentData null → not in scope)', () => {
+      gdprDataHandler.getConsentData.returns(null);
+      oajsNoEnforce();
+      expect(gdprFederationAllowed(state())).to.be.true;
     });
 
     it('requires tcfControl to be loaded — a consentManagement.gdpr key alone is not "enforces"', () => {
       // oajs has consentManagement.gdpr but NO tcfControl module → not enforcing → leak cell
+      applies();
       getGlobal().installedModules = [];
       config.setConfig({ consentManagement: { gdpr: {} } });
-      expect(gdprFederationAllowed(state({ gdprApplies: true }))).to.be.false;
+      expect(gdprFederationAllowed(state())).to.be.false;
     });
 
     it('when both enforce, blocks a host that is less restrictive than oajs', () => {
+      applies();
       oajsEnforce({ gdpr: { rules: [{ purpose: 'storage', enforcePurpose: true, enforceVendor: true }] } });
-      const s = state({ gdprApplies: true, installedModules: ['tcfControl'], cm: { gdpr: { rules: [{ purpose: 'storage', enforcePurpose: false, enforceVendor: false }] } } });
+      const s = state({ installedModules: ['tcfControl'], cm: { gdpr: { rules: [{ purpose: 'storage', enforcePurpose: false, enforceVendor: false }] } } });
       expect(gdprFederationAllowed(s)).to.be.false;
     });
 
     it('when both enforce and the host is as restrictive, allows', () => {
+      applies();
       oajsEnforce({ gdpr: { rules: [{ purpose: 'storage', enforcePurpose: true, enforceVendor: true }] } });
-      const s = state({ gdprApplies: true, installedModules: ['tcfControl'], cm: { gdpr: { rules: [{ purpose: 'storage', enforcePurpose: true, enforceVendor: true }] } } });
+      const s = state({ installedModules: ['tcfControl'], cm: { gdpr: { rules: [{ purpose: 'storage', enforcePurpose: true, enforceVendor: true }] } } });
       expect(gdprFederationAllowed(s)).to.be.true;
     });
   });
@@ -575,7 +602,7 @@ describe('drawbridge module', () => {
     it('resolves to empty state when no host instance exists', () => {
       config.setConfig({ drawbridge: { hostGlobal: 'noSuchHost' } });
       resetResolvedHost();
-      return readHostState().then(state => expect(state).to.deep.equal({ eids: [], cm: undefined, installedModules: undefined, gdprApplies: false }));
+      return readHostState().then(state => expect(state).to.deep.equal({ eids: [], cm: undefined, installedModules: undefined, coppa: false }));
     });
 
     it('logs (info) when no host instance can be acquired', () => {
@@ -604,12 +631,13 @@ describe('drawbridge module', () => {
       });
     });
 
-    it('readHostState tolerates a host getConfig that throws (cm undefined, eids still read)', () => {
+    it('readHostState tolerates a host getConfig that throws (cm undefined, eids still read) and fails closed on coppa', () => {
       const eids = [{ source: 'x', uids: [{ id: '1' }] }];
       useHost(makeHost({ eids, getConfig: () => { throw new Error('not ready'); } }));
       return readHostState().then(state => {
         expect(state.cm).to.be.undefined;
         expect(state.eids).to.deep.equal(eids);
+        expect(state.coppa).to.be.true;   // fail closed: a throwing getConfig is treated as child-directed
       });
     });
 
@@ -698,7 +726,7 @@ describe('drawbridge module', () => {
         window._pbjsGlobals = [REG];
         config.setConfig({ drawbridge: { hostGlobal: '_pbjsGlobals' } });
         resetResolvedHost();
-        return readHostState().then(state => expect(state).to.deep.equal({ eids: [], cm: undefined, installedModules: undefined, gdprApplies: false }));
+        return readHostState().then(state => expect(state).to.deep.equal({ eids: [], cm: undefined, installedModules: undefined, coppa: false }));
       });
     });
   });
@@ -840,10 +868,26 @@ describe('drawbridge module', () => {
     });
 
     it('skips federation in the leak cell (GDPR applies, neither side enforces)', () => {
-      // host: GDPR in scope but no tcfControl/consent → unfiltered; oajs: no consentManagement → no backstop
+      // GDPR in scope (oajs's authoritative signal) but neither side enforces → no backstop → skip
+      const savedModules = getGlobal().installedModules;
+      getGlobal().installedModules = [];
+      const gdprStub = sinon.stub(gdprDataHandler, 'getConsentData').returns({ gdprApplies: true });
+      const host = makeHost({ eids: [{ source: 'id5-sync.com', inserter: 'x.com', mm: 3, uids: [{ id: 'AAA', atype: 1 }] }] });
+      useHost(host);
+      const options = {};
+      const next = sinon.spy();
+      return drawbridgeHook(next, options, { mkDelay: neverDelay }).then(() => {
+        getGlobal().installedModules = savedModules;
+        gdprStub.restore();
+        expect(next.calledOnceWith(options)).to.be.true;
+        expect(options.ortb2Fragments).to.be.undefined;
+      }, (e) => { getGlobal().installedModules = savedModules; gdprStub.restore(); throw e; });
+    });
+
+    it('skips federation (calls next) when COPPA is in effect', () => {
       const host = makeHost({
         eids: [{ source: 'id5-sync.com', inserter: 'x.com', mm: 3, uids: [{ id: 'AAA', atype: 1 }] }],
-        gdprApplies: true
+        coppa: true
       });
       useHost(host);
       const options = {};
@@ -924,7 +968,7 @@ describe('drawbridge module', () => {
 
   describe('gppFederationAllowed', () => {
     let savedModules;
-    const state = (over) => ({ eids: [], cm: undefined, installedModules: undefined, gdprApplies: false, ...over });
+    const state = (over) => ({ eids: [], cm: undefined, installedModules: undefined, coppa: false, ...over });
     beforeEach(() => {
       savedModules = getGlobal().installedModules;
       sinon.stub(gppDataHandler, 'getConsentData');
@@ -970,6 +1014,33 @@ describe('drawbridge module', () => {
       gppDataHandler.getConsentData.returns({ applicableSections: [7] });
       getGlobal().installedModules = [];
       expect(gppFederationAllowed(state({ installedModules: ['gppControl_usstates'], cm: { gpp: {} } }))).to.be.true;
+    });
+  });
+
+  describe('coppaFederationAllowed', () => {
+    const state = (over) => ({ eids: [], cm: undefined, installedModules: undefined, coppa: false, ...over });
+    afterEach(() => { config.setConfig({ coppa: false }); });
+
+    it('allows when neither the host nor oajs flags COPPA', () => {
+      config.setConfig({ coppa: false });
+      expect(coppaFederationAllowed(state({ coppa: false }))).to.be.true;
+    });
+
+    it('blocks when the host flags COPPA (even if oajs does not)', () => {
+      config.setConfig({ coppa: false });
+      expect(coppaFederationAllowed(state({ coppa: true }))).to.be.false;
+    });
+
+    it('blocks when oajs flags COPPA (even if the host does not)', () => {
+      config.setConfig({ coppa: true });
+      expect(coppaFederationAllowed(state({ coppa: false }))).to.be.false;
+    });
+
+    it('allows when host and oajs agree that COPPA applies (both true)', () => {
+      // agreement model: both declare child-directed → oajs request carries regs.coppa=1, so federating
+      // (flagged) is consistent with oajs sending its own EIDs — federation is allowed
+      config.setConfig({ coppa: true });
+      expect(coppaFederationAllowed(state({ coppa: true }))).to.be.true;
     });
   });
 

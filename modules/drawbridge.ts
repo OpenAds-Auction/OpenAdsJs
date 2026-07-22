@@ -7,7 +7,7 @@ import { ACTIVITY_ENRICH_EIDS } from '../src/activities/activities.js';
 import { isActivityAllowed } from '../src/activities/rules.js';
 import { activityParams } from '../src/activities/activityParams.js';
 import { MODULE_TYPE_PREBID } from '../src/activities/modules.js';
-import { allConsent, gppDataHandler } from '../src/consentHandler.js';
+import { allConsent, gppDataHandler, coppaDataHandler, gdprDataHandler } from '../src/consentHandler.js';
 import { ajax } from '../src/ajax.js';
 import type { ORTBRequest } from '../src/types/ortb/request.d.ts';
 
@@ -61,7 +61,6 @@ interface HostInstance {
   getUserIdsAsEids?: () => Eid[];
   getUserIdsAsync?: () => Promise<unknown>;
   getConfig?: (path: string) => unknown;
-  getConsentMetadata?: () => any;
 }
 
 /**
@@ -267,8 +266,8 @@ export interface HostState {
   cm: any;
   /** The host's installedModules list — used to detect whether it loaded the tcfControl enforcement module. */
   installedModules: any;
-  /** Whether the host's CMP reports GDPR as in-scope for this user (getConsentMetadata().gdpr.gdprApplies). */
-  gdprApplies: boolean;
+  /** The host's COPPA flag (host.getConfig('coppa')). */
+  coppa: boolean;
 }
 
 /**
@@ -284,23 +283,19 @@ export function readHostState(): Promise<HostState> {
     const resolved = resolveHost();
     if (!resolved) {
       logInfo(`${MODULE_NAME}: no host instance found at window.[${candidateHostGlobals().join(', ')}]`);
-      resolve({ eids: [], cm: undefined, installedModules: undefined, gdprApplies: false });
+      resolve({ eids: [], cm: undefined, installedModules: undefined, coppa: false });
       return;
     }
     const { host } = resolved;
     const queue = (isArray(host.que) ? host.que : host.cmd) as unknown[];
     queue.push(() => {
       let cm: any;
+      let coppa = true;
       try {
         cm = typeof host.getConfig === 'function' ? host.getConfig('consentManagement') : undefined;
+        coppa = typeof host.getConfig === 'function' && host.getConfig('coppa') === true;
       } catch (e) {
         cm = undefined;
-      }
-      let gdprApplies = false;
-      try {
-        gdprApplies = typeof host.getConsentMetadata === 'function' && host.getConsentMetadata()?.gdpr?.gdprApplies === true;
-      } catch (e) {
-        gdprApplies = false;
       }
       let eids: Eid[] = [];
       try {
@@ -308,7 +303,7 @@ export function readHostState(): Promise<HostState> {
       } catch (e) {
         logWarn(`${MODULE_NAME}: failed reading host EIDs`, e);
       }
-      resolve({ eids, cm, installedModules: host.installedModules, gdprApplies });
+      resolve({ eids, cm, installedModules: host.installedModules, coppa });
     });
   });
 }
@@ -438,11 +433,22 @@ function enforcesGdpr(installedModules: any, cm: any): boolean {
   return isArray(installedModules) && installedModules.includes('tcfControl') && gdprStorageSource(cm).configured;
 }
 
+/**
+ * Whether GDPR is in scope for this user.
+ */
+function gdprApplies(): boolean {
+  try {
+    return gdprDataHandler.getConsentData()?.gdprApplies === true;
+  } catch (e) {
+    return false;
+  }
+}
+
 export function gdprFederationAllowed(state: HostState): boolean {
   const hostEnforces = enforcesGdpr(state.installedModules, state.cm);
   const oajsEnforces = enforcesGdpr((getGlobal() as any).installedModules, config.getConfig('consentManagement'));
 
-  if (state.gdprApplies && !hostEnforces && !oajsEnforces) return false;
+  if (gdprApplies() && !hostEnforces && !oajsEnforces) return false;
   if (hostEnforces && oajsEnforces && !hostGdprConsentAsOrMoreRestrictive(state.cm)) return false;
   return true;
 }
@@ -489,6 +495,10 @@ export function gppFederationAllowed(state: HostState): boolean {
   return hostEnforces || oajsEnforces;
 }
 
+export function coppaFederationAllowed(state: HostState): boolean {
+  return coppaDataHandler.getCoppa() === state.coppa;
+}
+
 export function drawbridgeHook(
   next: (options: StartAuctionOptions) => void,
   options: StartAuctionOptions,
@@ -532,8 +542,13 @@ export function drawbridgeHook(
     // the consent verdict is made against a fully-initialized host
     return PbPromise.race<HostState>([
       readHostState(),
-      deadline.then(() => ({ eids: [], cm: undefined, installedModules: undefined, gdprApplies: false } as HostState))
+      deadline.then(() => ({ eids: [], cm: undefined, installedModules: undefined, coppa: false } as HostState))
     ]).then(state => {
+      if (resolved && !coppaFederationAllowed(state)) {
+        logWarn(`${MODULE_NAME}: COPPA is in effect on the host or oajs; skipping federation`);
+        return;
+      }
+
       if (resolved && !gppFederationAllowed(state)) {
         logWarn(`${MODULE_NAME}: US privacy (GPP) federation not permitted for this host/consent state; skipping federation`);
         return;
