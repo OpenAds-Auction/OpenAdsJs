@@ -234,10 +234,21 @@ jobs:
               done
 
               if [ "$UNRESOLVED" = false ]; then
-                # All conflicts were auto-resolved
-                git -c core.editor=true cherry-pick --continue 2>/dev/null
-                echo "✅ APPLIED  [$HASH] $SUBJECT (auto-resolved)"
-                echo "$HASH | $SUBJECT (auto-resolved)" >> "$APPLIED_FILE"
+                # If nothing is staged, the cherry-pick became empty/redundant
+                # (e.g. it only deletes files that are already absent in our
+                # repo). git refuses to --continue an empty pick, so skip it
+                # instead — otherwise the non-zero exit trips `set -e` and kills
+                # the whole job.
+                if git diff --cached --quiet; then
+                  git cherry-pick --skip 2>/dev/null || git cherry-pick --abort 2>/dev/null || true
+                  echo "⏭️  SKIPPED (empty/redundant) [$HASH] $SUBJECT"
+                  echo "$HASH | $SUBJECT (empty after resolution)" >> "$SKIPPED_FILE"
+                else
+                  # All conflicts were auto-resolved
+                  git -c core.editor=true cherry-pick --continue 2>/dev/null
+                  echo "✅ APPLIED  [$HASH] $SUBJECT (auto-resolved)"
+                  echo "$HASH | $SUBJECT (auto-resolved)" >> "$APPLIED_FILE"
+                fi
               else
                 echo "❌ CONFLICT [$HASH] $SUBJECT"
                 echo "$HASH | $SUBJECT" >> "$FAILED_FILE"
