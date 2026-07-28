@@ -3,11 +3,11 @@ var oajs = oajs || {};
 oajs.que = oajs.que || [];
 
 (function() {
-    var pbjsEl = document.createElement('script'); pbjsEl.type = 'text/javascript';
-    pbjsEl.async = true;
-    pbjsEl.src = 'https://acdn.adnxs.com/prebid/not-for-prod/prebid.js'
-    var pbjsTargetEl = document.getElementsByTagName('head')[0];
-    pbjsTargetEl.insertBefore(pbjsEl, pbjsTargetEl.firstChild);
+    var oajsEl = document.createElement('script'); oajsEl.type = 'text/javascript';
+    oajsEl.async = true;
+    oajsEl.src = '../../../build/dev/openads.js'
+    var oajsTargetEl = document.getElementsByTagName('head')[0];
+    oajsTargetEl.insertBefore(oajsEl, oajsTargetEl.firstChild);
 })();
 
 oajs.que.push(function() {
