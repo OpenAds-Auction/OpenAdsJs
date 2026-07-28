@@ -1,13 +1,13 @@
 <html>
 
 <head>
-    <script type="text/javascript" src="../../../../build/dev/prebid.js" async></script>
+    <script type="text/javascript" src="../../../../build/dev/openads.js" async></script>
 
     <script>
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
-        pbjs.que.push(function () {
+        oajs.que.push(function () {
             const adUnits = [{
                 code: 'native-div',
                 mediaTypes: {
@@ -36,7 +36,7 @@
                 }]
             }];
 
-            pbjs.setConfig({
+            oajs.setConfig({
                 debug: true,
                 s2sConfig: {
                     accountId: '1',
@@ -48,7 +48,7 @@
                 }
             });
 
-            pbjs.requestBids({
+            oajs.requestBids({
                 adUnits,
                 bidsBackHandler: function (bidResponses) {
                     Object.entries(bidResponses).forEach(([slot, {bids}]) => {
@@ -67,7 +67,7 @@
                     scrolling: 'no'
                 }).forEach(([prop, val]) => iframe.setAttribute(prop, val));
                 slot.appendChild(iframe);
-                iframe.onload = () => pbjs.renderAd(iframe.contentDocument, bid.adId);
+                iframe.onload = () => oajs.renderAd(iframe.contentDocument, bid.adId);
             }
         });
 
@@ -78,7 +78,7 @@
 <body>
 
 
-<h2>Prebid Native w/custom renderer</h2>
+<h2>OpenAds Native w/custom renderer</h2>
 <div id='native-div'>
 </div>
 

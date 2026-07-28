@@ -4,11 +4,11 @@
 
 <html>
 <head>
-  <script async src="../../build/dev/prebid.js"></script>
+  <script async src="../../build/dev/openads.js"></script>
   <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
   <script>
     var FAILSAFE_TIMEOUT = 33000;
-    var PREBID_TIMEOUT = 10000;
+    var OAJS_TIMEOUT = 10000;
 
     var adUnits = [{
       debugging: {
@@ -34,8 +34,8 @@
       }],
     }];
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
 
   </script>
 
@@ -46,13 +46,13 @@
       googletag.pubads().disableInitialLoad();
     });
 
-    pbjs.que.push(function() {
-      pbjs.addAdUnits(adUnits);
-      pbjs.requestBids({
+    oajs.que.push(function() {
+      oajs.addAdUnits(adUnits);
+      oajs.requestBids({
         bidsBackHandler: sendAdserverRequest,
-        timeout: PREBID_TIMEOUT
+        timeout: OAJS_TIMEOUT
       });
-      pbjs.enableAnalytics({
+      oajs.enableAnalytics({
         provider: 'growthCodeAnalytics',
         options: {
           pid: 'TEST01',
@@ -63,7 +63,7 @@
             ]
         }
       });
-      pbjs.setConfig({
+      oajs.setConfig({
         debugging: {
           enabled: true,
         },
@@ -98,12 +98,12 @@
     });
 
     function sendAdserverRequest() {
-      if (pbjs.adserverRequestSent) return;
-      pbjs.adserverRequestSent = true;
+      if (oajs.adserverRequestSent) return;
+      oajs.adserverRequestSent = true;
       googletag.cmd.push(function() {
-        if (pbjs.libLoaded) {
-          pbjs.que.push(function() {
-            pbjs.setTargetingForGPTAsync();
+        if (oajs.libLoaded) {
+          oajs.que.push(function() {
+            oajs.setTargetingForGPTAsync();
             googletag.pubads().refresh();
           });
         } else {
@@ -129,7 +129,7 @@
 </head>
 
 <body>
-<h2>Prebid.js Test</h2>
+<h2>OpenAds.js Test</h2>
 <h5>Div-1</h5>
 <div id='div-gpt-ad-1460505748561-0'>
   <script type='text/javascript'>

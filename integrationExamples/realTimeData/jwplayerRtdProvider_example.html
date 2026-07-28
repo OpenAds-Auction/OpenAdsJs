@@ -4,12 +4,12 @@
 
     /* Paste JW Player script tag here */
 
-    <script async src="../../build/dev/prebid.js"></script>
+    <script async src="../../build/dev/openads.js"></script>
     <meta charset="UTF-8">
     <title>JW Player RTD Provider Example</title>
     <script>
       var FAILSAFE_TIMEOUT = 3300;
-      var PREBID_TIMEOUT = 1000;
+      var OAJS_TIMEOUT = 1000;
 
       var adUnits = [{
           code: 'video-ad-unit',
@@ -35,29 +35,21 @@
           },
           // Replace this object to test a new Adapter!
           bids: [{
-            bidder: 'jwplayer',
+            bidder: 'appnexus',
             params: {
-              publisherId: 'test-publisher-id',
-              siteId: 'test-site-id',
-              placementId: 'test-placement-id'
-            }
-          }, {
-            bidder: 'ix',
-            params: {
-              siteId: '300',
-              video: {}
+              placementId: 13232361
             }
           }]
       }];
 
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
     </script>
 
     <script>
 
-      pbjs.que.push(function() {
-        pbjs.setConfig({
+      oajs.que.push(function() {
+        oajs.setConfig({
           realTimeData: {
             auctionDelay: 100,
             dataProviders: [{
@@ -74,15 +66,15 @@
             }]
           }
         });
-        pbjs.addAdUnits(adUnits);
-        pbjs.requestBids({
+        oajs.addAdUnits(adUnits);
+        oajs.requestBids({
           bidsBackHandler: renderHighestBid,
-          timeout: PREBID_TIMEOUT
+          timeout: OAJS_TIMEOUT
         });
       });
 
       function renderHighestBid() {
-        const highestBids = pbjs.getHighestCpmBids('video-ad-unit');
+        const highestBids = oajs.getHighestCpmBids('video-ad-unit');
         const highestBid = highestBids && highestBids.length && highestBids[0];
         if (!highestBid) {
           return;

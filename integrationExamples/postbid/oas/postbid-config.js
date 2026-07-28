@@ -1,41 +1,41 @@
 <script type="text/javascript">
-var pbjs = pbjs || {};
-pbjs.que = pbjs.que || [];
+var oajs = oajs || {};
+oajs.que = oajs.que || [];
 
 (function() {
-    var pbjsEl = document.createElement('script'); pbjsEl.type = 'text/javascript';
-    pbjsEl.async = true;
-    pbjsEl.src = 'https://acdn.adnxs.com/prebid/not-for-prod/prebid.js'
-    var pbjsTargetEl = document.getElementsByTagName('head')[0];
-    pbjsTargetEl.insertBefore(pbjsEl, pbjsTargetEl.firstChild);
+    var oajsEl = document.createElement('script'); oajsEl.type = 'text/javascript';
+    oajsEl.async = true;
+    oajsEl.src = '../../../build/dev/openads.js'
+    var oajsTargetEl = document.getElementsByTagName('head')[0];
+    oajsTargetEl.insertBefore(oajsEl, oajsTargetEl.firstChild);
 })();
 
-pbjs.que.push(function() {
+oajs.que.push(function() {
     var adUnits = [{
         code: '[%%adUnitCode%%]',
         sizes: [%%sizes%%],
         bids: [%%adUnitBids%%]
     }];
-    pbjs.addAdUnits(adUnits);
+    oajs.addAdUnits(adUnits);
 
-    pbjs.requestBids({
+    oajs.requestBids({
         timeout: [%%timeout%%],
         bidsBackHandler: function() {
             var iframe = document.getElementById('postbid_if_3');
             var iframeDoc = iframe.contentWindow.document;
-            var params = pbjs.getAdserverTargetingForAdUnitCode('[%%adUnitCode%%]');
+            var params = oajs.getAdserverTargetingForAdUnitCode('[%%adUnitCode%%]');
 
             // If any bidders return any creatives
             var bid;
             if(params && params['hb_adid']){
                 var bid;
-                for(i=0; i< pbjs._bidsReceived.length; i++ ) {
-                  if (params['hb_adid'] === pbjs._bidsReceived[i].adId) {
-                    bid = pbjs._bidsReceived[i];
+                for(i=0; i< oajs._bidsReceived.length; i++ ) {
+                  if (params['hb_adid'] === oajs._bidsReceived[i].adId) {
+                    bid = oajs._bidsReceived[i];
                     break;
                   }
                 }
-                pbjs.renderAd(iframeDoc, params['hb_adid']);
+                oajs.renderAd(iframeDoc, params['hb_adid']);
               } else {
                 // If no bidder return any creatives,
                 // Passback 3rd party tag in Javascript

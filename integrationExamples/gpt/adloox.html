@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Prebid Display/Video Merged Auction with Adloox Integration</title>
+        <title>OpenAds Display/Video Merged Auction with Adloox Integration</title>
 
-        <script async src="http://localhost:9999/build/dev/prebid.js"></script>
-        <!-- <script async src="https://storage.googleapis.com/adloox-ads-js-test/prebid.js"></script> -->
+        <script async src="http://localhost:9999/build/dev/openads.js"></script>
         <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
 
         <script>
             // set to 10s (rather than 100ms) only to assist development as 'Local Overrides' stalls for >1s :-/
             var AUCTION_DELAY = 10000;	// recommended to be set to 100 in production
-            var PREBID_TIMEOUT = 1000;
-            var FAILSAFE_TIMEOUT = AUCTION_DELAY + (3 * PREBID_TIMEOUT);
+            var OAJS_TIMEOUT = 1000;
+            var FAILSAFE_TIMEOUT = AUCTION_DELAY + (3 * OAJS_TIMEOUT);
 
             var div_1_sizes = [ [728, 90] ];
             var div_2_sizes = [ [300, 250] ];
@@ -95,8 +94,8 @@
                 googletag.enableServices();
             });
 
-            var pbjs = pbjs || {};
-            pbjs.que = pbjs.que || [];
+            var oajs = oajs || {};
+            oajs.que = oajs.que || [];
 
             var tempTag = false;
             var invokeVideoPlayer = function(url) {
@@ -104,13 +103,13 @@
             };
 
             function sendAdserverRequest(bids, timedOut, auctionId) {
-                if (pbjs.initAdserverSet) return;
-                pbjs.initAdserverSet = true;
+                if (oajs.initAdserverSet) return;
+                oajs.initAdserverSet = true;
 
                 googletag.cmd.push(function() {
                     const adUnitCodes = adUnits.map(adUnit => adUnit.code);
-                    if (pbjs.libLoaded) {
-                        pbjs.setTargetingForGPTAsync(adUnitCodes);
+                    if (oajs.libLoaded) {
+                        oajs.setTargetingForGPTAsync(adUnitCodes);
                         googletag.pubads().refresh();
                     } else {
                         googletag.pubads().refresh();
@@ -121,7 +120,7 @@
                 if (videoBids) {
 // DEMO NOTES: your environment likely will use the commented section ////
                     var videoUrl = videoBids.bids[0].vastUrl;
-//                    var videoUrl = pbjs.adServers.gam.buildVideoUrl({
+//                    var videoUrl = oajs.adServers.gam.buildVideoUrl({
 //                        adUnit: videoAdUnit,
 //                        params: {
 //                            iu: '/19968336/prebid_cache_video_adunit',
@@ -133,7 +132,7 @@
 //                        }
 //                    });
 //////////////////////////////////////////////////////////////////////////
-                    var ret = pbjs.adServers.adloox.buildVideoUrl({
+                    var ret = oajs.adServers.adloox.buildVideoUrl({
                         adUnit: videoAdUnit,
                         url: videoUrl
                     }, invokeVideoPlayer);
@@ -142,12 +141,12 @@
             }
 
             // optionally wrap with googletag to have gpt-pre-auction
-            // automatically populate Prebid Ad Slot (pbadslot)
+            // automatically populate OpenAds Ad Slot (pbadslot)
             // https://docs.prebid.org/dev-docs/modules/gpt-pre-auction.html
             // alternatively remove wrapping and set AdUnit.ortb2Imp.ext.data.pbadslot
             googletag.cmd.push(function() {
-                pbjs.que.push(function() {
-                    pbjs.setConfig({
+                oajs.que.push(function() {
+                    oajs.setConfig({
                         realTimeData: {
                             auctionDelay: AUCTION_DELAY,
                             dataProviders: [
@@ -176,7 +175,7 @@
                         // N.B. set this to a non-example.com URL to see the video
                         //pageUrl: 'https://yourdomain.com/some/path/to/content.html'
                     });
-                    pbjs.enableAnalytics({
+                    oajs.enableAnalytics({
                         provider: 'adloox',
                         options: {
                             client: 'adlooxtest',
@@ -185,11 +184,11 @@
                             tagid: 0
                         }
                     });
-                    pbjs.addAdUnits(adUnits);
-                    pbjs.addAdUnits(videoAdUnit);
-                    pbjs.requestBids({
+                    oajs.addAdUnits(adUnits);
+                    oajs.addAdUnits(videoAdUnit);
+                    oajs.requestBids({
                         bidsBackHandler: sendAdserverRequest,
-                        timeout: PREBID_TIMEOUT
+                        timeout: OAJS_TIMEOUT
                     })
                 });
             });
@@ -200,7 +199,7 @@
         </script>
     </head>
     <body>
-        <h1>Prebid Display/Video Merged Auction with Adloox Integration</h1>
+        <h1>OpenAds Display/Video Merged Auction with Adloox Integration</h1>
 
         <h2>div-1</h2>
         <div id="div-1">

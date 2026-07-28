@@ -7,15 +7,15 @@
 <body>
 
 <script async src="https://pagead2.googlesyndication.com/tag/js/gpt.js"></script>
-<script src="../../build/dev/prebid.js" async></script>
+<script src="../../build/dev/openads.js" async></script>
 
 <script>
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
 
 
-    pbjs.que.push(function() {
-        pbjs.setConfig({
+    oajs.que.push(function() {
+        oajs.setConfig({
             //debug: true, // set me to true to print traces to the console
             realTimeData: {
                 auctionDelay: 1000,
@@ -43,7 +43,7 @@
         [728, 90]
     ];
 
-    var PREBID_TIMEOUT = 10000;
+    var OAJS_TIMEOUT = 10000;
     var FAILSAFE_TIMEOUT = 20000;
 
     var adUnits = [
@@ -77,24 +77,24 @@
         googletag.pubads().disableInitialLoad();
     });
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
 
-    pbjs.que.push(function() {
-        pbjs.addAdUnits(adUnits);
-        pbjs.requestBids({
+    oajs.que.push(function() {
+        oajs.addAdUnits(adUnits);
+        oajs.requestBids({
             bidsBackHandler: initAdserver,
-            timeout: PREBID_TIMEOUT
+            timeout: OAJS_TIMEOUT
         });
     });
 
     function initAdserver() {
-        if (pbjs.initAdserverSet) return;
-        pbjs.initAdserverSet = true;
+        if (oajs.initAdserverSet) return;
+        oajs.initAdserverSet = true;
         googletag.cmd.push(function() {
-            if (pbjs.libLoaded) {
-                pbjs.que.push(function() {
-                    pbjs.setTargetingForGPTAsync();
+            if (oajs.libLoaded) {
+                oajs.que.push(function() {
+                    oajs.setTargetingForGPTAsync();
                     googletag.pubads().refresh();
                 });
             } else {
@@ -104,7 +104,7 @@
     }
 
 
-    // in case PBJS doesn't load
+    // in case OAJS doesn't load
     setTimeout(function() {
         initAdserver();
     }, FAILSAFE_TIMEOUT);
@@ -118,7 +118,7 @@
 
 </script>
 
-        <h2>Basic Prebid.js Example</h2>
+        <h2>Basic OpenAds.js Example</h2>
         <h5>Div-1</h5>
         <div id='div-1'>
             <script type='text/javascript'>

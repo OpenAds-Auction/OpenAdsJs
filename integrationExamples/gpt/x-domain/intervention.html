@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Heavy Ad Test</title>
 
-  <script src="../../../build/dev/prebid.js" async></script>
+  <script src="../../../build/dev/openads.js" async></script>
   <script 
     async 
     src="https://securepubads.g.doubleclick.net/tag/js/gpt.js" 
@@ -23,8 +23,8 @@
   </script>
 
   <script>
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
 
     const adUnitCode = 'div-gpt-ad-1756369646964-0';
 
@@ -45,8 +45,8 @@
       }
     ];
 
-    pbjs.que.push(function () {
-      pbjs.registerBidAdapter(null, 'testBidder', {
+    oajs.que.push(function () {
+      oajs.registerBidAdapter(null, 'testBidder', {
         supportedMediaTypes: ['banner', 'video', 'native'],
         isBidRequestValid: () => true,
         onIntervention: (param) => {
@@ -54,7 +54,7 @@
         }
       });
 
-      pbjs.setConfig({
+      oajs.setConfig({
         debugging: {
           enabled: true,
           intercept: [
@@ -70,21 +70,21 @@
           ]
         }
       });
-      pbjs.addAdUnits(adUnits);
-      pbjs.requestBids({
+      oajs.addAdUnits(adUnits);
+      oajs.requestBids({
         adUnitCodes: [adUnitCode],
         bidsBackHandler: sendAdserverRequest
       });
     });
 
     function sendAdserverRequest() {
-      if (pbjs.adserverRequestSent) return;
-      pbjs.adserverRequestSent = true;
+      if (oajs.adserverRequestSent) return;
+      oajs.adserverRequestSent = true;
 
       googletag.cmd.push(function () {
-        if (pbjs.libLoaded) {
-          pbjs.que.push(function () {
-            pbjs.setTargetingForGPTAsync([adUnitCode]);
+        if (oajs.libLoaded) {
+          oajs.que.push(function () {
+            oajs.setTargetingForGPTAsync([adUnitCode]);
             googletag.pubads().refresh();
           });
         } else {

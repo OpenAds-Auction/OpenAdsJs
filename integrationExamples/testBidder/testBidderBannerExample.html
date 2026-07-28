@@ -1,10 +1,10 @@
 <html>
     <head>
-        <title>Prebid Test Bidder Example</title>
-        <script src="../../build/dev/prebid.js" async></script>
+        <title>OpenAds Test Bidder Example</title>
+        <script src="../../build/dev/openads.js" async></script>
         <script>
-            var pbjs = pbjs || {};
-            pbjs.que = pbjs.que || [];
+            var oajs = oajs || {};
+            oajs.que = oajs.que || [];
 
             const adUnitCode = 'adUnit-0000';
 
@@ -20,7 +20,7 @@
                 ]
             }]
 
-            pbjs.que.push(function () {
+            oajs.que.push(function () {
 
                 /**
                  * BID RESPONSE SIMULATION SECTION START
@@ -30,12 +30,12 @@
                  *
                  * This part should not be present in production.
                  */
-                pbjs.registerBidAdapter(null, 'testBidder', {
+                oajs.registerBidAdapter(null, 'testBidder', {
                     supportedMediaTypes: ['banner', 'video', 'native'],
                     isBidRequestValid: () => true
                 });
 
-                pbjs.setConfig({
+                oajs.setConfig({
                     debugging: {
                         enabled: true,
                         intercept: [
@@ -54,25 +54,25 @@
                  * BID RESPONSE SIMULATION SECTION END
                  */
 
-                pbjs.addAdUnits(adUnits);
-                pbjs.requestBids({
+                oajs.addAdUnits(adUnits);
+                oajs.requestBids({
                     adUnitCodes: [adUnitCode],
                     bidsBackHandler: function() {
-                        const bids = pbjs.getHighestCpmBids(adUnitCode);
+                        const bids = oajs.getHighestCpmBids(adUnitCode);
                         const winningBid = bids[0];
                         const div = document.getElementById('banner');
                         let iframe = document.createElement('iframe');
                         iframe.frameBorder = '0';
                         div.appendChild(iframe);
                         var iframeDoc = iframe.contentWindow.document;
-                        pbjs.renderAd(iframeDoc, winningBid.adId);
+                        oajs.renderAd(iframeDoc, winningBid.adId);
                     }
                 });
             });
         </script>
     </head>
     <body>
-        <h2>Prebid Test Bidder Example</h2>
+        <h2>OpenAds Test Bidder Example</h2>
         <h5>Banner ad</h5>
         <div id="banner"></div>
     </body>

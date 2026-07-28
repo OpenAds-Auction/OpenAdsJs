@@ -5,12 +5,12 @@
 <html>
 
 <head>
-    <script async src="../../../build/dev/prebid.js"></script>
+    <script async src="../../../build/dev/openads.js"></script>
     <script src="https://cdn.jwplayer.com/libraries/l5MchIxB.js"></script>
 
     <script>
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
 
       var adUnits = [{
         code: 'div-gpt-ad-51545-0',
@@ -23,22 +23,15 @@
 
         // Replace this object to test a new Adapter!
         bids: [{
-          bidder: 'jwplayer',
+          bidder: 'appnexus',
           params: {
-            publisherId: 'test-publisher-id',
-            siteId: 'test-site-id',
-            placementId: 'test-placement-id'
-          }
-        }, {
-          bidder: 'ix',
-          params: {
-            siteId: '300',
+            placementId: 13232361
           }
         }]
       }];
 
-      pbjs.que.push(function () {
-        pbjs.setConfig({
+      oajs.que.push(function () {
+        oajs.setConfig({
           video: {
             providers: [{
               divId: 'player',
@@ -76,177 +69,177 @@
           }
         });
 
-        pbjs.addAdUnits(adUnits);
+        oajs.addAdUnits(adUnits);
 
-        pbjs.onEvent('videoSetupComplete', (e) => {
+        oajs.onEvent('videoSetupComplete', (e) => {
           console.log('player setup complete: ', e);
         });
 
-        pbjs.onEvent('videoSetupFailed', e => {
+        oajs.onEvent('videoSetupFailed', e => {
           console.log('player setup failed: ', e);
         });
 
-        pbjs.onEvent('videoDestroyed', e => {
+        oajs.onEvent('videoDestroyed', e => {
           console.log('player destroyed: ', e);
         });
 
-        pbjs.onEvent('videoPlaylist', (e) => {
+        oajs.onEvent('videoPlaylist', (e) => {
           console.log('videos pb playlist: ', e);
         });
 
-        pbjs.onEvent('videoPlaybackRequest', (e) => {
+        oajs.onEvent('videoPlaybackRequest', (e) => {
           console.log('videos pb playbackRequest: ', e);
         });
 
-        pbjs.onEvent('videoAutostartBlocked', (e) => {
+        oajs.onEvent('videoAutostartBlocked', (e) => {
           console.log('videos pb autostartBlocked: ', e);
         });
 
-        pbjs.onEvent('videoPlayAttemptFailed', (e) => {
+        oajs.onEvent('videoPlayAttemptFailed', (e) => {
           console.log('videos pb playAttemptFailed: ', e);
         });
 
-        pbjs.onEvent('videoContentLoaded', (e) => {
+        oajs.onEvent('videoContentLoaded', (e) => {
           console.log('videos pb contentLoaded: ', e);
         });
 
-        pbjs.onEvent('videoPlay', (e) => {
+        oajs.onEvent('videoPlay', (e) => {
           console.log('videos pb play: ', e);
         });
 
-        pbjs.onEvent('videoPause', (e) => {
+        oajs.onEvent('videoPause', (e) => {
           console.log('videos pb pause: ', e);
         });
 
-        pbjs.onEvent('videoBuffer', (e) => {
+        oajs.onEvent('videoBuffer', (e) => {
           console.log('videos pb buffer: ', e);
         });
 
-        pbjs.onEvent('videoSeekStart', (e) => {
+        oajs.onEvent('videoSeekStart', (e) => {
           console.log('videos pb seekStart: ', e);
         });
 
-        pbjs.onEvent('videoSeekEnd', (e) => {
+        oajs.onEvent('videoSeekEnd', (e) => {
           console.log('videos pb seekEnd: ', e);
         });
 
-        pbjs.onEvent('videoRenditionUpdate', (e) => {
+        oajs.onEvent('videoRenditionUpdate', (e) => {
           console.log('videos pb renditionUpdate: ', e);
         });
 
-        pbjs.onEvent('videoMute', (e) => {
+        oajs.onEvent('videoMute', (e) => {
           console.log('videos pb mute: ', e);
         });
 
-        pbjs.onEvent('videoVolume', (e) => {
+        oajs.onEvent('videoVolume', (e) => {
           console.log('videos pb volume: ', e);
         });
 
-        // pbjs.onEvent('videoTime', (e) => {
+        // oajs.onEvent('videoTime', (e) => {
         //   console.log('videos pb time: ', e);
         // });
 
-        pbjs.onEvent('videoComplete', (e) => {
+        oajs.onEvent('videoComplete', (e) => {
           console.log('videos pb complete: ', e);
         });
 
-        pbjs.onEvent('videoPlaylistComplete', (e) => {
+        oajs.onEvent('videoPlaylistComplete', (e) => {
           console.log('videos pb playlistComplete: ', e);
         });
 
-        pbjs.onEvent('videoFullscreen', (e) => {
+        oajs.onEvent('videoFullscreen', (e) => {
           console.log('videos pb fullscreen: ', e);
         });
 
-        pbjs.onEvent('videoPlayerResize', (e) => {
+        oajs.onEvent('videoPlayerResize', (e) => {
           console.log('videos pb playerResize: ', e);
         });
 
-        pbjs.onEvent('videoError', (e) => {
+        oajs.onEvent('videoError', (e) => {
           console.log('videos pb error: ', e);
         });
 
-        pbjs.onEvent('videoViewable', (e) => {
+        oajs.onEvent('videoViewable', (e) => {
           console.log('videos pb viewable: ', e);
         });
 
-        pbjs.onEvent('videoCast', (e) => {
+        oajs.onEvent('videoCast', (e) => {
           console.log('videos pb cast: ', e);
         });
 
-        pbjs.onEvent('videoAdBreakStart', e => {
+        oajs.onEvent('videoAdBreakStart', e => {
           console.log('videos pb ad break start: ', e);
         });
 
-        pbjs.onEvent('videoAdRequest', (e) => {
+        oajs.onEvent('videoAdRequest', (e) => {
           console.log('videos pb ad request: ', e);
         });
 
-        pbjs.onEvent('videoAdLoaded', e => {
+        oajs.onEvent('videoAdLoaded', e => {
           console.log('videos pb ad load: ', e);
         });
 
-        pbjs.onEvent('videoAdImpression', (e) => {
+        oajs.onEvent('videoAdImpression', (e) => {
           console.log('videos pb ad impression: ', e);
         });
 
-        pbjs.onEvent('videoAdStarted', (e) => {
+        oajs.onEvent('videoAdStarted', (e) => {
           console.log('videos pb ad started: ', e);
         });
 
-        pbjs.onEvent('videoAdPlay', (e) => {
+        oajs.onEvent('videoAdPlay', (e) => {
           console.log('videos pb ad play: ', e);
         });
 
-        pbjs.onEvent('videoAdPause', (e) => {
+        oajs.onEvent('videoAdPause', (e) => {
           console.log('videos pb ad pause: ', e);
         });
 
-        // pbjs.onEvent('videoAdTime', (e) => {
+        // oajs.onEvent('videoAdTime', (e) => {
         //   console.log('videos pb ad time: ', e);
         // });
 
-        pbjs.onEvent('videoAdComplete', (e) => {
+        oajs.onEvent('videoAdComplete', (e) => {
           console.log('videos pb ad complete: ', e);
         });
 
-        pbjs.onEvent('videoAdSkipped', (e) => {
+        oajs.onEvent('videoAdSkipped', (e) => {
           console.log('videos pb ad skipped: ', e);
         });
 
-        pbjs.onEvent('videoAdClick', (e) => {
+        oajs.onEvent('videoAdClick', (e) => {
           console.log('videos pb ad click: ', e);
         });
 
-        pbjs.onEvent('videoAdError', (e) => {
+        oajs.onEvent('videoAdError', (e) => {
           console.log('videos pb ad error: ', e);
         });
 
-        pbjs.onEvent('videoAdBreakStart', e => {
+        oajs.onEvent('videoAdBreakStart', e => {
           console.log('videos pb ad break start: ', e);
         });
 
-        pbjs.onEvent('videoAuctionAdLoadAbort', (e) => {
+        oajs.onEvent('videoAuctionAdLoadAbort', (e) => {
           console.log('videos pb auction ad load attempt: ', e);
         });
 
-        pbjs.onEvent('videoAuctionAdLoadQueued', (e) => {
+        oajs.onEvent('videoAuctionAdLoadQueued', (e) => {
           console.log('videos pb auction ad load queued: ', e);
         });
 
-        pbjs.onEvent('videoAuctionAdLoadAttempt', event => {
+        oajs.onEvent('videoAuctionAdLoadAttempt', event => {
           console.log('The Video Module is attempting to load an ad into the player! \n', event);
         });
 
-        pbjs.onEvent('videoBidImpression', event => {
+        oajs.onEvent('videoBidImpression', event => {
           console.log('The ad impression resulted from a bid! \n', event);
         });
 
-        pbjs.onEvent('videoBidError', event => {
+        oajs.onEvent('videoBidError', event => {
           console.log('The ad error resulted from a bid! \n', event);
         });
 
-        pbjs.requestBids();
+        oajs.requestBids();
       });
     </script>
 </head>

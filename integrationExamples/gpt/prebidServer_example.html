@@ -1,13 +1,13 @@
 <html>
 <head>
 <script>
-    var PREBID_TIMEOUT = 3000;
+    var OAJS_TIMEOUT = 3000;
 
     var googletag = googletag || {};
     googletag.cmd = googletag.cmd || [];
 
     function initAdserver() {
-      if (pbjs.initAdserverSet) return;
+      if (oajs.initAdserverSet) return;
       (function() {
           var gads = document.createElement('script');
           gads.async = true;
@@ -16,22 +16,22 @@
           var node = document.getElementsByTagName('script')[0];
           node.parentNode.insertBefore(gads, node);
         })();
-      pbjs.initAdserverSet = true;
+      oajs.initAdserverSet = true;
     };
-    setTimeout(initAdserver, PREBID_TIMEOUT);
+    setTimeout(initAdserver, OAJS_TIMEOUT);
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
     (function() {
-        var pbjsEl = document.createElement("script");
-        pbjsEl.type = "text/javascript";
-        pbjsEl.async = true;
-        pbjsEl.src = '/build/dev/prebid.js';
-        var pbjsTargetEl = document.getElementsByTagName("head")[0];
-        pbjsTargetEl.insertBefore(pbjsEl, pbjsTargetEl.firstChild);
+        var oajsEl = document.createElement("script");
+        oajsEl.type = "text/javascript";
+        oajsEl.async = true;
+        oajsEl.src = '/build/dev/openads.js';
+        var oajsTargetEl = document.getElementsByTagName("head")[0];
+        oajsTargetEl.insertBefore(oajsEl, oajsTargetEl.firstChild);
       })();
 
-    pbjs.que.push(function() {
+    oajs.que.push(function() {
         var adUnits = [{
           code: 'div-gpt-ad-1460505748561-0',
           mediaTypes: {
@@ -49,14 +49,14 @@
           ]
         }];
 
-        pbjs.bidderSettings = {
+        oajs.bidderSettings = {
           appnexus: {
             bidCpmAdjustment: function () {
               return 10;
             }
           }
         }  
-        pbjs.setConfig({
+        oajs.setConfig({
           bidderTimeout: 3000,
           s2sConfig : {
             accountId : '1',
@@ -71,9 +71,9 @@
           }
         });
 
-        pbjs.addAdUnits(adUnits);
+        oajs.addAdUnits(adUnits);
 
-        pbjs.requestBids({
+        oajs.requestBids({
             bidsBackHandler: function(bidResponses) {
                 initAdserver();
             }
@@ -85,9 +85,9 @@
 googletag.cmd.push(function() {
     var rightSlot = googletag.defineSlot('/19968336/header-bid-tag-0', [[300, 250]], 'div-gpt-ad-1460505748561-0').addService(googletag.pubads());
 
-    if (pbjs.libLoaded) { // Check if Prebid.js is loaded
-        pbjs.que.push(function() {
-            pbjs.setTargetingForGPTAsync();
+    if (oajs.libLoaded) { // Check if OpenAds.js is loaded
+        oajs.que.push(function() {
+            oajs.setTargetingForGPTAsync();
             googletag.pubads().refresh();
         });
     } else {
@@ -101,7 +101,7 @@ googletag.cmd.push(function() {
 </head>
 
 <body>
-    <h2>Prebid.js S2S Example</h2>
+    <h2>OpenAds.js S2S Example</h2>
 
     <h5>Div-1</h5>
     <div id='div-gpt-ad-1460505748561-0'>

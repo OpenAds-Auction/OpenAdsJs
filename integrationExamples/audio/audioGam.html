@@ -2,7 +2,7 @@
 
 <head>
   <script src="https://cdn.jwplayer.com/libraries/l5MchIxB.js"></script>
-  <script async src="../../../build/dev/prebid.js"></script>
+  <script async src="../../../build/dev/openads.js"></script>
 
   <title>Audio bid with GAM & Cache</title>
 
@@ -71,11 +71,11 @@
                         </Ad>
                         </VAST>`
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
 
-    pbjs.que.push(function () {
-      pbjs.setConfig({
+    oajs.que.push(function () {
+      oajs.setConfig({
         cache: {
             useLocal: true,
             // useCacheKey: true,
@@ -99,14 +99,14 @@
         }
       });
 
-      pbjs.registerBidAdapter(null, 'testBidder', {
+      oajs.registerBidAdapter(null, 'testBidder', {
           supportedMediaTypes: ['banner', 'video', 'native', 'audio'],
           isBidRequestValid: () => true
       });
 
-      pbjs.addAdUnits(adUnits);
+      oajs.addAdUnits(adUnits);
 
-      pbjs.requestBids({
+      oajs.requestBids({
         bidsBackHandler: async function(bidResponses) {
             const bidResponse = bidResponses['div-gpt-ad-51545-0'];
             if (!bidResponse) {
@@ -115,7 +115,7 @@
 
             const bid = bidResponse.bids[0];
 
-            const adXml = await pbjs.adServers.gam.getVastXml({
+            const adXml = await oajs.adServers.gam.getVastXml({
               bid,
               adUnit: 'div-gpt-ad-51545-0',
               params: {

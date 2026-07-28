@@ -2,7 +2,7 @@
 
 <head>
     <script src="https://serving.stat-rock.com/player/prebidAdPlayerPro.js"></script>
-    <script async src="../../../build/dev/prebid.js"></script>
+    <script async src="../../../build/dev/openads.js"></script>
 
     <title>AdPlayer.Pro bid request scheduling</title>
 
@@ -20,19 +20,19 @@
             },
             bids: [
                 {
-                    bidder: 'ix',
+                    bidder: 'appnexus',
                     params: {
-                        siteId: '300',
+                        placementId: 13232361
                     }
                 }
             ]
         }];
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
-        pbjs.que.push(function () {
-            pbjs.setConfig({
+        oajs.que.push(function () {
+            oajs.setConfig({
                 video: {
                     providers: [{
                         divId: 'player', // required, this is the id of the div element where the player will be placed
@@ -72,62 +72,62 @@
                     ]
                 }
             });
-            pbjs.addAdUnits(adUnits);
+            oajs.addAdUnits(adUnits);
 
             function refreshBid() {
-                pbjs.que.push(function() {
-                    pbjs.requestBids({
+                oajs.que.push(function() {
+                    oajs.requestBids({
                         adUnitCodes: ['div-gpt-ad-51545-0'],
                     });
                 });
             }
 
-            pbjs.onEvent('videoSetupComplete', e => {
+            oajs.onEvent('videoSetupComplete', e => {
                 console.log('player setup complete: ', e);
             });
 
-            pbjs.onEvent('videoSetupFailed', e => {
+            oajs.onEvent('videoSetupFailed', e => {
                 console.log('player setup failed: ', e);
             });
 
-            pbjs.onEvent('videoDestroyed', e => {
+            oajs.onEvent('videoDestroyed', e => {
                 console.log('player destroyed: ', e);
             });
 
-            pbjs.onEvent('videoAdImpression', (e) => {
+            oajs.onEvent('videoAdImpression', (e) => {
                 console.log('videos pb ad impression: ', e);
             });
 
-            pbjs.onEvent('videoAdStarted', (e) => {
+            oajs.onEvent('videoAdStarted', (e) => {
                 console.log('videos pb ad started: ', e);
             });
 
-            pbjs.onEvent('videoAdPlay', (e) => {
+            oajs.onEvent('videoAdPlay', (e) => {
                 console.log('videos pb ad play: ', e);
             });
 
-            pbjs.onEvent('videoAdPause', (e) => {
+            oajs.onEvent('videoAdPause', (e) => {
                 console.log('videos pb ad pause: ', e);
             });
 
-            pbjs.onEvent('videoAdComplete', (e) => {
+            oajs.onEvent('videoAdComplete', (e) => {
                 console.log('videos pb ad complete: ', e);
                 setTimeout(refreshBid, 10000);
             });
 
-            pbjs.onEvent('videoAdSkipped', (e) => {
+            oajs.onEvent('videoAdSkipped', (e) => {
                 console.log('videos pb ad skipped: ', e);
             });
 
-            pbjs.onEvent('videoAdClick', (e) => {
+            oajs.onEvent('videoAdClick', (e) => {
                 console.log('videos pb ad click: ', e);
             });
 
-            pbjs.onEvent('videoAdError', (e) => {
+            oajs.onEvent('videoAdError', (e) => {
                 console.log('videos pb ad error: ', e);
             });
 
-            pbjs.requestBids();
+            oajs.requestBids();
         });
     </script>
 
