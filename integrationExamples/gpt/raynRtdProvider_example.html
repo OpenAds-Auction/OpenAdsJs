@@ -45,10 +45,10 @@
         },
       ];
 
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
     </script>
-    <script src="../../build/dev/prebid.js" async></script>
+    <script src="../../build/dev/openads.js" async></script>
 
     <script>
       var googletag = googletag || {};
@@ -58,8 +58,8 @@
         googletag.pubads().disableInitialLoad();
       });
 
-      pbjs.que.push(function () {
-        pbjs.setConfig({
+      oajs.que.push(function () {
+        oajs.setConfig({
           debug: true,
           realTimeData: {
             auctionDelay: AUCTION_DELAY,
@@ -92,7 +92,7 @@
             ],
           },
         });
-        pbjs.setBidderConfig({
+        oajs.setBidderConfig({
           bidders: ["appnexus", "pubmatic"],
           config: {
             ortb2: {
@@ -108,20 +108,20 @@
           },
         });
 
-        pbjs.addAdUnits(adUnits);
-        pbjs.requestBids({ bidsBackHandler: sendAdserverRequest });
+        oajs.addAdUnits(adUnits);
+        oajs.requestBids({ bidsBackHandler: sendAdserverRequest });
       });
 
       function sendAdserverRequest() {
         document.getElementById("rayn-segments").innerHTML =
           window.localStorage.getItem("rayn-segtax");
 
-      if (pbjs.adserverRequestSent) return;
-      pbjs.adserverRequestSent = true;
+      if (oajs.adserverRequestSent) return;
+      oajs.adserverRequestSent = true;
       googletag.cmd.push(function () {
-        if (pbjs.libLoaded) {
-          pbjs.que.push(function () {
-            pbjs.setTargetingForGPTAsync();
+        if (oajs.libLoaded) {
+          oajs.que.push(function () {
+            oajs.setTargetingForGPTAsync();
             googletag.pubads().refresh();
           });
         } else {
@@ -156,7 +156,7 @@
   </head>
 
   <body>
-    <h2>Rayn RTD Prebid</h2>
+    <h2>Rayn RTD OpenAds</h2>
 
     <div id="test-div">
       <script>

@@ -31,9 +31,9 @@ function addExampleControls(requestBids) {
 }
 
 function init() {
-  window.pbjs = window.pbjs || {que: []};
-  window.pbjs.que.push(() => {
-    pbjs.aliasBidder('optable', 'contextual');
+  window.oajs = window.oajs || {que: []};
+  window.oajs.que.push(() => {
+    oajs.aliasBidder('optable', 'contextual');
     [
       'auctionInit',
       'auctionTimeout',
@@ -66,7 +66,7 @@ function init() {
       'paapiNoBid',
       'paapiError',
     ].forEach(evt => {
-      pbjs.onEvent(evt, (arg) => {
+      oajs.onEvent(evt, (arg) => {
         console.log('Event:', evt, arg);
       })
     });
@@ -74,8 +74,8 @@ function init() {
 }
 
 function setupContextualResponse(cpm = 1) {
-  pbjs.que.push(() => {
-    pbjs.setConfig({
+  oajs.que.push(() => {
+    oajs.setConfig({
       debugging: {
         enabled: true,
         intercept: [

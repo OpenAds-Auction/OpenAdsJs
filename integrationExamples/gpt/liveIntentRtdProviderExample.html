@@ -2,7 +2,7 @@
 <head>
     <link rel="icon" type="image/png" href="/favicon.png">
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
-    <script async src="../../build/dev/prebid.js"></script>
+    <script async src="../../build/dev/openads.js"></script>
     <script>
         var div_1_sizes = [
             [300, 250],
@@ -12,7 +12,7 @@
             [728, 90],
             [970, 250]
         ];
-        var PREBID_TIMEOUT = 1000;
+        var OAJS_TIMEOUT = 1000;
         var FAILSAFE_TIMEOUT = 3000;
         var adUnits = [
             {
@@ -52,10 +52,10 @@
         googletag.cmd.push(function() {
             googletag.pubads().disableInitialLoad();
         });
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
-        pbjs.que.push(function() {
-            pbjs.setConfig({
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
+        oajs.que.push(function() {
+            oajs.setConfig({
                 debug: true,
                 realTimeData: {
                     dataProviders:[{
@@ -82,7 +82,7 @@
                     },
                     "vendor": {
                       "consents": {
-                        // add your GVL ID here and set to true to give consent within pbjs
+                        // add your GVL ID here and set to true to give consent within oajs
                         "148": true,     // liveintent
                       }
                     }
@@ -109,19 +109,19 @@
                    ]
                 }
             });
-            pbjs.addAdUnits(adUnits);
-            pbjs.requestBids({
+            oajs.addAdUnits(adUnits);
+            oajs.requestBids({
                 bidsBackHandler: initAdserver,
-                timeout: PREBID_TIMEOUT
+                timeout: OAJS_TIMEOUT
             });
         });
         function initAdserver() {
-            if (pbjs.initAdserverSet) return;
-            pbjs.initAdserverSet = true;
+            if (oajs.initAdserverSet) return;
+            oajs.initAdserverSet = true;
             googletag.cmd.push(function() {
-                if (pbjs.libLoaded) {
-                    pbjs.que.push(function() {
-                        pbjs.setTargetingForGPTAsync();
+                if (oajs.libLoaded) {
+                    oajs.que.push(function() {
+                        oajs.setTargetingForGPTAsync();
                         googletag.pubads().refresh();
                     });
                 } else {
@@ -129,7 +129,7 @@
                 }
             });
         }
-        // in case PBJS doesn't load
+        // in case OAJS doesn't load
         setTimeout(function() {
             initAdserver();
         }, FAILSAFE_TIMEOUT);
@@ -146,7 +146,7 @@
     </script>
 </head>
 <body>
-<h2>Basic Prebid.js Example</h2>
+<h2>Basic OpenAds.js Example</h2>
 <h5>Div-1</h5>
 <div id='div-1'>
     <script type='text/javascript'>

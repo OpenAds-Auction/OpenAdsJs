@@ -3,7 +3,7 @@
 <head>
     <link rel="icon" type="image/png" href="/favicon.png">
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
-    <script async src="prebid.js"></script>
+    <script async src="openads.js"></script>
 
     <script>
         var div_1_sizes = [
@@ -14,7 +14,7 @@
             [728, 90],
             [970, 250]
         ];
-        var PREBID_TIMEOUT = 1000;
+        var OAJS_TIMEOUT = 1000;
         var FAILSAFE_TIMEOUT = 3000;
         var adUnits = [
             {
@@ -54,12 +54,12 @@
             googletag.pubads().disableInitialLoad();
         });
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
-        pbjs.que.push(function () {
-            pbjs.addAdUnits(adUnits);
-            pbjs.setConfig({
+        oajs.que.push(function () {
+            oajs.addAdUnits(adUnits);
+            oajs.setConfig({
                 userSync: {
                     filterSettings: { iframe: { bidders: '*', filter: 'include' } },
                     enabledBidders: ['pubmatic'],
@@ -112,9 +112,9 @@
                     }
                 }
             });
-            pbjs.requestBids({
+            oajs.requestBids({
                 bidsBackHandler: initAdserver,
-                timeout: PREBID_TIMEOUT
+                timeout: OAJS_TIMEOUT
             });
         });
 
@@ -122,13 +122,13 @@
 
 
         function initAdserver() {
-            if (pbjs.initAdserverSet) return;
-            pbjs.initAdserverSet = true;
+            if (oajs.initAdserverSet) return;
+            oajs.initAdserverSet = true;
             googletag.cmd.push(function () {
-                if (pbjs.libLoaded) {
-                    pbjs.que.push(function () {
-                        pbjs.setTargetingForGPTAsync();
-                        pbjs.registerSignalSources();
+                if (oajs.libLoaded) {
+                    oajs.que.push(function () {
+                        oajs.setTargetingForGPTAsync();
+                        oajs.registerSignalSources();
                         googletag.pubads().refresh();
                     });
                 } else {
@@ -136,7 +136,7 @@
                 }
             });
         }
-        // in case PBJS doesn't load
+        // in case OAJS doesn't load
         setTimeout(function () {
             initAdserver();
         }, FAILSAFE_TIMEOUT);
@@ -152,7 +152,7 @@
 </head>
 
 <body>
-    <h2>Basic Prebid.js Example</h2>
+    <h2>Basic OpenAds.js Example</h2>
 
     <h5>Div-1</h5>
     <div id='div-1'>

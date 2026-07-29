@@ -7,7 +7,7 @@
 
     <title>RTD Module Test</title>
 
-    <script src="../../build/dev/prebid.js" async type="text/javascript"></script>
+    <script src="../../build/dev/openads.js" async type="text/javascript"></script>
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
     <script>
         /* adapted from https://docs.prebid.org/dev-docs/examples/basic-example.html */
@@ -22,7 +22,7 @@
             [970, 250]
         ];
 
-        var PREBID_TIMEOUT = 3000;
+        var OAJS_TIMEOUT = 3000;
 
         var adUnits = [
             {
@@ -56,25 +56,25 @@
         ];
 
 
-        // 2. GPT and PBJS Configuration
+        // 2. GPT and OAJS Configuration
         var googletag = googletag || {};
         googletag.cmd = googletag.cmd || [];
         googletag.cmd.push(function () {
             googletag.pubads().disableInitialLoad();
         });
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
         // Custom Request Bids logic in onSettingsUpdate()
 
         function initAdserver() {
-            if (pbjs.initAdserverSet) return;
-            pbjs.initAdserverSet = true;
+            if (oajs.initAdserverSet) return;
+            oajs.initAdserverSet = true;
             googletag.cmd.push(function () {
-                if (pbjs.libLoaded) {
-                    pbjs.que.push(function () {
-                        pbjs.setTargetingForGPTAsync();
+                if (oajs.libLoaded) {
+                    oajs.que.push(function () {
+                        oajs.setTargetingForGPTAsync();
                         googletag.pubads().refresh();
                     });
                 } else {
@@ -140,8 +140,8 @@
             const inputStripFragments = document.getElementById('strip-fragments');
             const stripFragments = inputStripFragments ? inputStripFragments.checked : undefined;
 
-            pbjs.que.push(function () {
-                pbjs.setConfig({
+            oajs.que.push(function () {
+                oajs.setConfig({
                     debug: true,
                     realTimeData: {
                         auctionDelay: 500,
@@ -167,29 +167,29 @@
             })
 
             // Request Bids
-            pbjs.que.push(function () {
-                pbjs.addAdUnits(adUnits);
-                pbjs.requestBids({
+            oajs.que.push(function () {
+                oajs.addAdUnits(adUnits);
+                oajs.requestBids({
                     bidsBackHandler: initAdserver,
                 });
             })
             // Timeout
             setTimeout(function () {
                 initAdserver();
-            }, PREBID_TIMEOUT);
+            }, OAJS_TIMEOUT);
         }
     </script>
 </head>
 
 <body>
-    <h1>Basic Prebid.js Example using Neuwo Rtd Provider</h1>
+    <h1>Basic OpenAds.js Example using Neuwo Rtd Provider</h1>
 
     <div id="help" style="padding: 1em; border: 2px solid gray; background-color: #ed4f4f; white-space: pre-line;">
         Looks like you're not following the testing environment setup, try accessing
         <a href="http://localhost:9999/integrationExamples/gpt/neuwoRtdProvider_example.html">
             http://localhost:9999/integrationExamples/gpt/neuwoRtdProvider_example.html
         </a>
-        after running commands in the prebid.js source folder that includes libraries/modules/neuwoRtdProvider.js
+        after running commands in the openads.js source folder that includes libraries/modules/neuwoRtdProvider.js
         <code style="display: block; white-space: pre-line;">
             // Install dependencies
             npm ci
@@ -265,7 +265,7 @@
                         googletag.display('div-1');
                     });
                 </script>
-                Ad spot div-1: This content will be replaced by prebid.js and/or related components once you click
+                Ad spot div-1: This content will be replaced by openads.js and/or related components once you click
                 "Update" and there are no errors.
             </div>
         </div>
@@ -278,7 +278,7 @@
                         googletag.display('div-2');
                     });
                 </script>
-                Ad spot div-2: This content will be replaced by prebid.js and/or related components once you click
+                Ad spot div-2: This content will be replaced by openads.js and/or related components once you click
                 "Update" and there are no errors.
             </div>
         </div>

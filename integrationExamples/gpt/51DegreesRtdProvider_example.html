@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Delegate-CH" content="sec-ch-ua-full-version-list https://cloud.51degrees.com; sec-ch-ua-model https://cloud.51degrees.com; sec-ch-ua-platform https://cloud.51degrees.com; sec-ch-ua-platform-version https://cloud.51degrees.com">
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
-    <script async src="../../build/dev/prebid.js"></script>
+    <script async src="../../build/dev/openads.js"></script>
     <meta charset="utf-8">
     <style>
         body {
@@ -12,22 +12,22 @@
         }
     </style>
     <script>
-        var PREBID_TIMEOUT = 1000;
+        var OAJS_TIMEOUT = 1000;
         var FAILSAFE_TIMEOUT = 3000;
 
         var googletag = googletag || {};
         googletag.cmd = googletag.cmd || [];
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
         function initAdserver() {
-            if (pbjs.initAdserverSet) return;
+            if (oajs.initAdserverSet) return;
 
             googletag.cmd.push(function () {
-                if (pbjs.libLoaded) {
-                    pbjs.que.push(function () {
-                        pbjs.setTargetingForGPTAsync();
+                if (oajs.libLoaded) {
+                    oajs.que.push(function () {
+                        oajs.setTargetingForGPTAsync();
                         googletag.pubads().refresh();
                     });
                 } else {
@@ -35,10 +35,10 @@
                 }
             });
 
-            pbjs.initAdserverSet = true;
+            oajs.initAdserverSet = true;
         }
 
-        pbjs.que.push(function () {
+        oajs.que.push(function () {
             var adUnits = [{
                 code: 'div-banner-native-1',
                 mediaTypes: {
@@ -87,7 +87,7 @@
                 }
             ];
 
-            pbjs.setConfig({
+            oajs.setConfig({
                 debug: true, // use only for testing, remove in production
                 realTimeData: {
                     auctionDelay: 1000, // should be set lower in production use
@@ -106,9 +106,9 @@
                 },
             });
 
-            pbjs.addAdUnits(adUnits);
+            oajs.addAdUnits(adUnits);
 
-            pbjs.onEvent('bidRequested', function (data) {
+            oajs.onEvent('bidRequested', function (data) {
               try {
                 fod.complete(() => {
                   document.getElementById('enriched-51').style.display = 'block';
@@ -119,8 +119,8 @@
               }
             });
 
-            pbjs.requestBids({
-                timeout: PREBID_TIMEOUT,
+            oajs.requestBids({
+                timeout: OAJS_TIMEOUT,
                 bidsBackHandler: function (bidResponses) {
                     initAdserver();
                 }
@@ -156,7 +156,7 @@
             googletag.enableServices();
         });
     </script>
-    <title>51Degrees RTD submodule example - Prebid.js</title>
+    <title>51Degrees RTD submodule example - OpenAds.js</title>
 </head>
 <body>
     <h2>51Degrees RTD submodule - example of usage</h2>
@@ -184,7 +184,7 @@
     <div id="debug">
         <h3>Testing/Debugging Guidance</h3>
         <ol>
-            <li>Make sure you have <code>debug: true</code> under <code>pbjs.setConfig</code> in this example code (be sure to remove it for production!)
+            <li>Make sure you have <code>debug: true</code> under <code>oajs.setConfig</code> in this example code (be sure to remove it for production!)
             <li>Make sure you have replaced <code>&lt;YOUR RESOURCE KEY&gt;</code> in this example code with the one you have obtained
             from the <a href="https://configure.51degrees.com/HNZ75HT1" target="blank;">51Degrees Configurator Tool</a></li>
             <li>Open DevTools Console in your browser and refresh the page</li>

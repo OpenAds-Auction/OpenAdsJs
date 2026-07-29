@@ -1,6 +1,6 @@
 <!--
   この広告スロット用の単一の入札者を呼び出すページです。
-  Google Publisher Tagを使用したPrebidの「ハローワールド」の例と考えることができます。
+  Google Publisher Tagを使用したOpenAdsの「ハローワールド」の例と考えることができます。
   新しいアダプターのテストページとしても適しています。
 -->
 
@@ -8,7 +8,7 @@
    <head>
        <meta charset="UTF-8">
        <title>日本の金融市場 - 株式と投資の情報</title>
-       <script async src="../../build/dev/prebid.js"></script>
+       <script async src="../../build/dev/openads.js"></script>
        <script async src="https://www.googletagservices.com/tag/js/gpt.js"></script>
        <style>
         body {
@@ -84,7 +84,7 @@
     </style>
        <script>
            var FAILSAFE_TIMEOUT = 3300;
-           var PREBID_TIMEOUT = 3000;
+           var OAJS_TIMEOUT = 3000;
    
            var adUnits = [{
                code: 'div-gpt-ad-1460505748561-0',
@@ -108,8 +108,8 @@
                ]
            }];
    
-           var pbjs = pbjs || {};
-           pbjs.que = pbjs.que || [];
+           var oajs = oajs || {};
+           oajs.que = oajs.que || [];
    
        </script>
    
@@ -120,10 +120,9 @@
                googletag.pubads().disableInitialLoad();
            });
    
-           pbjs.que.push(function() {
+           oajs.que.push(function() {
    
-               pbjs.setConfig({
-                   enableTIDs: true,
+               oajs.setConfig({
                    realTimeData: {
                        auctionDelay: 500,
                        dataProviders: [
@@ -143,19 +142,19 @@
                        ],
                    },
                });
-               pbjs.addAdUnits(adUnits);
-               pbjs.requestBids({
+               oajs.addAdUnits(adUnits);
+               oajs.requestBids({
                    bidsBackHandler: sendAdserverRequest,
-                   timeout: PREBID_TIMEOUT
+                   timeout: OAJS_TIMEOUT
                });
            });
    
            function sendAdserverRequest() {
-               if (pbjs.adserverRequestSent) return;
-               pbjs.adserverRequestSent = true;
+               if (oajs.adserverRequestSent) return;
+               oajs.adserverRequestSent = true;
                googletag.cmd.push(function() {
-                   pbjs.que.push(function() {
-                       pbjs.setTargetingForGPTAsync();
+                   oajs.que.push(function() {
+                       oajs.setTargetingForGPTAsync();
                        googletag.pubads().refresh();
                    });
                });

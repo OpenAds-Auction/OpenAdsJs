@@ -12,11 +12,11 @@
     </script>
     <script src="//cdn.iubenda.com/cs/tcf/beta/stub.js"></script>
     <script async src="//cdn.iubenda.com/cs/beta/iubenda_cs.js"></script>
-    <script async src="../../build/dev/prebid.js"></script>
+    <script async src="../../build/dev/openads.js"></script>
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
 
       <script>
-        var PREBID_TIMEOUT = 700;
+        var OAJS_TIMEOUT = 700;
         var FAILSAFE_TIMEOUT = 2500;
 
         var adUnits = [{
@@ -37,8 +37,8 @@
 
         }];
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
       </script>
 
@@ -49,9 +49,9 @@
           googletag.pubads().disableInitialLoad();
         });
 
-        pbjs.que.push(function() {
-          pbjs.addAdUnits(adUnits);
-          pbjs.setConfig({
+        oajs.que.push(function() {
+          oajs.addAdUnits(adUnits);
+          oajs.setConfig({
             consentManagement: {
               cmpApi: 'iab',
               timeout: 5000
@@ -60,19 +60,19 @@
               enable: false
             }
           });
-          pbjs.requestBids({
+          oajs.requestBids({
             bidsBackHandler: sendAdserverRequest,
-            timeout: PREBID_TIMEOUT
+            timeout: OAJS_TIMEOUT
           });
         });
 
         function sendAdserverRequest() {
-          if (pbjs.adserverRequestSent) return;
-          pbjs.adserverRequestSent = true;
+          if (oajs.adserverRequestSent) return;
+          oajs.adserverRequestSent = true;
           googletag.cmd.push(function() {
-            if (pbjs.libLoaded) {
-              pbjs.que.push(function() {
-                pbjs.setTargetingForGPTAsync();
+            if (oajs.libLoaded) {
+              oajs.que.push(function() {
+                oajs.setTargetingForGPTAsync();
                 googletag.pubads().refresh();
               });
             } else {
@@ -83,7 +83,7 @@
 
         setTimeout(function() {
            sendAdserverRequest();
-           console.log('timeout in main pbjs fired');
+           console.log('timeout in main oajs fired');
         }, FAILSAFE_TIMEOUT);
 
       </script>
@@ -99,7 +99,7 @@
 
   <body>
 
-  <h2>Prebid.js Test</h2>
+  <h2>OpenAds.js Test</h2>
   <h5>Div-1</h5>
   <div id='div-gpt-ad-1460505748561-0'>
       <script type='text/javascript'>

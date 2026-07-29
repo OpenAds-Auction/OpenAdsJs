@@ -2,7 +2,7 @@
 
 <head>
     <script src="https://cdn.jwplayer.com/libraries/l5MchIxB.js"></script>
-    <script async src="../../../build/dev/prebid.js"></script>
+    <script async src="../../../build/dev/openads.js"></script>
 
     <title>JW Player with GAM Ad Server Mediation</title>
 
@@ -19,25 +19,18 @@
           divId: 'player', // required to indicate which player is being used to render this ad unit.
         },
         bids: [{
-          bidder: 'jwplayer',
+          bidder: 'appnexus',
           params: {
-            publisherId: 'test-publisher-id',
-            siteId: 'test-site-id',
-            placementId: 'test-placement-id'
-          }
-        }, {
-          bidder: 'ix',
-          params: {
-            siteId: '300',
+            placementId: 13232361
           }
         }]
       }];
 
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
 
-      pbjs.que.push(function () {
-        pbjs.setConfig({
+      oajs.que.push(function () {
+        oajs.setConfig({
           video: {
             providers: [{
               divId: 'player',
@@ -92,29 +85,29 @@
           }
         });
 
-        pbjs.addAdUnits(adUnits);
+        oajs.addAdUnits(adUnits);
 
-        pbjs.onEvent('videoSetupComplete', (e) => {
+        oajs.onEvent('videoSetupComplete', (e) => {
           console.log('player setup complete: ', e);
         });
 
-        pbjs.onEvent('videoSetupFailed', e => {
+        oajs.onEvent('videoSetupFailed', e => {
           console.log('player setup failed: ', e);
         });
 
-        pbjs.onEvent('videoAdRequest', (e) => {
+        oajs.onEvent('videoAdRequest', (e) => {
           console.log('videos pb ad request: ', e);
         });
 
-        pbjs.onEvent('videoBidError', e => {
+        oajs.onEvent('videoBidError', e => {
           console.log('An Ad Error came from a Bid: ', e);
         });
 
-        pbjs.onEvent('videoBidImpression', e => {
+        oajs.onEvent('videoBidImpression', e => {
           console.log('An Ad Impression came from a Bid: ', e);
         });
 
-        pbjs.requestBids();
+        oajs.requestBids();
       });
     </script>
 </head>

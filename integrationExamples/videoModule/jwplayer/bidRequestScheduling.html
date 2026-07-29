@@ -2,7 +2,7 @@
 
 <head>
     <script src="https://cdn.jwplayer.com/libraries/l5MchIxB.js"></script>
-    <script async src="../../../build/dev/prebid.js"></script>
+    <script async src="../../../build/dev/openads.js"></script>
 
     <title>JW Player with Bid Request Scheduling</title>
 
@@ -10,11 +10,11 @@
 
     <script>
 
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
 
-      pbjs.que.push(function () {
-        pbjs.setConfig({
+      oajs.que.push(function () {
+        oajs.setConfig({
           video: {
             providers: [{
               divId: 'player',
@@ -72,15 +72,15 @@
           },
         });
 
-        pbjs.onEvent('videoSetupComplete', e => {
+        oajs.onEvent('videoSetupComplete', e => {
           console.log('player setup complete: ', e);
         });
 
-        pbjs.onEvent('videoSetupFailed', e => {
+        oajs.onEvent('videoSetupFailed', e => {
           console.log('player setup failed: ', e);
         });
 
-        pbjs.onEvent('videoAdError', e => {
+        oajs.onEvent('videoAdError', e => {
           console.log('adError: ', e);
         });
       });

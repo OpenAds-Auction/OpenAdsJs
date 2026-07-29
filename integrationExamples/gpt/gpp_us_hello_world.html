@@ -1,6 +1,6 @@
 <!--
   This page calls a single bidder for a single ad slot. It can be considered a "hello world" example for using
-  Prebid with the Google Publisher Tag.
+  OpenAds with the Google Publisher Tag.
   It also makes a good test page for new adapter PR submissions. Simply set your server's Bid Params object in the
   bids array inside the adUnits, and it will use your adapter to load an ad.
   NOTE that many ad servers won't send back an ad if the URL is localhost... so you might need to
@@ -14,11 +14,11 @@
     data-cmp-cdid="599af61faf55" data-cmp-host="delivery.consentmanager.net" data-cmp-cdn="cdn.consentmanager.net" data-cmp-codesrc="1"></script>
 
 
-  <script async src="../../build/dev/prebid.js"></script>
+  <script async src="../../build/dev/openads.js"></script>
   <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
   <script>
     var FAILSAFE_TIMEOUT = 3300;
-    var PREBID_TIMEOUT = 1000;
+    var OAJS_TIMEOUT = 1000;
 
     var adUnits = [{
       code: 'div-gpt-ad-1460505748561-0',
@@ -37,8 +37,8 @@
 
     }];
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
 
   </script>
 
@@ -49,9 +49,9 @@
       googletag.pubads().disableInitialLoad();
     });
 
-    pbjs.que.push(function () {
-      pbjs.addAdUnits(adUnits);
-      pbjs.setConfig({
+    oajs.que.push(function () {
+      oajs.addAdUnits(adUnits);
+      oajs.setConfig({
         userSync: {
           filterSettings: {
             iframe: {
@@ -61,7 +61,7 @@
           }
         }
       })
-      pbjs.setConfig({
+      oajs.setConfig({
         consentManagement: {
           gpp: {
             cmpApi: 'iab',
@@ -77,19 +77,19 @@
           }
         }
       })
-      pbjs.requestBids({
+      oajs.requestBids({
         bidsBackHandler: sendAdserverRequest,
-        timeout: PREBID_TIMEOUT
+        timeout: OAJS_TIMEOUT
       });
     });
 
     function sendAdserverRequest() {
-      if (pbjs.adserverRequestSent) return;
-      pbjs.adserverRequestSent = true;
+      if (oajs.adserverRequestSent) return;
+      oajs.adserverRequestSent = true;
       googletag.cmd.push(function () {
-        if (pbjs.libLoaded) {
-          pbjs.que.push(function () {
-            pbjs.setTargetingForGPTAsync();
+        if (oajs.libLoaded) {
+          oajs.que.push(function () {
+            oajs.setTargetingForGPTAsync();
             googletag.pubads().refresh();
           });
         } else {
@@ -115,7 +115,7 @@
 </head>
 
 <body>
-  <h2>Prebid.js Test</h2>
+  <h2>OpenAds.js Test</h2>
   <h5>Div-1</h5>
   <!-- <button onclick="googletag.cmd.push(function () {googletag.pubads().refresh();});">Refresh GAM</button> -->
   <div id='div-gpt-ad-1460505748561-0'>

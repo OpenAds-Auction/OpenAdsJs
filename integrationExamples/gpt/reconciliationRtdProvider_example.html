@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script async src="../../build/dev/prebid.js"></script>
+    <script async src="../../build/dev/openads.js"></script>
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
     <meta charset="UTF-8">
     <title>Reconciliation RTD Provider Example</title>
     <script>
       var FAILSAFE_TIMEOUT = 3300;
-      var PREBID_TIMEOUT = 1000;
+      var OAJS_TIMEOUT = 1000;
 
       var adUnits = [{
         code: "/21834411153/rsdk-2",
@@ -29,8 +29,8 @@
 
       }];
 
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
 
     </script>
 
@@ -41,8 +41,8 @@
         googletag.pubads().disableInitialLoad();
       });
 
-      pbjs.que.push(function() {
-        pbjs.setConfig({
+      oajs.que.push(function() {
+        oajs.setConfig({
           realTimeData: {
             auctionDelay: 0,
             dataProviders: [
@@ -56,20 +56,20 @@
             ],
           },
         });
-        pbjs.addAdUnits(adUnits);
-        pbjs.requestBids({
+        oajs.addAdUnits(adUnits);
+        oajs.requestBids({
           bidsBackHandler: sendAdserverRequest,
-          timeout: PREBID_TIMEOUT
+          timeout: OAJS_TIMEOUT
         });
       });
 
       function sendAdserverRequest() {
-        if (pbjs.adserverRequestSent) return;
-        pbjs.adserverRequestSent = true;
+        if (oajs.adserverRequestSent) return;
+        oajs.adserverRequestSent = true;
         googletag.cmd.push(function() {
-          if (pbjs.libLoaded) {
-            pbjs.que.push(function() {
-              pbjs.setTargetingForGPTAsync();
+          if (oajs.libLoaded) {
+            oajs.que.push(function() {
+              oajs.setTargetingForGPTAsync();
               googletag.pubads().refresh();
             });
           } else {

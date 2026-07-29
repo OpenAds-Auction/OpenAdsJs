@@ -2,18 +2,18 @@
 <head>
 <script>
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
     (function() {
-        var pbjsEl = document.createElement("script");
-        pbjsEl.type = "text/javascript";
-        pbjsEl.async = true;
-        pbjsEl.src = '../../build/dev/prebid.js';
-        var pbjsTargetEl = document.getElementsByTagName("head")[0];
-        pbjsTargetEl.insertBefore(pbjsEl, pbjsTargetEl.firstChild);
+        var oajsEl = document.createElement("script");
+        oajsEl.type = "text/javascript";
+        oajsEl.async = true;
+        oajsEl.src = '../../build/dev/openads.js';
+        var oajsTargetEl = document.getElementsByTagName("head")[0];
+        oajsTargetEl.insertBefore(oajsEl, oajsTargetEl.firstChild);
       })();
 
-    pbjs.que.push(function() {
+    oajs.que.push(function() {
         var sizes = [[300, 250]];
         var adUnits = [{
             code: 'postbid_iframe',
@@ -32,7 +32,7 @@
             ]
           }];
 
-        pbjs.setConfig({
+        oajs.setConfig({
           bidderTimeout: 1000,
           s2sConfig : {
             accountId : '1',
@@ -44,17 +44,17 @@
           }
         });
 
-        pbjs.addAdUnits(adUnits);
+        oajs.addAdUnits(adUnits);
 
-        pbjs.requestBids({
+        oajs.requestBids({
             bidsBackHandler: function(bidResponses) {
                 var iframe = document.getElementById('postbid_iframe');
                 var iframeDoc = iframe.contentWindow.document;
-                var adServerTargeting = pbjs.getAdserverTargetingForAdUnitCode('postbid_iframe');
+                var adServerTargeting = oajs.getAdserverTargetingForAdUnitCode('postbid_iframe');
 
                 // If any bidders return any creatives
                 if (adServerTargeting && adServerTargeting['hb_adid']) {
-                    pbjs.renderAd(iframeDoc, adServerTargeting['hb_adid']);
+                    oajs.renderAd(iframeDoc, adServerTargeting['hb_adid']);
                 } else {
                     iframe.width = sizes[0][0];
                     iframe.height = sizes[0][1];

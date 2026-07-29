@@ -3,26 +3,25 @@
 <head>
   <link rel="icon" type="image/png" href="/favicon.png">
   <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
-  <!-- <script async src="//acdn.adnxs.com/prebid/not-for-prod/1/prebid.js"></script> -->
-  <script type="text/javascript" src="../../build/dev/prebid.js" async></script>
+  <script type="text/javascript" src="../../build/dev/openads.js" async></script>
 
   <script>
     var googletag = googletag || {};
     googletag.cmd = googletag.cmd || [];
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
-    var PREBID_TIMEOUT = 3000;
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
+    var OAJS_TIMEOUT = 3000;
 
     var date = new Date().getTime();
 
 function initAdserver() {
-  if (pbjs.initAdserverSet) return;
+  if (oajs.initAdserverSet) return;
 
   googletag.cmd.push(function () {
-    if (pbjs.libLoaded) { // Check if Prebid.js is loaded
-      pbjs.que.push(function () {
-        pbjs.setTargetingForGPTAsync();
+    if (oajs.libLoaded) { // Check if OpenAds.js is loaded
+      oajs.que.push(function () {
+        oajs.setTargetingForGPTAsync();
         googletag.pubads().refresh();
       });
     } else {
@@ -30,15 +29,15 @@ function initAdserver() {
     }
   });
 
-  pbjs.initAdserverSet = true;
+  oajs.initAdserverSet = true;
 }
 
     // Load GPT when timeout is reached.
-    // setTimeout(initAdserver, PREBID_TIMEOUT);
+    // setTimeout(initAdserver, OAJS_TIMEOUT);
 
-    pbjs.que.push(function () {
+    oajs.que.push(function () {
 
-      pbjs.setConfig({
+      oajs.setConfig({
         debug: true,
         userSync: {
           iframeEnabled: true
@@ -106,15 +105,15 @@ function initAdserver() {
         }]
       }];
 
-      pbjs.addAdUnits(adUnits);
-      // pbjs.bidderSettings = {
+      oajs.addAdUnits(adUnits);
+      // oajs.bidderSettings = {
       //   appnexus: {
       //     bidCpmAdjustment: function () {
       //       return 10.00
       //     }
       //   }
       // };
-      pbjs.setConfig({
+      oajs.setConfig({
         s2sConfig: {
           accountId: '1',
           enabled: true, //default value set to false
@@ -124,7 +123,7 @@ function initAdserver() {
           endpoint: 'https://prebid.adnxs.com/pbs/v1/openrtb2/auction'
         }
       });
-      pbjs.requestBids({
+      oajs.requestBids({
         bidsBackHandler: function (bidResponses) {
           initAdserver();
         }
@@ -149,7 +148,7 @@ function initAdserver() {
 
 <body>
 
-  <h2>Prebid Native</h2>
+  <h2>OpenAds Native</h2>
   <div id='div-1'>
     <p>No response</p>
     <script type='text/javascript'>

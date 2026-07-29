@@ -1,7 +1,7 @@
 ##WARNING
-The below documented method of deploying prebid on AMP requires remote.html
-This is being deprecated on March 29th. A new method the requires Prebid Server
-is being developed, see [Prebid Server](http://github.com/prebid/prebid-server).
+The below documented method of deploying OpenAds on AMP requires remote.html
+This is being deprecated on March 29th. A new method the requires OpenAds Server
+is being developed, see [OpenAds Server](https://github.com/OpenAds-Auction/OpenAdsServer).
 
 ## Old method:
 

@@ -5,14 +5,14 @@
 
     gulp serve --modules=paapiForGpt,openxBidAdapter
   -->
-  <script async src="../../build/dev/prebid.js"></script>
+  <script async src="../../build/dev/openads.js"></script>
   <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
   <script>
     var FAILSAFE_TIMEOUT = 3000;
-    var PREBID_TIMEOUT = 1500;
+    var OAJS_TIMEOUT = 1500;
 
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
 
     var googletag = googletag || {};
     googletag.cmd = googletag.cmd || [];
@@ -42,8 +42,8 @@
       }
     }];
 
-    pbjs.que.push(function() {
-      pbjs.setConfig({
+    oajs.que.push(function() {
+      oajs.setConfig({
         paapi: {
           enabled: true,
           gpt: {
@@ -52,21 +52,21 @@
         }
       });
 
-      pbjs.addAdUnits(adUnits);
+      oajs.addAdUnits(adUnits);
 
-      pbjs.requestBids({
+      oajs.requestBids({
         bidsBackHandler: sendAdserverRequest,
-        timeout: PREBID_TIMEOUT
+        timeout: OAJS_TIMEOUT
       });
 
       function sendAdserverRequest() {
-        if (pbjs.adserverRequestSent) return;
-        pbjs.adserverRequestSent = true;
+        if (oajs.adserverRequestSent) return;
+        oajs.adserverRequestSent = true;
         googletag.cmd.push(function() {
-          if (pbjs.libLoaded) {
-            pbjs.que.push(function() {
-              pbjs.setTargetingForGPTAsync();
-              pbjs.setPAAPIConfigForGPT();
+          if (oajs.libLoaded) {
+            oajs.que.push(function() {
+              oajs.setTargetingForGPTAsync();
+              oajs.setPAAPIConfigForGPT();
               googletag.pubads().refresh();
             });
           } else {
@@ -92,7 +92,7 @@
 </head>
 
 <body>
-    <h2>Prebid.js FLEDGE+GPT Example</h2>
+    <h2>OpenAds.js FLEDGE+GPT Example</h2>
 
     <h5>Div-1</h5>
     <div id='div-gpt-ad-1460505748561-0'>

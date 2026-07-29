@@ -2,23 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Prebid.js Banner Example</title>
-    <!-- Prebid.js -->
-    <!-- <script async src="prebid.js"></script> -->
-    <!-- <script async src="../../build/dist/prebid.js"></script> -->
-    <script async src="../../build/dev/prebid.js"></script>
+    <title>OpenAds.js Banner Example</title>
+    <!-- OpenAds.js -->
+    <!-- <script async src="openads.js"></script> -->
+    <!-- <script async src="../../build/dist/openads.js"></script> -->
+    <script async src="../../build/dev/openads.js"></script>
     <!-- Google Publisher Tag -->
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
     <script>
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
         const customConfigObject = {
             "buckets": [{
                 "max": 40,
                 "increment": 0.5
             }]
         };
-        // Prebid Banner Ad Unit
+        // OpenAds Banner Ad Unit
         const adUnits = [{
             code: '/21623266709/prebid-test',
             mediaTypes: {
@@ -64,20 +64,20 @@
         googletag.cmd.push(function () {
             googletag.pubads().disableInitialLoad();
         });
-        pbjs.que.push(function () {
-            pbjs.setConfig({
+        oajs.que.push(function () {
+            oajs.setConfig({
                 enableSendAllBids: false,
                 priceGranularity: customConfigObject
             });
-            pbjs.addAdUnits(adUnits);
-            pbjs.requestBids({ bidsBackHandler: sendAdServerRequest });
+            oajs.addAdUnits(adUnits);
+            oajs.requestBids({ bidsBackHandler: sendAdServerRequest });
         });
         function sendAdServerRequest() {
             googletag.cmd.push(function () {
-                if (pbjs.libLoaded) {
-                    pbjs.que.push(function () {
-                        pbjs.setTargetingForGPTAsync('/21623266709/prebid-test');
-                        pbjs.setTargetingForGPTAsync('/21623266709/prebid-test-2');
+                if (oajs.libLoaded) {
+                    oajs.que.push(function () {
+                        oajs.setTargetingForGPTAsync('/21623266709/prebid-test');
+                        oajs.setTargetingForGPTAsync('/21623266709/prebid-test-2');
                         googletag.pubads().refresh();
                     });
                 } else {
@@ -100,7 +100,7 @@
     </script>
 </head>
 <body>
-    <h2>Prebid.js Banner Example</h2>
+    <h2>OpenAds.js Banner Example</h2>
     <div id='div-0'>
         <script>
             googletag.cmd.push(function () {
