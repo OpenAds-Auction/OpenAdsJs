@@ -118,7 +118,6 @@ jobs:
   coveralls:
     name: Update coveralls
     needs: [checkout, test]
-    if: false #REMOVE ONCE REPO IS PUBLIC
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
