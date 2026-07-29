@@ -64,9 +64,9 @@ async function isPrebidMember(ghHandle) {
 }
 
 
-async function getPRProperties({github, context, prNo, reviewerTeam, engTeam, authReviewTeam}) {
+async function getPRProperties({github, context, prNo, reviewerTeam, engTeam}) {
   const request = ghRequester(github);
-  let [files, pr, prReviews, prebidReviewers, prebidEngineers, authorizedReviewers] = await Promise.all([
+  let [files, pr, prebidReviewers, prebidEngineers] = await Promise.all([
     request('GET /repos/{owner}/{repo}/pulls/{prNo}/files', {
       owner: context.repo.owner,
       repo: context.repo.repo,
@@ -77,19 +77,13 @@ async function getPRProperties({github, context, prNo, reviewerTeam, engTeam, au
       repo: context.repo.repo,
       prNo,
     }),
-    request('GET /repos/{owner}/{repo}/pulls/{prNo}/reviews', {
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      prNo,
-    }),
-    ...[reviewerTeam, engTeam, authReviewTeam].map(team => request('GET /orgs/{org}/teams/{team}/members', {
+    ...[reviewerTeam, engTeam].map(team => request('GET /orgs/{org}/teams/{team}/members', {
       org: context.repo.owner,
       team,
     }))
   ]);
   prebidReviewers = prebidReviewers.data.map(datum => datum.login);
   prebidEngineers = prebidEngineers.data.map(datum=> datum.login);
-  authorizedReviewers = authorizedReviewers.data.map(datum=> datum.login);
   let isCoreChange = false;
   files = files.data.map(datum => datum.filename).map(file => {
     const core = isCoreFile(file);
@@ -105,16 +99,12 @@ async function getPRProperties({github, context, prNo, reviewerTeam, engTeam, au
     reviewers: []
   };
   const author = pr.data.user.login;
-  const allReviewers = new Set();
   pr.data.requested_reviewers
-    .forEach(rv => allReviewers.add(rv.login));
-  prReviews.data.forEach(datum => allReviewers.add(datum.user.login));
-
-  allReviewers
+    .map(rv => rv.login)
     .forEach(reviewer => {
       if (reviewer === author) return;
       const isPrebidEngineer = prebidEngineers.includes(reviewer);
-      const isPrebidReviewer = isPrebidEngineer || prebidReviewers.includes(reviewer) || authorizedReviewers.includes(reviewer);
+      const isPrebidReviewer = isPrebidEngineer || prebidReviewers.includes(reviewer);
       if (isPrebidEngineer) {
         review.prebidEngineers += 1;
       }
