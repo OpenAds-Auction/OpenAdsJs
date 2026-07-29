@@ -530,6 +530,9 @@ const adapterManager = {
     const pbjsInstance = getGlobal();
 
     function getPageViewIdForBidder(bidderCode: string | null): string {
+      if (!pbjsInstance.pageViewIdPerBidder) {
+        pbjsInstance.pageViewIdPerBidder = new Map();
+      }
       if (!pbjsInstance.pageViewIdPerBidder.has(bidderCode)) {
         pbjsInstance.pageViewIdPerBidder.set(bidderCode, generateUUID());
       }
