@@ -102,16 +102,12 @@ async function getPRProperties({github, context, prNo, reviewerTeam, engTeam, au
   const review = {
     prebidEngineers: 0,
     prebidReviewers: 0,
-    reviewers: [],
-    requestedReviewers: []
+    reviewers: []
   };
   const author = pr.data.user.login;
   const allReviewers = new Set();
   pr.data.requested_reviewers
-    .forEach(rv => {
-      allReviewers.add(rv.login);
-      review.requestedReviewers.push(rv.login);
-    });
+    .forEach(rv => allReviewers.add(rv.login));
   prReviews.data.forEach(datum => allReviewers.add(datum.user.login));
 
   allReviewers
