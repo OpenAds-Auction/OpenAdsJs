@@ -26,14 +26,14 @@ describe('pbjs - ortb videoCacheKey based on ext.openads', () => {
     expect(resp).to.eql({mediaType: 'banner'});
   });
 
-  it('sets videoCacheKey, vastUrl from ext.prebid.cache.vastXml', () => {
+  it('sets videoCacheKey, vastUrl from ext.openads.cache.vastXml', () => {
     sinon.assert.match(setCache(EXT_PREBID_CACHE), {
       videoCacheKey: 'id',
       vastUrl: 'url'
     });
   });
 
-  it('sets videoCacheKey, vastUrl from ext.prebid.targeting', () => {
+  it('sets videoCacheKey, vastUrl from ext.openads.targeting', () => {
     sinon.assert.match(setCache({
       ext: {
         openads: {

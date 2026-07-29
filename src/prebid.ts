@@ -106,6 +106,7 @@ declare module './prebidGlobal' {
      */
     delayPrerendering?: boolean
     adUnits: AdUnitDefinition[];
+    pageViewIdPerBidder: Map<string | null, string>
   }
 }
 
@@ -118,6 +119,7 @@ logInfo('OpenAds.js v$prebid.oaVersion$ based on Prebid.js v$prebid.version$ loa
 
 // create adUnit array
 pbjsInstance.adUnits = pbjsInstance.adUnits || [];
+pbjsInstance.pageViewIdPerBidder = pbjsInstance.pageViewIdPerBidder || new Map<string | null, string>();
 
 function validateSizes(sizes, targLength?: number) {
   let cleanSizes = [];
@@ -161,7 +163,7 @@ export function syncOrtb2(adUnit, mediaType) {
       deepSetValue(adUnit, `mediaTypes.${mediaType}.${key}`, ortbFieldValue);
     } else if (ortbFieldValue === undefined) {
       deepSetValue(adUnit, `ortb2Imp.${mediaType}.${key}`, mediaTypesFieldValue);
-    } else {
+    } else if (!deepEqual(mediaTypesFieldValue, ortbFieldValue)) {
       logWarn(`adUnit ${adUnit.code}: specifies conflicting ortb2Imp.${mediaType}.${key} and mediaTypes.${mediaType}.${key}, the latter will be ignored`, adUnit);
       deepSetValue(adUnit, `mediaTypes.${mediaType}.${key}`, ortbFieldValue);
     }
@@ -489,6 +491,7 @@ declare module './prebidGlobal' {
     processQueue: typeof processQueue;
     triggerBilling: typeof triggerBilling;
     generateTID: typeof generateTID;
+    refreshPageViewId: typeof refreshPageViewId;
   }
 }
 
@@ -1288,5 +1291,16 @@ function generateTID () {
   return tid;
 }
 addApiMethod('generateTID', generateTID);
+
+/**
+ * Refreshes the previously generated page view ID. Can be used to instruct bidders
+ * that use page view ID to consider future auctions as part of a new page load.
+ */
+function refreshPageViewId() {
+  for (const key of pbjsInstance.pageViewIdPerBidder.keys()) {
+    pbjsInstance.pageViewIdPerBidder.set(key, generateUUID());
+  }
+}
+addApiMethod('refreshPageViewId', refreshPageViewId);
 
 export default pbjsInstance;

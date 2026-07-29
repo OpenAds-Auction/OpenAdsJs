@@ -752,6 +752,7 @@ describe('S2S Adapter', function () {
         'auctionId': '173afb6d132ba3',
         'bidderRequestId': '3d1063078dfcc8',
         'tid': '437fbbf5-33f5-487a-8e16-a7112903cfe5',
+        'pageViewId': '84dfd20f-0a5a-4ac6-a86b-91569066d4f4',
         'bids': [
           {
             'bidder': 'appnexus',
@@ -2373,7 +2374,7 @@ describe('S2S Adapter', function () {
         };
         adapter.callBids(req, BID_REQUESTS, addBidResponse, done, ajax);
         const payload = JSON.parse(server.requests[0].requestBody);
-        const permissions = payload.ext.prebid?.data?.eidpermissions;
+        const permissions = payload.ext.openads?.data?.eidpermissions;
         if (permissions) {
           permissions.forEach(p => {
             expect(p.bidders).to.be.an('array').that.is.not.empty;
@@ -2499,7 +2500,7 @@ describe('S2S Adapter', function () {
       expect(requestBid.ext.openads.targeting.includewinners).to.equal(true);
     });
 
-    it('adds extPrebid s2sConfig video.ext.openads to request for ORTB', function () {
+    it('adds custom property in s2sConfig.extPrebid to request for ORTB', function () {
       const s2sConfig = Object.assign({}, CONFIG, {
         extPrebid: {
           foo: 'bar'
@@ -2561,7 +2562,7 @@ describe('S2S Adapter', function () {
       });
     });
 
-    it('overrides request.ext.openads properties using s2sConfig video.ext.openads values for ORTB', function () {
+    it('overrides request.ext.openads properties using s2sConfig.extPrebid values for ORTB', function () {
       const s2sConfig = Object.assign({}, CONFIG, {
         extPrebid: {
           targeting: {
@@ -2594,7 +2595,7 @@ describe('S2S Adapter', function () {
       });
     });
 
-    it('overrides request.ext.openads properties using s2sConfig video.ext.openads values for ORTB', function () {
+    it('overrides request.ext.openads properties and adds custom property from s2sConfig.extPrebid for ORTB', function () {
       const s2sConfig = Object.assign({}, CONFIG, {
         extPrebid: {
           cache: {
@@ -2895,6 +2896,21 @@ describe('S2S Adapter', function () {
       adapter.callBids(REQUEST, bidRequests, addBidResponse, done, ajax);
       const parsedRequestBody = JSON.parse(server.requests[0].requestBody);
       expect(parsedRequestBody.ext.openads.multibid).to.deep.equal(expected);
+    });
+
+    it('passes page view IDs per bidder in request', function () {
+      const clonedBidRequest = utils.deepClone(BID_REQUESTS[0]);
+      clonedBidRequest.bidderCode = 'some-other-bidder';
+      clonedBidRequest.pageViewId = '490a1cbc-a03c-429a-b212-ba3649ca820c';
+      const bidRequests = [BID_REQUESTS[0], clonedBidRequest];
+      const expected = {
+        appnexus: '84dfd20f-0a5a-4ac6-a86b-91569066d4f4',
+        'some-other-bidder': '490a1cbc-a03c-429a-b212-ba3649ca820c'
+      };
+
+      adapter.callBids(REQUEST, bidRequests, addBidResponse, done, ajax);
+      const parsedRequestBody = JSON.parse(server.requests[0].requestBody);
+      expect(parsedRequestBody.ext.openads.page_view_ids).to.deep.equal(expected);
     });
 
     it('sets and passes pbjs version in request if channel does not exist in s2sConfig', () => {
@@ -3615,7 +3631,7 @@ describe('S2S Adapter', function () {
         expect(response).to.have.property('cpm', 10);
       });
 
-      it('handles response cache from ext.prebid.cache.vastXml', function () {
+      it('handles response cache from ext.openads.cache.vastXml', function () {
         const s2sConfig = Object.assign({}, CONFIG, {
           endpoint: {
             p1Consent: 'https://prebidserverurl/openrtb2/auction?querystring=param'

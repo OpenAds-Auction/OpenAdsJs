@@ -196,18 +196,19 @@ describe('greedySetTimeout', () => {
       }, 10)
     });
 
-    it('can be cleared', (done) => {
-      let cbRan = false;
-      const handle = greedySetTimeout(() => {
-        cbRan = true;
-      }, 5);
-      setTimeout(() => {
+    it('can be cleared', () => {
+      const clock = sinon.useFakeTimers();
+      try {
+        let cbRan = false;
+        const handle = greedySetTimeout(() => {
+          cbRan = true;
+        }, 5);
         clearTimeout(handle);
-        setTimeout(() => {
-          expect(cbRan).to.be.false;
-          done()
-        }, 10)
-      }, 0)
+        clock.tick(10);
+        expect(cbRan).to.be.false;
+      } finally {
+        clock.restore();
+      }
     })
   })
 });
