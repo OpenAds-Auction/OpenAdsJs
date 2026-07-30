@@ -1,5 +1,9 @@
 name: Check for linter warnings / exceptions
 
+permissions:
+  pull-requests: write
+  contents: read
+
 on:
   pull_request_target:
     branches:

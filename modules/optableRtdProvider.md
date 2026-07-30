@@ -39,14 +39,15 @@ In order to use the module you first need to register with Optable and obtain a 
 This module is configured as part of the `realTimeData.dataProviders`.
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   debug: true, // we recommend turning this on for testing as it adds more logging
   realTimeData: {
     dataProviders: [
       {
         name: 'optable',
         params: {
-          adserverTargeting: '<optional, true by default, set to true to also set GAM targeting keywords to ad slots>',
+          adserverTargeting: true, // optional, true by default, set to true to also set GAM targeting keywords to ad slots
+          instance: window.optable.rtd.instance, // optional, defaults to window.optable.rtd.instance if not specified
         },
       },
     ],
@@ -56,12 +57,13 @@ pbjs.setConfig({
 
 ### Parameters
 
-| Name                     | Type     | Description                                                                                                                                                                                                                                                     | Default          | Notes    |
-|--------------------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|----------|
-| name                     | String   | Real time data module name                                                                                                                                                                                                                                      | Always `optable` |          |
-| params                   | Object   |                                                                                                                                                                                                                                                                 |                  |          |
-| params.adserverTargeting | Boolean  | If set to `true`, targeting keywords will be passed to the ad server upon auction completion                                                                                                                                                                    | `true`           | Optional |
-| params.handleRtd         | Function | An optional function that uses Optable data to enrich `reqBidsConfigObj` with the real-time data. If not provided, the module will do a default call to Optable bundle. The function signature is `[async] (reqBidsConfigObj, optableExtraData, mergeFn) => {}` | `null`           | Optional |
+| Name                     | Type     | Description                                                                                                                                                                                                                                                     | Default                    | Notes    |
+|--------------------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|----------|
+| name                     | String   | Real time data module name                                                                                                                                                                                                                                      | Always `optable`           |          |
+| params                   | Object   |                                                                                                                                                                                                                                                                 |                            |          |
+| params.adserverTargeting | Boolean  | If set to `true`, targeting keywords will be passed to the ad server upon auction completion                                                                                                                                                                    | `true`                     | Optional |
+| params.instance          | Object   | Optable SDK instance to use for targeting data.                                                                                                                                                                                                                 | `window.optable.rtd.instance`  | Optional |
+| params.handleRtd         | Function | An optional function that uses Optable data to enrich `reqBidsConfigObj` with the real-time data. If not provided, the module will do a default call to Optable bundle. The function signature is `[async] (reqBidsConfigObj, optableExtraData, mergeFn) => {}` | `null`                     | Optional |
 
 ## Publisher Customized RTD Handler Function
 
@@ -81,7 +83,7 @@ mergeFn(
 );
 ```
 
-A `handleRtd` function implementation has access to its surrounding context including capturing a `pbjs` object, calling `pbjs.getConfig()` and f.e. reading off the `consentManagement` config to make the appropriate decision based on it.
+A `handleRtd` function implementation has access to its surrounding context including capturing a `oajs` object, calling `oajs.getConfig()` and f.e. reading off the `consentManagement` config to make the appropriate decision based on it.
 
 ## Example
 
