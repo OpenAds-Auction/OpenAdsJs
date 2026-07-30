@@ -1,7 +1,7 @@
 <html>
 <head>
     <title>PubMatic RTD Provider Example</title>
-    <script async src="../../build/dev/prebid.js"></script>
+    <script async src="../../build/dev/openads.js"></script>
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
     <script>
         var FAILSAFE_TIMEOUT = 3300;
@@ -57,8 +57,8 @@
         ];
 
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
 
     </script>
@@ -73,8 +73,8 @@
         });
 
 
-        pbjs.que.push(function () {
-            pbjs.setConfig({
+        oajs.que.push(function () {
+            oajs.setConfig({
                 enableSendAllBids : true,
                 enableTIDs: true,
                 realTimeData: {
@@ -93,8 +93,8 @@
             })
 
 
-            pbjs.addAdUnits(adUnits);
-            pbjs.enableAnalytics({
+            oajs.addAdUnits(adUnits);
+            oajs.enableAnalytics({
                     provider: 'pubmatic',
                     options: {
                         "publisherId": 5890 // please contact PubMatic to get a publisherId for yourself
@@ -102,7 +102,7 @@
             });
 
 
-            pbjs.requestBids({
+            oajs.requestBids({
                 bidsBackHandler: sendAdserverRequest,
                 timeout: PREBID_TIMEOUT
             });
@@ -114,11 +114,11 @@
 
 
         function sendAdserverRequest() {
-            if (pbjs.adserverRequestSent) return;
-            pbjs.adserverRequestSent = true;
+            if (oajs.adserverRequestSent) return;
+            oajs.adserverRequestSent = true;
             googletag.cmd.push(function () {
-                pbjs.que.push(function () {
-                    pbjs.setTargetingForGPTAsync();
+                oajs.que.push(function () {
+                    oajs.setTargetingForGPTAsync();
                     googletag.pubads().refresh();
 
 
@@ -144,11 +144,11 @@
 
 
         function sendAdserverRequest() {
-            if (pbjs.adserverRequestSent) return;
-            pbjs.adserverRequestSent = true;
+            if (oajs.adserverRequestSent) return;
+            oajs.adserverRequestSent = true;
             googletag.cmd.push(function () {
-                pbjs.que.push(function () {
-                    pbjs.setTargetingForGPTAsync();
+                oajs.que.push(function () {
+                    oajs.setTargetingForGPTAsync();
                     googletag.pubads().refresh();
 
 

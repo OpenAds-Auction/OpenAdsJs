@@ -39,7 +39,7 @@ In order to use the module you first need to register with Optable and obtain a 
 This module is configured as part of the `realTimeData.dataProviders`.
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   debug: true, // we recommend turning this on for testing as it adds more logging
   realTimeData: {
     dataProviders: [
@@ -83,7 +83,7 @@ mergeFn(
 );
 ```
 
-A `handleRtd` function implementation has access to its surrounding context including capturing a `pbjs` object, calling `pbjs.getConfig()` and f.e. reading off the `consentManagement` config to make the appropriate decision based on it.
+A `handleRtd` function implementation has access to its surrounding context including capturing a `oajs` object, calling `oajs.getConfig()` and f.e. reading off the `consentManagement` config to make the appropriate decision based on it.
 
 ## Example
 
