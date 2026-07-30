@@ -12,7 +12,7 @@ import {VENDORLESS_GVLID} from "../src/consentHandler.js";
  */
 
 const MODULE_NAME = 'permutiveIdentityManagerId'
-const PERMUTIVE_ID_DATA_STORAGE_KEY = 'permutive-prebid-id'
+const PERMUTIVE_ID_DATA_STORAGE_KEY = 'permutive-oajs-id'
 
 const ID5_DOMAIN = 'id5-sync.com'
 const LIVERAMP_DOMAIN = 'liveramp.com'

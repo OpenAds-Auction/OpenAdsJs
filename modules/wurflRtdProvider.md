@@ -35,7 +35,7 @@ This module is configured as part of the `realTimeData.dataProviders`
 
 ```javascript
 var TIMEOUT = 1000;
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     auctionDelay: TIMEOUT,
     dataProviders: [
@@ -64,7 +64,7 @@ pbjs.setConfig({
 The WURFL RTD module supports A/B testing to measure the impact of WURFL enrichment on ad performance:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     auctionDelay: 1000,
     dataProviders: [

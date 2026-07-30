@@ -82,7 +82,7 @@ describe('permutiveRtdProvider', function () {
     })
 
     describe('identity manager gating', function () {
-      const idKey = 'permutive-prebid-id'
+      const idKey = 'permutive-oajs-id'
       const idPayload = { providers: { id5id: { userId: 'abc', expiryTime: Date.now() + 10000 } } }
 
       beforeEach(function () {
@@ -1023,7 +1023,7 @@ function getAdUnits () {
 }
 
 describe('permutiveIdentityManagerIdSystem', () => {
-  const STORAGE_KEY = 'permutive-prebid-id'
+  const STORAGE_KEY = 'permutive-oajs-id'
 
   afterEach(() => {
     storage.removeDataFromLocalStorage(STORAGE_KEY)
