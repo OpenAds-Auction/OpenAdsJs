@@ -528,7 +528,7 @@ describe('Rules Module', function() {
       const context1 = {
         ortb2: {
           ext: {
-            prebid: {
+            openads: {
               channel: 'pbjs'
             }
           }

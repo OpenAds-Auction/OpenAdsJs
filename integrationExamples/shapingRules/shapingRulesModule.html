@@ -1,10 +1,10 @@
 <html>
     <head>
-        <title>Prebid Test Bidder Example</title>
-        <script src="../../build/dev/prebid.js" async></script>
+        <title>OpenAds Test Bidder Example</title>
+        <script src="../../build/dev/openads.js" async></script>
         <script>
-            var pbjs = pbjs || {};
-            pbjs.que = pbjs.que || [];
+            var oajs = oajs || {};
+            oajs.que = oajs.que || [];
 
             const adUnitCode = 'adUnit-0000';
             const adUnitCode2 = 'adUnit-0000-2';
@@ -33,7 +33,7 @@
             },
         ]
 
-            pbjs.que.push(function () {
+            oajs.que.push(function () {
 
                 /**
                  * BID RESPONSE SIMULATION SECTION START
@@ -43,12 +43,12 @@
                  *
                  * This part should not be present in production.
                  */
-                pbjs.registerBidAdapter(null, 'testBidder', {
+                oajs.registerBidAdapter(null, 'testBidder', {
                     supportedMediaTypes: ['banner', 'video', 'native'],
                     isBidRequestValid: () => true
                 });
 
-                pbjs.setConfig({
+                oajs.setConfig({
                     ortb2: {
                         // this is where the contextual data is placed
                         device: {
@@ -143,15 +143,15 @@
                  * BID RESPONSE SIMULATION SECTION END
                  */
 
-                pbjs.addAdUnits(adUnits);
-                pbjs.requestBids({
+                oajs.addAdUnits(adUnits);
+                oajs.requestBids({
                     adUnitCodes: [adUnitCode],
                     bidsBackHandler: function(bidsReceived) {
                         console.log('Bids received: ', bidsReceived);
                     }
                 });
 
-                pbjs.requestBids({
+                oajs.requestBids({
                     adUnitCodes: [adUnitCode2],
                     bidsBackHandler: function(bidsReceived) {
                         console.log('Bids received: ', bidsReceived);
@@ -161,7 +161,7 @@
         </script>
     </head>
     <body>
-        <h2>Prebid Test Bidder Example</h2>
+        <h2>OpenAds Test Bidder Example</h2>
         <h5>Banner ad</h5>
         <div id="banner"></div>
     </body>
