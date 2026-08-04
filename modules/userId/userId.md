@@ -3,7 +3,7 @@
 Example showing `cookie` storage for user id data for each of the submodules
 
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         idPriority: {
             uid2: ['uid2', 'liveIntentId']
@@ -178,7 +178,7 @@ pbjs.setConfig({
 Example showing `localStorage` for user id data for some submodules
 
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: "33acrossId",
@@ -336,7 +336,7 @@ pbjs.setConfig({
 Example showing how to configure a `value` object to pass directly to bid adapters
 
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: "pubCommonId",
@@ -376,7 +376,7 @@ pbjs.setConfig({
 Example showing how to configure a `params` object to pass directly to bid adapters
 
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'tncId',
