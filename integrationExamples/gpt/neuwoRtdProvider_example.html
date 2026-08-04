@@ -356,7 +356,7 @@
         <h2>Accessing Neuwo Data in JavaScript</h2>
         <p>Listen to the <code>bidRequested</code> event to access the enriched ORTB2 data:</p>
         <pre style="background: #f4f4f4; padding: 10px; overflow-x: auto;">
-pbjs.onEvent("bidRequested", function(bidRequest) {
+oajs.onEvent("bidRequested", function(bidRequest) {
     const ortb2 = bidRequest.ortb2;
     const neuwoSiteData = ortb2?.site?.content?.data?.find(d => d.name === "www.neuwo.ai");
     const neuwoUserData = ortb2?.user?.data?.find(d => d.name === "www.neuwo.ai");
@@ -365,7 +365,7 @@ pbjs.onEvent("bidRequested", function(bidRequest) {
         </pre>
         <p>After clicking "Update", the Neuwo data is stored in the global <code>neuwoData</code> variable. Open
             Developer Tools Console to see the logged data.</p>
-        <p><strong>Note:</strong> Event timing tests for multiple Prebid.js events (auctionInit, bidRequested,
+        <p><strong>Note:</strong> Event timing tests for multiple OpenAds.js events (auctionInit, bidRequested,
             beforeBidderHttp, bidResponse, auctionEnd) are available in the page source code but are commented out. To
             enable them, uncomment the timing test section in the JavaScript code.</p>
     </div>
@@ -379,13 +379,13 @@ pbjs.onEvent("bidRequested", function(bidRequest) {
 
 <script type="text/javascript">
     // =====================================================
-    // Accessing Neuwo analysis results outside of Prebid.js
+    // Accessing Neuwo analysis results outside of OpenAds.js
     // Basic example using "bidRequested" event, which occurs early in the auction lifecycle and provides easy access to enriched data
     // =====================================================
     let neuwoData = null; // Global variable to store Neuwo data for later use
 
-    pbjs.que.push(function () {
-        pbjs.onEvent("bidRequested", function (bidRequest) {
+    oajs.que.push(function () {
+        oajs.onEvent("bidRequested", function (bidRequest) {
             console.log("=== Neuwo Data Access: bidRequested Event ===");
 
             // The ortb2 data is available directly on the bidRequest
@@ -450,7 +450,7 @@ pbjs.onEvent("bidRequested", function(bidRequest) {
 
     /*
     // =====================================================
-    // Examples and timing test of selected Prebid.js events
+    // Examples and timing test of selected OpenAds.js events
     // =====================================================
     let startTime = null;
     let eventOrder = 0;
@@ -486,12 +486,12 @@ pbjs.onEvent("bidRequested", function(bidRequest) {
         return { neuwoSiteData, neuwoUserData, hasData };
     }
 
-    pbjs.que.push(function () {
+    oajs.que.push(function () {
 
         // =====================================================
         // EVENT 1: auctionInit
         // =====================================================
-        pbjs.onEvent("auctionInit", function (auctionData) {
+        oajs.onEvent("auctionInit", function (auctionData) {
             eventOrder++;
             const time = (performance.now() - startTime).toFixed(2);
             console.log(`\n=== [${eventOrder}] auctionInit (${time}ms) ===`);
@@ -509,7 +509,7 @@ pbjs.onEvent("bidRequested", function(bidRequest) {
         // =====================================================
         // EVENT 2: bidRequested (fires per bidder)
         // =====================================================
-        pbjs.onEvent("bidRequested", function (bidderRequest) {
+        oajs.onEvent("bidRequested", function (bidderRequest) {
             eventOrder++;
             const time = (performance.now() - startTime).toFixed(2);
             console.log(`\n=== [${eventOrder}] bidRequested (${time}ms) - Bidder: ${bidderRequest.bidderCode} ===`);
@@ -521,7 +521,7 @@ pbjs.onEvent("bidRequested", function(bidRequest) {
         // =====================================================
         // EVENT 3: beforeBidderHttp
         // =====================================================
-        pbjs.onEvent("beforeBidderHttp", function (bidRequests) {
+        oajs.onEvent("beforeBidderHttp", function (bidRequests) {
             eventOrder++;
             const time = (performance.now() - startTime).toFixed(2);
             console.log(`\n=== [${eventOrder}] beforeBidderHttp (${time}ms) ===`);
@@ -543,7 +543,7 @@ pbjs.onEvent("bidRequested", function(bidRequest) {
         // =====================================================
         // EVENT 4: bidResponse
         // =====================================================
-        pbjs.onEvent("bidResponse", function (bidResponse) {
+        oajs.onEvent("bidResponse", function (bidResponse) {
             eventOrder++;
             const time = (performance.now() - startTime).toFixed(2);
             console.log(`\n=== [${eventOrder}] bidResponse (${time}ms) ===`);
@@ -560,7 +560,7 @@ pbjs.onEvent("bidRequested", function(bidRequest) {
         // =====================================================
         // EVENT 5: auctionEnd
         // =====================================================
-        pbjs.onEvent("auctionEnd", function (auctionData) {
+        oajs.onEvent("auctionEnd", function (auctionData) {
             eventOrder++;
             const time = (performance.now() - startTime).toFixed(2);
             console.log(`\n=== [${eventOrder}] auctionEnd (${time}ms) ===`);
