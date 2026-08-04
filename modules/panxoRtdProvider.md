@@ -23,7 +23,7 @@ gulp build --modules=rtdModule,panxoRtdProvider,...
 # Configuration
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         auctionDelay: 300,
         dataProviders: [{

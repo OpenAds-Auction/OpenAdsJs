@@ -87,7 +87,7 @@ describe('panxo RTD module', function () {
       expect(connectSpy.calledOnce).to.be.true;
 
       const args = connectSpy.getCall(0).args;
-      expect(args[0]).to.haveOwnProperty('cmd'); // pbjs global
+      expect(args[0]).to.haveOwnProperty('cmd'); // oajs global
       expect(args[0]).to.haveOwnProperty('que');
       expect(args[1]).to.be.equal(onImplMessage);
     });

@@ -9,7 +9,7 @@ LocID is a geospatial identifier provided by Digital Envoy. The endpoint is a pu
 ## Configuration
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   userSync: {
     userIds: [{
       name: 'locId',
@@ -237,8 +237,8 @@ When available, the LocID is exposed as:
 ## Debugging
 
 ```javascript
-pbjs.getUserIds().locId
-pbjs.refreshUserIds()
+oajs.getUserIds().locId
+oajs.refreshUserIds()
 localStorage.getItem('_locid')
 localStorage.getItem('_locid_ip')  // IP cache entry
 ```
