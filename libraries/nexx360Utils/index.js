@@ -1,5 +1,5 @@
 import { deepAccess, deepSetValue, logInfo } from '../../src/utils.js';
-import {Renderer} from '../../src/Renderer.js';
+import { Renderer } from '../../src/Renderer.js';
 import { getCurrencyFromBidderRequest } from '../ortb2Utils/currency.js';
 import { INSTREAM, OUTSTREAM } from '../../src/video.js';
 import { BANNER, NATIVE } from '../../src/mediaTypes.js';

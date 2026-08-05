@@ -603,7 +603,7 @@ describe('s2s configuration', () => {
   it('thetradedesk bidder param defaults are not set if no defaults configured', () => {
     expect(validateConfig(cfg1)[0].adapterOptions).to.not.exist;
 
-    cfg1.adapterOptions = {tester: {key: 'value'}}
+    cfg1.adapterOptions = { tester: { key: 'value' } }
     const res = validateConfig(cfg1)[0]
     expect(res.adapterOptions).to.exist;
     expect(res.adapterOptions.tester).to.exist;
@@ -613,7 +613,7 @@ describe('s2s configuration', () => {
   });
   it('thetradedesk bidder param defaults are set if defaults configured', () => {
     setTheTradeDeskParamDefaults('1', 'tester')
-    cfg2.adapterOptions = {tester: {key: 'value'}}
+    cfg2.adapterOptions = { tester: { key: 'value' } }
 
     const res = validateConfig([cfg1, cfg2])
     expect(res[0].adapterOptions).to.exist;
@@ -3528,12 +3528,12 @@ describe('S2S Adapter', function () {
     it('handles seatnonbid responses and emits SEAT_NON_BID set with extOpenAds', function () {
       const original = CONFIG;
       CONFIG.extOpenAds = { returnallbidstatus: true };
-      const nonbidResponse = {...RESPONSE_OPENRTB, ext: {seatnonbid: [{}]}};
+      const nonbidResponse = { ...RESPONSE_OPENRTB, ext: { seatnonbid: [{}] } };
       config.setConfig({ CONFIG });
       CONFIG = original;
       adapter.callBids(REQUEST, BID_REQUESTS, addBidResponse, done, ajax);
       const responding = deepClone(nonbidResponse);
-      Object.assign(responding.ext.seatnonbid, [{auctionId: 2}])
+      Object.assign(responding.ext.seatnonbid, [{ auctionId: 2 }])
       server.requests[0].respond(200, {}, JSON.stringify(responding));
       const event = events.emit.thirdCall.args;
       expect(event[0]).to.equal(EVENTS.SEAT_NON_BID);
