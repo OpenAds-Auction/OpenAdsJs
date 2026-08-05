@@ -37,7 +37,7 @@ describe('gamPredictionReport', function () {
   it('reads targeting from slot.getConfig targeting wrapper', () => {
     const sendData = sinon.spy();
     const slot = {
-      getConfig: sinon.stub().withArgs('targeting').returns({ targeting: { hb_bidder: ['test'] } }),
+      getConfig: sinon.stub().withArgs('targeting').returns({ targeting: { oa_bidder: ['test'] } }),
       getTargetingKeys: sinon.stub().throws(new Error('deprecated')),
       getTargeting: sinon.stub().throws(new Error('deprecated')),
       getSlotElementId: () => 'div-1',
@@ -53,7 +53,7 @@ describe('gamPredictionReport', function () {
   it('reads targeting from slot.getConfig flat object', () => {
     const sendData = sinon.spy();
     const slot = {
-      getConfig: sinon.stub().withArgs('targeting').returns({ hb_bidder: ['flat'] }),
+      getConfig: sinon.stub().withArgs('targeting').returns({ oa_bidder: ['flat'] }),
       getSlotElementId: () => 'div-2',
       getAdUnitPath: () => '/456'
     };
@@ -67,8 +67,8 @@ describe('gamPredictionReport', function () {
   it('reads targeting from legacy slot.getTargeting APIs when getConfig is missing', () => {
     const sendData = sinon.spy();
     const slot = {
-      getTargetingKeys: sinon.stub().returns(['hb_bidder']),
-      getTargeting: sinon.stub().withArgs('hb_bidder').returns(['legacy']),
+      getTargetingKeys: sinon.stub().returns(['oa_bidder']),
+      getTargeting: sinon.stub().withArgs('oa_bidder').returns(['legacy']),
       getSlotElementId: () => 'div-3',
       getAdUnitPath: () => '/789'
     };
@@ -84,7 +84,7 @@ describe('gamPredictionReport', function () {
   it('coerces non-array targeting values to string arrays', () => {
     const sendData = sinon.spy();
     const slot = {
-      getConfig: sinon.stub().withArgs('targeting').returns({ targeting: { hb_bidder: 42 } }),
+      getConfig: sinon.stub().withArgs('targeting').returns({ targeting: { oa_bidder: 42 } }),
       getSlotElementId: () => 'div-4',
       getAdUnitPath: () => '/101'
     };

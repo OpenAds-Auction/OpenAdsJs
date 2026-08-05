@@ -41,7 +41,7 @@ export function gamPredictionReport (gamObjectReference, sendData) {
       const dataToSend = {
         placementId: slot.getSlotElementId && slot.getSlotElementId(),
         adUnitPath: slot.getAdUnitPath && slot.getAdUnitPath(),
-        bidderCode: targeting.hb_bidder ? targeting.hb_bidder[0] : null,
+        bidderCode: targeting.oa_bidder ? targeting.oa_bidder[0] : null,
         biddingPlatformId: 5
       };
 
@@ -53,8 +53,8 @@ export function gamPredictionReport (gamObjectReference, sendData) {
             const element = bidWonEvents[i];
             if (
               dataToSend.placementId === element.id &&
-                            targeting.hb_adid &&
-                            targeting.hb_adid[0] === element.args.adId
+                            targeting.oa_adid &&
+                            targeting.oa_adid[0] === element.args.adId
             ) {
               return; // don't send report if there was bidWon event earlier
             }
