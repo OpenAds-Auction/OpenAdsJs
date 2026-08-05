@@ -440,10 +440,14 @@ describe('drawbridge module', () => {
 
     it('uses the last storage rule when several are present', () => {
       config.setConfig({ consentManagement: { gdpr: { rules: [{ purpose: 'storage', enforceVendor: false }] } } });
-      const host = cmHost({ gdpr: { rules: [
-        { purpose: 'storage', enforceVendor: true },
-        { purpose: 'storage', enforceVendor: false }   // last wins → matches oajs
-      ] } });
+      const host = cmHost({
+        gdpr: {
+          rules: [
+            { purpose: 'storage', enforceVendor: true },
+            { purpose: 'storage', enforceVendor: false }   // last wins → matches oajs
+          ]
+        }
+      });
       expect(hostGdprConsentAsOrMoreRestrictive(host)).to.be.true;
     });
 

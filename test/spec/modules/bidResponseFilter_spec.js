@@ -38,7 +38,7 @@ describe('bidResponseFilter', () => {
 
     it('should not run if not configured', () => {
       reset();
-      addBidResponse.call({dispatch}, 'au', {}, reject);
+      addBidResponse.call({ dispatch }, 'au', {}, reject);
       sinon.assert.notCalled(reject);
       sinon.assert.called(dispatch);
     });
@@ -47,7 +47,7 @@ describe('bidResponseFilter', () => {
       config.setConfig({
         bidResponseFilter: {}
       });
-      addBidResponse.call({dispatch}, 'au', {}, reject);
+      addBidResponse.call({ dispatch }, 'au', {}, reject);
       sinon.assert.called(reject);
       sinon.assert.notCalled(dispatch);
     })
@@ -274,7 +274,7 @@ describe('bidResponseFilter', () => {
       badv: ['domain2.com'], bcat: ['BANNED_CAT1', 'BANNED_CAT2']
     });
 
-    config.setConfig({[MODULE_NAME]: {cat: {enforce: false}}});
+    config.setConfig({ [MODULE_NAME]: { cat: { enforce: false } } });
 
     addBidResponseHook(call, 'adcode', bid, () => {
     }, mockAuctionIndex);
@@ -304,7 +304,7 @@ describe('bidResponseFilter', () => {
       ortb2Imp: {}
     })
 
-    config.setConfig({[MODULE_NAME]: {cat: {blockUnknown: false}}});
+    config.setConfig({ [MODULE_NAME]: { cat: { blockUnknown: false } } });
 
     addBidResponseHook(call, 'adcode', bid, () => {
     }, mockAuctionIndex);

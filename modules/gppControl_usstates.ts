@@ -1,10 +1,10 @@
-import {config} from '../src/config.js';
-import {setupRules} from '../libraries/mspa/activityControls.js';
-import {deepSetValue, prefixLog} from '../src/utils.js';
-import {DEFAULT_SID_MAPPING} from '../libraries/mspa/usSections.js';
+import { config } from '../src/config.js';
+import { setupRules } from '../libraries/mspa/activityControls.js';
+import { deepSetValue, prefixLog } from '../src/utils.js';
+import { DEFAULT_SID_MAPPING } from '../libraries/mspa/usSections.js';
 
 // re-exported for backwards compatibility; the canonical definition lives in libraries/mspa/usSections
-export {DEFAULT_SID_MAPPING};
+export { DEFAULT_SID_MAPPING };
 
 const FIELDS = {
   Version: 0,
@@ -33,7 +33,7 @@ const FIELDS = {
  * List fields are also copied, but forced to the "correct" length (by truncating or padding with nulls);
  * additionally, elements within them can be moved around using the `move` argument.
  */
-export function normalizer({nullify = [], move = {}, fn}: {
+export function normalizer({ nullify = [], move = {}, fn }: {
   /**
    * list of fields to force to null
    */
@@ -112,8 +112,8 @@ export const NORMALIZATIONS = {
       }
     }
   }),
-  9: normalizer({fn: scalarMinorsAreChildren}),
-  10: normalizer({fn: scalarMinorsAreChildren}),
+  9: normalizer({ fn: scalarMinorsAreChildren }),
+  10: normalizer({ fn: scalarMinorsAreChildren }),
   11: normalizer({
     move: {
       SensitiveDataProcessing: {
@@ -142,7 +142,7 @@ export const NORMALIZATIONS = {
 
 export const getSections = (() => {
   const allSIDs = Object.keys(DEFAULT_SID_MAPPING).map(Number);
-  return function ({sections = {}, sids = allSIDs} = {}) {
+  return function ({ sections = {}, sids = allSIDs } = {}) {
     return sids.map(sid => {
       const logger = prefixLog(`Cannot set up MSPA controls for SID ${sid}:`);
       const ov = sections[sid] || {};
