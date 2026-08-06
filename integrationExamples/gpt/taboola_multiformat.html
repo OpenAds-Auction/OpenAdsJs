@@ -78,7 +78,7 @@
             };
         })();
     </script>
-    <script async src="../../build/dev/prebid.js"></script>
+    <script async src="../../build/dev/openads.js"></script>
     <style>
         .debug-panel {
             background: #1d2021;
@@ -137,7 +137,7 @@
         .render-status.error   { background: #1d2021; color: #fb4934; border-color: #fb4934; }
     </style>
     <script>
-        var PREBID_TIMEOUT = 5000;
+        var OAJS_TIMEOUT = 5000;
 
         var adUnits = [
             // 1. Banner-only ad unit
@@ -208,8 +208,8 @@
             }
         ];
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
     </script>
 
@@ -353,7 +353,7 @@
                 iframe.setAttribute('srcdoc', document.getElementById('native-template').innerHTML);
                 container.appendChild(iframe);
                 iframe.onload = function () {
-                    pbjs.renderAd(iframe.contentDocument, bid.adId);
+                    oajs.renderAd(iframe.contentDocument, bid.adId);
                     setTimeout(function () {
                         try {
                             iframe.height = iframe.contentDocument.body.scrollHeight;
@@ -364,21 +364,21 @@
                 iframe.width = bid.width || 300;
                 iframe.height = bid.height || 250;
                 container.appendChild(iframe);
-                pbjs.renderAd(iframe.contentWindow.document, bid.adId);
+                oajs.renderAd(iframe.contentWindow.document, bid.adId);
             }
         }
 
-        pbjs.que.push(function () {
-            pbjs.setConfig({
+        oajs.que.push(function () {
+            oajs.setConfig({
                 ortb2: {
                     ext: {
                         taboolaDebug: true
                     }
                 }
             });
-            pbjs.addAdUnits(adUnits);
+            oajs.addAdUnits(adUnits);
 
-            pbjs.requestBids({
+            oajs.requestBids({
                 bidsBackHandler: function (bids) {
                     console.log('All bids back:', bids);
                     console.log('XHR log:', xhrLog);
@@ -441,7 +441,7 @@
                         });
                     }, 1500);
                 },
-                timeout: PREBID_TIMEOUT
+                timeout: OAJS_TIMEOUT
             });
         });
 

@@ -1128,8 +1128,8 @@ describe('targeting tests', function () {
     describe('bidTargetingExclusion', function () {
       it('includes all bids in targeting when bidTargetingExclusion is not set', function () {
         const targeting = targetingInstance.getAllTargeting(['/123456/header-bid-tag-0']);
-        expect(targeting['/123456/header-bid-tag-0']['hb_adid']).to.equal(bid1.adId);
-        expect(targeting['/123456/header-bid-tag-0']['hb_pb']).to.equal('0.53');
+        expect(targeting['/123456/header-bid-tag-0']['oa_adid']).to.equal(bid1.adId);
+        expect(targeting['/123456/header-bid-tag-0']['oa_pb']).to.equal('0.53');
       });
 
       it('includes bid in targeting when bidTargetingExclusion returns true for that bid', function () {
@@ -1137,8 +1137,8 @@ describe('targeting tests', function () {
           bidTargetingExclusion: (bid) => bid.cpm >= 0.5
         });
         const targeting = targetingInstance.getAllTargeting(['/123456/header-bid-tag-0']);
-        expect(targeting['/123456/header-bid-tag-0']['hb_adid']).to.equal(bid1.adId);
-        expect(targeting['/123456/header-bid-tag-0']['hb_pb']).to.equal('0.53');
+        expect(targeting['/123456/header-bid-tag-0']['oa_adid']).to.equal(bid1.adId);
+        expect(targeting['/123456/header-bid-tag-0']['oa_pb']).to.equal('0.53');
         config.resetConfig();
       });
 
@@ -1148,8 +1148,8 @@ describe('targeting tests', function () {
         });
         // Pass bidsReceived so both bid1 and bid2 are in the pool (getBidsReceived() returns only one per bidder per ad unit)
         const targeting = targetingInstance.getAllTargeting(['/123456/header-bid-tag-0'], undefined, bidsReceived);
-        expect(targeting['/123456/header-bid-tag-0']['hb_adid']).to.equal(bid2.adId);
-        expect(targeting['/123456/header-bid-tag-0']['hb_pb']).to.equal('0.25');
+        expect(targeting['/123456/header-bid-tag-0']['oa_adid']).to.equal(bid2.adId);
+        expect(targeting['/123456/header-bid-tag-0']['oa_pb']).to.equal('0.25');
         config.resetConfig();
       });
 
@@ -1161,8 +1161,8 @@ describe('targeting tests', function () {
         const targeting = targetingInstance.getAllTargeting(['/123456/header-bid-tag-0', '/123456/header-bid-tag-1'], undefined, bidsReceived);
         expect(targeting).to.contain.key('/123456/header-bid-tag-0');
         expect(targeting).to.contain.key('/123456/header-bid-tag-1');
-        expect(targeting['/123456/header-bid-tag-0']).to.not.contain.key('hb_adid');
-        expect(targeting['/123456/header-bid-tag-1']).to.not.contain.key('hb_adid');
+        expect(targeting['/123456/header-bid-tag-0']).to.not.contain.key('oa_adid');
+        expect(targeting['/123456/header-bid-tag-1']).to.not.contain.key('oa_adid');
         config.resetConfig();
       });
 
@@ -1175,8 +1175,8 @@ describe('targeting tests', function () {
         });
         // tag-0 has bid1 and bid2 (2 bids), tag-1 has bid3 only (1 bid) → only tag-0 bids included
         const targeting = targetingInstance.getAllTargeting(['/123456/header-bid-tag-0', '/123456/header-bid-tag-1'], undefined, bidsReceived);
-        expect(targeting['/123456/header-bid-tag-0']['hb_adid']).to.equal(bid1.adId);
-        expect(targeting['/123456/header-bid-tag-1']).to.not.contain.key('hb_adid');
+        expect(targeting['/123456/header-bid-tag-0']['oa_adid']).to.equal(bid1.adId);
+        expect(targeting['/123456/header-bid-tag-1']).to.not.contain.key('oa_adid');
         config.resetConfig();
       });
 
@@ -1191,8 +1191,8 @@ describe('targeting tests', function () {
           }
         });
         const targeting = targetingInstance.getAllTargeting(['/123456/header-bid-tag-0'], undefined, bidsReceived);
-        expect(targeting['/123456/header-bid-tag-0']['hb_adid']).to.equal(bid2.adId);
-        expect(targeting['/123456/header-bid-tag-0']['hb_pb']).to.equal('0.25');
+        expect(targeting['/123456/header-bid-tag-0']['oa_adid']).to.equal(bid2.adId);
+        expect(targeting['/123456/header-bid-tag-0']['oa_pb']).to.equal('0.25');
         expect(logWarnStub.calledOnce).to.be.true;
         expect(logWarnStub.firstCall.args[0]).to.include('Error in bidTargetingExclusion function');
         expect(logWarnStub.firstCall.args[0]).to.include('rubicon');
