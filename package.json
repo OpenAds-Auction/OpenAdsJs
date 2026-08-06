@@ -1,6 +1,6 @@
 {
   "name": "openads.js",
-  "version": "10.29.0",
+  "version": "10.29.1",
   "oaVersion": "1.9.0",
   "description": "Header Bidding Management Library",
   "main": "dist/src/prebid.public.ts",
