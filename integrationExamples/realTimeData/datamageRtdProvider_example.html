@@ -44,13 +44,13 @@
         }
     </script>
 
-    <script async src="../../build/dev/prebid.js"></script>
+    <script async src="../../build/dev/openads.js"></script>
 
     <script>
-        var pbjs = window.pbjs = window.pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = window.oajs = window.oajs || {};
+        oajs.que = oajs.que || [];
 
-        var PREBID_TIMEOUT = 1500;
+        var OAJS_TIMEOUT = 1500;
 
         var adUnits = [{
             code: 'div-gpt-ad-1771335974713-0',
@@ -61,8 +61,8 @@
             }]
         }];
 
-        pbjs.que.push(function () {
-            pbjs.setConfig({
+        oajs.que.push(function () {
+            oajs.setConfig({
                 debug: true,
 
                 consentManagement: {
@@ -103,12 +103,12 @@
                 }
             });
 
-            pbjs.addAdUnits(adUnits);
+            oajs.addAdUnits(adUnits);
 
-            pbjs.requestBids({
+            oajs.requestBids({
                 bidsBackHandler: function () {
-                    // Push standard header bidding keys (like hb_pb) to GPT
-                    pbjs.setTargetingForGPTAsync();
+                    // Push standard header bidding keys (like oa_pb) to GPT
+                    oajs.setTargetingForGPTAsync();
 
                     // Dump targeting to verify Datamage was successfully pushed via setConfig
                     dumpGptTargeting('[before refresh]');
@@ -123,7 +123,7 @@
                         }
                     });
                 },
-                timeout: PREBID_TIMEOUT
+                timeout: OAJS_TIMEOUT
             });
         });
     </script>
