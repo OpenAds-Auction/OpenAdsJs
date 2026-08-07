@@ -13,6 +13,73 @@ This README is for developers who want to contribute to OpenAds.js.
 - [Run](#Run)
 - [Contribute](#Contribute)
 
+<a name="Usage"></a>
+
+## Usage (as a npm dependency)
+
+**Note**: versions prior to v10 required some Babel plugins to be configured when used as an NPM dependency -
+refer to [v9 README](https://github.com/prebid/Prebid.js/blob/9.43.0/README.md). See also [customize build options](#customize-options)
+
+```javascript
+import oajs from 'openads.js';
+import 'openads.js/modules/rubiconBidAdapter'; // imported modules will register themselves automatically with prebid
+import 'openads.js/modules/appnexusBidAdapter';
+oajs.processQueue();  // required to process existing oajs.queue blocks and setup any further oajs.queue execution
+
+oajs.requestBids({
+  ...
+})
+```
+
+You can import just type definitions for every module from `types.d.ts`, and for the `oajs` global from `global.d.ts`:
+
+```typescript
+import 'openads.js/types.d.ts';
+import 'openads.js/global.d.ts';
+oajs.que.push(/* ... */)
+```
+
+Or, if your Prebid bundle uses a different global variable name:
+
+```typescript
+import type {PrebidJS} from 'openads.js/types.d.ts';
+declare global {
+    interface Window {
+        myCustomPrebidGlobal: PrebidJS;
+    }
+}
+```
+
+### TypeScript configuration
+
+Prebid's type definitions require TypeScript 5.6 or later, and the following `tsconfig.json` options:
+
+| Option | Value |
+| ------ | ----- |
+| `moduleResolution` | `bundler`, `node16`, or `nodenext`, with a `module` that is valid for it |
+| `target` | `ES2015` or later |
+| `lib` | if you set it explicitly, it must include `DOM` and `ES2015` or later; the default for the targets above already includes both |
+
+`moduleResolution: node10` is not supported - note that it is the default when `module` is `commonjs`.
+
+Installing `@types/google-publisher-tag` improves type checking where Prebid's types refer to GPT ad
+slots, such as the argument to `customGptSlotMatching`.
+
+<a id="customize-options"></a>
+
+### Customize build options
+
+Prebid.js allows you to set the following build options:
+
+| Name | Type | Description | Default | 
+| ---- | ---- | ----------- | ------- |
+| globalVarName | String | Prebid global variable name | `"oajs"` | 
+| defineGlobal | Boolean | If false, do not set a global variable | `true` | 
+| distUrlBase |  String | Base URL to use for dynamically loaded modules (e.g. debugging-standalone.js) | `"https://cdn.jsdelivr.net/npm/prebid.js/dist/chunks/"` |
+
+These options can be customized via the webpack loader or the Rollup-compatible plugin.
+For details and examples, see [Customize build options](customize/README.md).
+
 <a name="Install"></a>
 
 ## Install
