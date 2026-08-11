@@ -37,7 +37,7 @@ gulp build --modules=abtshieldIdSystem,userId
 The following configuration parameters are available:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   userSync: {
     userIds: [{
       name: 'abtshieldId',

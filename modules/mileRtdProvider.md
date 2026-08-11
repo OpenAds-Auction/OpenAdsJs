@@ -45,7 +45,7 @@ slot.setTargeting("mile_rtd", "segA_floorHigh");
 Use the RTD module with provider name `mile`:
 
 ```js
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     dataProviders: [
       {
