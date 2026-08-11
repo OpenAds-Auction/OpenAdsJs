@@ -32,7 +32,7 @@ This module is configured as part of the `realTimeData.dataProviders` object.
 ### Example
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
         "realTimeData": {
              "dataProviders": [
                 {

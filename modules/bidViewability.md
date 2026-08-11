@@ -8,7 +8,7 @@ Maintainer: harshad.mane@pubmatic.com
 
 # Description
 - This module, when included, will trigger a BID_VIEWABLE event which can be consumed by Analytics adapters, bidders will need to implement the `onBidViewable` method to capture this event
-- Bidders can check if this module is part of the final build and whether it is enabled or not by accessing ```pbjs.getConfig('bidViewability')```
+- Bidders can check if this module is part of the final build and whether it is enabled or not by accessing ```oajs.getConfig('bidViewability')```
 - GPT API is used to find when a bid is viewable, https://developers.google.com/publisher-tag/reference#googletag.events.impressionviewableevent . This event is fired when an impression becomes viewable, according to the Active View criteria.
 Refer: https://support.google.com/admanager/answer/4524488
 - This module does not work with any adserver's other than GAM with GPT integration
@@ -23,7 +23,7 @@ Refer: https://support.google.com/admanager/answer/4524488
 
 # Example of consuming BID_VIEWABLE event
 ```
-	pbjs.onEvent('bidViewable', function(bid){
+	oajs.onEvent('bidViewable', function(bid){
 		console.log('got bid details in bidViewable event', bid);
 	});
 
@@ -31,7 +31,7 @@ Refer: https://support.google.com/admanager/answer/4524488
 
 # Example of using config
 ```
-	pbjs.setConfig({
+	oajs.setConfig({
         bidViewability: {
             enabled: true,
             firePixels: true,

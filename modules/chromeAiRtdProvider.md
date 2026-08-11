@@ -29,7 +29,7 @@ gulp build --modules=rtdModule,chromeAiRtdProvider
 Add the Chrome AI RTD Provider to your Prebid.js configuration:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     dataProviders: [{
       name: 'chromeAi',
@@ -44,7 +44,7 @@ pbjs.setConfig({
 Configure language detection and summarization with additional options:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     dataProviders: [{
       name: 'chromeAi',
@@ -134,7 +134,7 @@ If `waitForIt: true` is set in the RTD config, the auction will be delayed until
 ### Standard Implementation
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     dataProviders: [{
       name: 'chromeAi',
@@ -147,7 +147,7 @@ pbjs.setConfig({
 ### Disable Language Detection for Specific Sites
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     dataProviders: [{
       name: 'chromeAi',
@@ -164,7 +164,7 @@ pbjs.setConfig({
 ### Higher Confidence Requirement for Language Detection
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     dataProviders: [{
       name: 'chromeAi',
@@ -183,7 +183,7 @@ pbjs.setConfig({
 ### Enable Summarizer with Custom Settings
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     dataProviders: [{
       name: 'chromeAi',
@@ -210,7 +210,7 @@ pbjs.setConfig({
 The Chrome AI RTD Provider is compatible with other Prebid.js modules and can be used alongside other RTD providers:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     dataProviders: [
       {

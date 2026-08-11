@@ -6,7 +6,7 @@ For assistance setting up your module please contact us at [prebid@idx.lat](preb
 
 Individual params may be set for the IDx Submodule.
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'idx',

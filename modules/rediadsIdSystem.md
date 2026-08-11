@@ -13,7 +13,7 @@ gulp build --modules=userId,rediadsIdSystem
 ### Example Configuration
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   userSync: {
     userIds: [{
       name: 'rediadsId',

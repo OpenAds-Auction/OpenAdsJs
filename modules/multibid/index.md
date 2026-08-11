@@ -16,7 +16,7 @@ Allowing a single bidder to multi-bid into an auction has several use cases:
 
 # Example of using config
 ```
-    pbjs.setConfig({
+    oajs.setConfig({
         multibid: [{
             bidder: "bidderA",
             maxBids: 3,

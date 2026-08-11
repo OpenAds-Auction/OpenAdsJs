@@ -33,7 +33,7 @@ The Symitri Data Activation Platform (DAP) is a privacy-first system that protec
 ### Configuration
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     auctionDelay: 2000,
     dataProviders: [

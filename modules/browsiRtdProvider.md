@@ -12,7 +12,7 @@ Compile the Browsi RTD Provider into your Prebid build:
 
 Configuration example for using RTD module with `browsi` provider
 ```javascript
-    pbjs.setConfig({
+    oajs.setConfig({
         "realTimeData": {
             "auctionDelay": 1000,
             dataProviders:[{

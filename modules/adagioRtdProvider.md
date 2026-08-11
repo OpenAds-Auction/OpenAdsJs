@@ -23,7 +23,7 @@ gulp build --modules=adagioBidAdapter,rtdModule,adagioRtdProvider
 ```
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     dataProviders:[{
       name: 'adagio',

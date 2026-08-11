@@ -6,7 +6,7 @@ For assistance setting up your module please contact us at [ps-team@taboola.com]
 
 Individual params may be set for the Taboola Submodule.
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'taboolaId',
@@ -27,7 +27,7 @@ The below parameters apply only to the Taboola integration.
    gulp build --modules=userId,taboolaIdSystem,[otherModules]
  2. In your Prebid config, enable the Taboola ID submodule:
 ```
-   pbjs.setConfig({
+   oajs.setConfig({
         userSync: {
           userIds: [
             {

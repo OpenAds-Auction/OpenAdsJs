@@ -5,7 +5,7 @@ Module that enables SmartyAds analytics
 ### Configuration
 
 ```javascript
-    pbjs.enableAnalytics({
+    oajs.enableAnalytics({
         provider: 'smartyads'
     });
 ```

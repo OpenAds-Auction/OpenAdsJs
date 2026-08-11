@@ -18,10 +18,10 @@ You need to obtain a company ID from [Audienzz](https://audienzz.com) for the mo
   gulp build --modules='rtdModule,semantiqRtdProvider,...'
   ```
 
-1. Configure the module via `pbjs.setConfig`.
+1. Configure the module via `oajs.setConfig`.
 
   ```js
-  pbjs.setConfig({
+  oajs.setConfig({
     ...
     realTimeData: {
       dataProviders: [

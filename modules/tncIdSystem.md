@@ -17,7 +17,7 @@ Disclosure: This module loads external script unreviewed by the prebid.js commun
 You can configure this submodule in your `userSync.userIds[]` configuration:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'tncId',

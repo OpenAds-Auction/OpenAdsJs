@@ -24,7 +24,7 @@ gulp build --modules=rtdModule,oneKeyRtdProvider
 to load a Prebid Config containing a `realTimeData.dataProviders` array:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     ...,
     realTimeData: {
       auctionDelay: 100,

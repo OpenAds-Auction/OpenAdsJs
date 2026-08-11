@@ -64,7 +64,7 @@ To get started, you can generate your API token at [https://neuwo.ai/generatetok
 This module is configured as part of the `realTimeData.dataProviders` object.
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     auctionDelay: 500, // Value can be adjusted based on the needs. Recommended to start with value `500`
     dataProviders: [
@@ -148,7 +148,7 @@ The module provides optional URL cleaning capabilities to strip query parameters
 **Example with URL cleaning:**
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     auctionDelay: 500, // Value can be adjusted based on the needs. Recommended to start with value `500`
     dataProviders: [
@@ -203,7 +203,7 @@ Each tier can have two optional parameters:
 **Example with IAB taxonomy filtering:**
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     auctionDelay: 500, // Value can be adjusted based on the needs. Recommended to start with value `500`
     dataProviders: [
@@ -255,8 +255,8 @@ The Neuwo RTD module enriches bid requests with contextual data that can be acce
 Listen to the `bidRequested` event to access the enriched ORTB2 data. This event fires early in the auction lifecycle and provides direct access to the Neuwo data:
 
 ```javascript
-pbjs.que.push(function () {
-  pbjs.onEvent("bidRequested", function (bidRequest) {
+oajs.que.push(function () {
+  oajs.onEvent("bidRequested", function (bidRequest) {
     // The ortb2 data is available directly on the bidRequest
     const ortb2 = bidRequest.ortb2;
 

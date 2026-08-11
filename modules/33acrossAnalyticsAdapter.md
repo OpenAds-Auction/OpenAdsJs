@@ -58,7 +58,7 @@ and options as seen in the example below.
 #### Example Configuration
 
 ```js
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
     provider: '33across',
     options: {
         /**

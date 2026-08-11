@@ -23,7 +23,7 @@ Add it to your Prebid.js package with:
 #### Tapad ID Example
 
 ```js
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [
             {

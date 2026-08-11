@@ -26,7 +26,7 @@ gulp build --modules=...,id5AnalyticsAdapter
 The following configuration parameters are available:
 
 ```javascript
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
     provider: 'id5Analytics',
     options: {
         partnerId: 1234, // change to the Partner Number you received from ID5

@@ -13,8 +13,8 @@ Retrieve the Lotame Panorama Id
 # Usage
 
 ```
- pbjs.que.push(function() {
-    pbjs.setConfig({                
+ oajs.que.push(function() {
+    oajs.setConfig({                
         usersync: {
             userIds: [
                 {

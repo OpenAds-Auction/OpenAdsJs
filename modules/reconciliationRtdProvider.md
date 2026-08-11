@@ -20,7 +20,7 @@ const reconciliationDataProvider = {
     }
 };
 
-pbjs.setConfig({
+oajs.setConfig({
     ...,
     realTimeData: {
       dataProviders: [

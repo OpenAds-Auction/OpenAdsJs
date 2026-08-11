@@ -13,7 +13,7 @@ gulp build --modules=rtdModule,brandmetricsRtdProvider
 Enable the Brandmetrics RTD in your Prebid configuration, using the below format:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   ...,
   realTimeData: {
     auctionDelay: 500,

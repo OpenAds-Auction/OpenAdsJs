@@ -14,7 +14,7 @@ gulp build --modules=imuIdSystem,userId
 The following configuration parameters are available:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   userSync: {
     ppid: 'ppid.intimatemerger.com', // GAM Publisher Provided id support
     userIds: [{

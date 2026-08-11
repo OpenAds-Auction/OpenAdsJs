@@ -8,7 +8,7 @@ Maintainer: demand-manager-support@magnite.com
 
 ## How to configure?
 ```
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
     provider: 'magnite',
     options: {
         accountId: 12345, // The account id assigned to you by the Magnite Team

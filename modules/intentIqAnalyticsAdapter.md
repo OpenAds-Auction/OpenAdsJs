@@ -41,7 +41,7 @@ No registration for this module is required.
 #### Example Configuration
 
 ```js
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
   provider: "iiqAnalytics",
   options: {
     partner: 1177538,

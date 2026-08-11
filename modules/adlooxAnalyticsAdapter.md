@@ -14,7 +14,7 @@ This module can be used to track:
  * Native
  * Video (see below for further instructions)
 
-The adapter adds an HTML `<script>` tag to load Adloox's post-buy verification JavaScript (`https://j.adlooxtracking.com/ads/js/tfav_adl_X.js` at ~25kiB gzipped) when the [`bidWon` event](https://docs.prebid.org/dev-docs/publisher-api-reference.html#module_pbjs.onEvent) is fired for each ad slot.
+The adapter adds an HTML `<script>` tag to load Adloox's post-buy verification JavaScript (`https://j.adlooxtracking.com/ads/js/tfav_adl_X.js` at ~25kiB gzipped) when the [`bidWon` event](https://docs.prebid.org/dev-docs/publisher-api-reference.html#module_oajs.onEvent) is fired for each ad slot.
 
 ## Video
 
@@ -70,7 +70,7 @@ The main Prebid.js documentation is a bit opaque on this but you can use the fol
 
 # Integration
 
-    pbjs.enableAnalytics({
+    oajs.enableAnalytics({
       provider: 'adloox',
       options: {
         //toselector: function(bid) { return '#' + bid.adUnitCode },
@@ -85,7 +85,7 @@ The options `client`, `clientid`, `platformid` and `tagid` are supplied by Adloo
 
 ### `toselector` Option
 
-For non-GPT integrations, the module expects the value of `adUnitCode` from the [bid object](https://docs.prebid.org/dev-docs/publisher-api-reference.html#module_pbjs.getBidResponses) to match the div ID of the unit to facilitate measurements made against it.
+For non-GPT integrations, the module expects the value of `adUnitCode` from the [bid object](https://docs.prebid.org/dev-docs/publisher-api-reference.html#module_oajs.getBidResponses) to match the div ID of the unit to facilitate measurements made against it.
 
 **N.B.** for GPT integrations the div ID is automatically discovered and you should *not* use this option
 
@@ -99,7 +99,7 @@ The Adloox 'Impression JavaScript Tag Integration Guidelines' provide details on
 
 For example, you have a number of reporting breakdown slots available in the form of `id{1->10}` that are configurable with:
 
-    pbjs.enableAnalytics({
+    oajs.enableAnalytics({
       provider: 'adloox',
       options: {
         client: 'adlooxtest',
@@ -133,7 +133,7 @@ The following macros are available
 
 ### Functions
 
-You may also supply a function to dynamically generate the value of the parameter from the bid response; the function is passed a single argument that corresponds to the [BidResponse](https://docs.prebid.org/dev-docs/publisher-api-reference.html#module_pbjs.getBidResponses) object seen at the `bidWon` event.
+You may also supply a function to dynamically generate the value of the parameter from the bid response; the function is passed a single argument that corresponds to the [BidResponse](https://docs.prebid.org/dev-docs/publisher-api-reference.html#module_oajs.getBidResponses) object seen at the `bidWon` event.
 
 You can look to the default `params` section above for examples of how to use this.
 

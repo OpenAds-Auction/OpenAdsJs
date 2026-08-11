@@ -25,7 +25,7 @@ Use `setConfig` to instruct Prebid.js to initialize the 152media RTD module, as 
 
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
    "realTimeData":{
       "auctionDelay":500, // Recommended value
       "dataProviders":[

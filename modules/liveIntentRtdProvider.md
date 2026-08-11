@@ -34,7 +34,7 @@ gulp build --modules=userId,liveIntentIdSystem,rtdModule,liveIntentRtdProvider
 ```
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     dataProviders:[{
       name: 'liveintent',

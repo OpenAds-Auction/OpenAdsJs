@@ -28,7 +28,7 @@ The AEE returns opaque codes (e.g., "x82s") that instruct GAM which line items s
 ### Basic Configuration
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     auctionDelay: 1000,
     dataProviders: [
@@ -345,7 +345,7 @@ params: {
 Minimal setup with defaults:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     dataProviders: [
       {

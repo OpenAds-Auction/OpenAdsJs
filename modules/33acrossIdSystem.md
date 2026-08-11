@@ -7,7 +7,7 @@ For help adding this submodule, please contact [PrebidUIM@33across.com](PrebidUI
 You can configure this submodule in your `userSync.userIds[]` configuration:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   userSync: {
     userIds: [
       {

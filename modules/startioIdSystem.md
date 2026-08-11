@@ -17,7 +17,7 @@ gulp build --modules=startioBidAdapter,userId,startioIdSystem,consentManagementT
 To enable iframe-based user syncing for Start.io, include the `filterSettings` configuration in your `userSync` setup:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'startioId',

@@ -15,7 +15,7 @@ gulp build --modules=growthCodeIdSystem,growthCodeAnalyticsAdapter,userId
 The following configuration parameters are available:
 
 ```javascript
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
   provider: 'growthCodeAnalytics',
   options: {
     pid: '<Contact GrowthCode>',

@@ -28,7 +28,7 @@ gulp build --modules=a1MediaRtdProvider,...
 ### Configuration
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         auctionDelay: 1000,
         dataProviders: [

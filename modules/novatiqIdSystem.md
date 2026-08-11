@@ -13,7 +13,7 @@ gulp build --modules=novatiqIdSystem,userId
 Module activation and configuration:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   userSync: {
     userIds: [{
       name: 'novatiq',
@@ -57,7 +57,7 @@ gulp build --modules=novatiqIdSystem,userId,pubCommonId
 Module activation and configuration:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   userSync: {
     userIds: [
       {

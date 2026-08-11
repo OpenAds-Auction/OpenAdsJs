@@ -15,7 +15,7 @@
 ### Configuration
 
 ```
-  pbjs.enableAnalytics({
+  oajs.enableAnalytics({
 				provider: 'symitri',
 				options: {
 					'apiAuthToken': '<see your Symitri account rep>'

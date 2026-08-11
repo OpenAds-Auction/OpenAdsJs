@@ -27,11 +27,11 @@ Compile the Weborama RTD module into your Prebid build:
 Add the Weborama RTD provider to your Prebid config, use the configuration template below:
 
 ```javascript
-var pbjs = pbjs || {};
-pbjs.que = pbjs.que || [];
+var oajs = oajs || {};
+oajs.que = oajs.que || [];
 
-pbjs.que.push(function () {
-    pbjs.setConfig({
+oajs.que.push(function () {
+    oajs.setConfig({
         debug: true, // Output debug messages to the web console, *should* be disabled in production
         realTimeData: {
             auctionDelay: 1000,
@@ -52,7 +52,7 @@ pbjs.que.push(function () {
 The module configuration has 3 independent sections (`weboCtxConf`, `weboUserDataConf` and `sfbxLiteDataConf`), each one mapped to a single product (`contextual`, `wam` and `lite`). No section is enabled by default, we must be explicit like in the minimal example below:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     debug: true,
     realTimeData: {
         auctionDelay: 1000,
@@ -79,9 +79,9 @@ pbjs.setConfig({
 
 Each module can perform two actions:
 
-* set targeting on [GPT](https://docs.prebid.org/dev-docs/publisher-api-reference/setTargetingForGPTAsync.html) / [AST](https://docs.prebid.org/dev-docs/publisher-api-reference/setTargetingForAst.html) via `prebid.js`
+* set targeting on [GPT](https://docs.prebid.org/dev-docs/publisher-api-reference/setTargetingForGPTAsync.html) / [AST](https://docs.prebid.org/dev-docs/publisher-api-reference/setTargetingForAst.html) via `openads.js`
 
-* send data to other `prebid.js` bidder modules (check the complete list at the end of this page)
+* send data to other `openads.js` bidder modules (check the complete list at the end of this page)
 
 ### Parameter Descriptions for the Weborama Configuration Section
 
@@ -92,7 +92,7 @@ This is the main configuration section
 | name | String | Real time data module name | Mandatory. Always 'Weborama' |
 | waitForIt | Boolean | Mandatory. Required to ensure that the auction is delayed until prefetch is complete | Optional. Defaults to false but recommended to true |
 | params | Object | | Optional |
-| params.setPrebidTargeting | Boolean | If true, may use the profile to set the prebid (GPT/GAM or AST) targeting of all adunits managed by prebid.js | Optional. Affects the `weboCtxConf`, `weboUserDataConf` and `sfbxLiteDataConf` sections |
+| params.setPrebidTargeting | Boolean | If true, may use the profile to set the prebid (GPT/GAM or AST) targeting of all adunits managed by openads.js | Optional. Affects the `weboCtxConf`, `weboUserDataConf` and `sfbxLiteDataConf` sections |
 | params.sendToBidders | Boolean or Array | If true, may send the profile to all bidders. If an array, will specify the bidders to send data | Optional. Affects the `weboCtxConf`, `weboUserDataConf` and `sfbxLiteDataConf` sections |
 | params.weboCtxConf | Object | Weborama Contextual Site-Centric Configuration | Optional |
 | params.weboUserDataConf | Object | Weborama WAM User-Centric Configuration | Optional |
@@ -110,7 +110,7 @@ On this section we will explain the `params.weboCtxConf` subconfiguration:
 | token | String | Security Token provided by Weborama, unique per client | Mandatory |
 | targetURL | String | Url to be profiled in the contextual api | Optional. Defaults to `document.URL` |
 | assetID | Function or String | if provided, we will call the document-profile api using this asset id. |Optional|
-| setPrebidTargeting|Various|If true, will use the contextual profile to set the prebid (GPT/GAM or AST) targeting of all adunits managed by prebid.js| Optional. Default is `params.setPrebidTargeting` (if any) or `true`.|
+| setPrebidTargeting|Various|If true, will use the contextual profile to set the prebid (GPT/GAM or AST) targeting of all adunits managed by openads.js| Optional. Default is `params.setPrebidTargeting` (if any) or `true`.|
 | sendToBidders|Various|If true, will send the contextual profile to all bidders. If an array, will specify the bidders to send data| Optional. Default is `params.sendToBidders` (if any) or `true`.|
 | defaultProfile | Object | default value of the profile to be used when there are no response from contextual api (such as timeout)| Optional. Default is `{}` |
 | onData | Callback | If set, will receive the profile and metadata | Optional. Default is `params.onData` (if any) or log via prebid debug |
@@ -127,7 +127,7 @@ On this section we will explain the `params.weboUserDataConf` subconfiguration:
 | Name  |Type | Description   | Notes  |
 | :------------ | :------------ | :------------ |:------------ |
 | accountId|Number|WAM account id. If you don't have it, please contact weborama. | Recommended.|
-| setPrebidTargeting|Various|If true, will use the user profile to set the prebid (GPT/GAM or AST) targeting of all adunits managed by prebid.js| Optional. Default is `params.setPrebidTargeting` (if any) or `true`.|
+| setPrebidTargeting|Various|If true, will use the user profile to set the prebid (GPT/GAM or AST) targeting of all adunits managed by openads.js| Optional. Default is `params.setPrebidTargeting` (if any) or `true`.|
 | sendToBidders|Various|If true, will send the user profile to all bidders| Optional. Default is `params.sendToBidders` (if any) or `true`.|
 | onData | Callback | If set, will receive the profile and site flag | Optional. Default is `params.onData` (if any) or log via prebid debug |
 | defaultProfile | Object | default value of the profile to be used when there are no response from contextual api (such as timeout)| Optional. Default is `{}` |
@@ -147,7 +147,7 @@ On this section we will explain the `params.sfbxLiteDataConf` subconfiguration:
 
 | Name  |Type | Description   | Notes  |
 | :------------ | :------------ | :------------ |:------------ |
-| setPrebidTargeting|Various|If true, will use the user profile to set the prebid (GPT/GAM or AST) targeting of all adunits managed by prebid.js| Optional. Default is `params.setPrebidTargeting` (if any) or `true`.|
+| setPrebidTargeting|Various|If true, will use the user profile to set the prebid (GPT/GAM or AST) targeting of all adunits managed by openads.js| Optional. Default is `params.setPrebidTargeting` (if any) or `true`.|
 | sendToBidders|Varios|If true, will send the user profile to all bidders| Optional. Default is `params.sendToBidders` (if any) or `true`.|
 | onData | Callback | If set, will receive the profile and site flag | Optional. Default is `params.onData` (if any) or log via prebid debug |
 | defaultProfile | Object | default value of the profile to be used when there are no response from contextual api (such as timeout)| Optional. Default is `{}` |
@@ -263,10 +263,10 @@ sendToBidders: function(bid, adUnitCode, data, metadata){
 In case of using bid _aliases_, we should match the same string used in the adUnit configuration.
 
 ```javascript
-pbjs.aliasBidder('appnexus', 'foo');
-pbjs.aliasBidder('criteo', 'bar');
-pbjs.aliasBidder('pubmatic', 'baz');
-pbjs.setConfig({
+oajs.aliasBidder('appnexus', 'foo');
+oajs.aliasBidder('criteo', 'bar');
+oajs.aliasBidder('pubmatic', 'baz');
+oajs.setConfig({
     realTimeData: {
         dataProviders: [{
             name: "weborama",
@@ -342,11 +342,11 @@ By default we try to send the data to all destinations, always. To restrict we c
 * Set `setPrebidTargeting` or `sendToBidders` globally to `false` and only enable on the right sections;
 
 ```javascript
-var pbjs = pbjs || {};
-pbjs.que = pbjs.que || [];
+var oajs = oajs || {};
+oajs.que = oajs.que || [];
 
-pbjs.que.push(function () {
-    pbjs.setConfig({
+oajs.que.push(function () {
+    oajs.setConfig({
         debug: true,
         realTimeData: {
             auctionDelay: 1000,
@@ -392,11 +392,11 @@ pbjs.que.push(function () {
 An alternative version, using asset id instead of target url on contextual, can be found here:
 
 ```javascript
-var pbjs = pbjs || {};
-pbjs.que = pbjs.que || [];
+var oajs = oajs || {};
+oajs.que = oajs.que || [];
 
-pbjs.que.push(function () {
-    pbjs.setConfig({
+oajs.que.push(function () {
+    oajs.setConfig({
         debug: true,
         realTimeData: {
             auctionDelay: 1000,
@@ -428,11 +428,11 @@ Imagine we need to configure the following options using the previous example, w
 |sendToBidders|false|true|true|
 
 ```javascript
-var pbjs = pbjs || {};
-pbjs.que = pbjs.que || [];
+var oajs = oajs || {};
+oajs.que = oajs.que || [];
 
-pbjs.que.push(function () {
-    pbjs.setConfig({
+oajs.que.push(function () {
+    oajs.setConfig({
         debug: true,
         realTimeData: {
             auctionDelay: 1000,
@@ -467,11 +467,11 @@ pbjs.que.push(function () {
 We can also define a list of adunits / bidders that will receive data instead of using boolean values.
 
 ```javascript
-var pbjs = pbjs || {};
-pbjs.que = pbjs.que || [];
+var oajs = oajs || {};
+oajs.que = oajs.que || [];
 
-pbjs.que.push(function () {
-    pbjs.setConfig({
+oajs.que.push(function () {
+    oajs.setConfig({
         debug: true,
         realTimeData: {
             auctionDelay: 1000,
@@ -506,11 +506,11 @@ pbjs.que.push(function () {
 Finally, we can combine several styles in the same configuration if needed. Including the callback style.
 
 ```javascript
-var pbjs = pbjs || {};
-pbjs.que = pbjs.que || [];
+var oajs = oajs || {};
+oajs.que = oajs.que || [];
 
-pbjs.que.push(function () {
-    pbjs.setConfig({
+oajs.que.push(function () {
+    oajs.setConfig({
         debug: true,
         realTimeData: {
             auctionDelay: 1000,

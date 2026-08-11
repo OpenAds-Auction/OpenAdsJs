@@ -23,7 +23,7 @@ gulp build --modules=optimeraRtdProvider,rtdModule
 ## Configuration Example
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     dataProviders: [
       {

@@ -42,7 +42,7 @@ Please contact tech@overtone.ai for more information about our exact categories 
 
 The configuration for the Overtone RTD module in Prebid.js might resemble the following:
 
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     dataProviders: [{
       name: 'overtone',

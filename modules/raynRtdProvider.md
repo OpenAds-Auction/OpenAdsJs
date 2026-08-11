@@ -23,7 +23,7 @@ Step 1: Prepare the base Prebid file
 Compile the Rayn RTD module (`raynRtdProvider`) into your Prebid build along with the parent RTD Module (`rtdModule`). From the command line, run gulp build `gulp build --modules=rtdModule,raynRtdProvider`
 
 Step 2: Set configuration
-Enable Rayn RTD Module using pbjs.setConfig. Example is provided in the Configuration section. See the **Parameter Description** for more detailed information of the configuration parameters.
+Enable Rayn RTD Module using oajs.setConfig. Example is provided in the Configuration section. See the **Parameter Description** for more detailed information of the configuration parameters.
 
 ### Configuration
 
@@ -32,7 +32,7 @@ This module is configured as part of the realTimeData.dataProviders object.
 Example format:
 
 ```js
-pbjs.setConfig(
+oajs.setConfig(
     // ...
     realTimeData: {
         auctionDelay: 1000,

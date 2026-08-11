@@ -21,7 +21,7 @@ please visit <https://ams.adv.red/>
 ### Example Configuration
 
 ```javascript
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
     provider: 'advRed',
     options: {
         publisherId: '123456'    // change to the Publisher ID you received from AdvRed

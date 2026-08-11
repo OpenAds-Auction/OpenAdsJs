@@ -23,7 +23,7 @@ This module in `COMBINED` mode loads external JavaScript to generate optimal qua
 ex. 1. Mode `COMBINED`
 
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'justId',
@@ -40,7 +40,7 @@ pbjs.setConfig({
 ex. 2. Mode `BASIC`
 
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'justId',

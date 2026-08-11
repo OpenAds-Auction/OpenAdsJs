@@ -11,7 +11,7 @@ Analytics adapter for Browsi.
 # Settings
 
 ```js
-  pbjs.enableAnalytics({
+  oajs.enableAnalytics({
     provider: 'browsi',
     options: {}
   });

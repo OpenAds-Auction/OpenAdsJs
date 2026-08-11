@@ -27,7 +27,7 @@ This module is configured as part of the `realTimeData.dataProviders`
 
 ```javascript
 var TIMEOUT = 1000;
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         auctionDelay: TIMEOUT,
         dataProviders: [{

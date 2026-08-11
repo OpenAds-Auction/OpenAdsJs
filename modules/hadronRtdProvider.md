@@ -33,7 +33,7 @@ configuration parameters. Please work with your Audigent Prebid support team
 and segment configurations.
 
 ```
-pbjs.setConfig(
+oajs.setConfig(
     ...
     realTimeData: {
         auctionDelay: 5000,
@@ -80,7 +80,7 @@ Please see the following example, which provides a function to modify bids for
 a bid adapter called adBuzz and perform custom logic on bidder parameters.
 
 ```
-pbjs.setConfig(
+oajs.setConfig(
     ...
     realTimeData: {
         auctionDelay: auctionDelay,

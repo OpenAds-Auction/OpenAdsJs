@@ -7,7 +7,7 @@ For help adding this module, please contact [adtech-prebid-group@opera.com](adte
 You should configure this module under your `userSync.userIds[]` configuration:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [
             {

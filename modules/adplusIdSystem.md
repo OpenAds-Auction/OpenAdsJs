@@ -6,7 +6,7 @@ For assistance setting up your module please contact us at adplusdestek@turkcell
 
 Individual params may be set for the Adplus ID Submodule.
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'adplusId',

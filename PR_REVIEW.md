@@ -29,7 +29,7 @@ General gulp commands include separate commands for serving the codebase on a bu
 - Make sure the code is not setting cookies or localstorage directly -- it must use the `StorageManager`.
 - Review for obvious errors or bad coding practice / use best judgement here.
 - Don't allow needless code duplication with other js files; require both files import common code. Do not allow commits designed to fool the code duplication checker.
-- If the change is a new feature / change to core prebid.js - review the change with a Tech Lead on the project and make sure they agree with the nature of change.
+- If the change is a new feature / change to core openads.js - review the change with a Tech Lead on the project and make sure they agree with the nature of change.
 - If the change results in needing updates to docs (such as public API change, module interface etc), add a label for "needs docs" and inform the submitter they must submit a docs PR to update the appropriate area of Prebid.org **before the PR can merge**. Help them with finding where the docs are located on prebid.org if needed. 
 - If all above is good, add a `LGTM` comment and, if the change is in PBS-core or is an important module like the prebidServerBidAdapter, request 1 additional core member to review.
 - Once there are 2 `LGTM` on the PR, merge to master
@@ -48,7 +48,7 @@ Follow steps above for general review process. In addition, please verify the fo
     - The bidder code should be unique for the first 6 characters
     - Reserved words that cannot be used as bidder names: all, context, data, general, prebid, and skadn
 - Verify that bidder has submitted valid bid params and that bids are being received.
-- Verify that bidder is not manipulating the prebid.js auction in any way or doing things that go against the principles of the project. If unsure check with the Tech Lead.
+- Verify that bidder is not manipulating the openads.js auction in any way or doing things that go against the principles of the project. If unsure check with the Tech Lead.
 - Verify that code re-use is being done properly and that changes introduced by a bidder don't impact other bidders.
 - If the adapter being submitted is an alias type, check with the bidder contact that is being aliased to make sure it's allowed.
 - Look for redundant validations, core already validates the types of mediaTypes.video for example.

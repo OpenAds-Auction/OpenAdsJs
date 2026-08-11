@@ -14,7 +14,7 @@ gulp build --modules=dacIdSystem
 The following configuration parameters are available:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'dacId',

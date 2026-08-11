@@ -5,7 +5,7 @@
 This module is deprecated since prebid 10; schain may be provided directly as fpd, for example:
 
 ```typescript
-pbjs.setConfig({
+oajs.setConfig({
     ortb2: {
         source: {
             schain: {

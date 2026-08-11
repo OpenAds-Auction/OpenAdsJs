@@ -11,7 +11,7 @@ Analytics adapter for Adagio
 # Settings
 
 ```js
-  pbjs.enableAnalytics({
+  oajs.enableAnalytics({
     provider: 'adagio',
     options: {
       organizationId: '1000', // Required. Provided by Adagio

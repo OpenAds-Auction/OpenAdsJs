@@ -13,7 +13,7 @@ The R2B2 Analytics Adapter enables data collection for analysis and reporting pu
 ## How to configure?
 
 ```
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
     provider: 'r2b2',
     options: {
         domain: 'example.com',

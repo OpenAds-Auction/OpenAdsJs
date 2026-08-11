@@ -23,7 +23,7 @@ gulp build --modules=...,nobidAnalyticsAdapter...
 The following configuration parameters are available:
 
 ```javascript
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
     provider: 'nobidAnalytics',
     options: {
         siteId: 123    // change to the Site ID you received from NoBid

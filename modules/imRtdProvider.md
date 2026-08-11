@@ -11,7 +11,7 @@ First, make sure to add the Intimate Merger submodule to your Prebid.js package 
 The following configuration parameters are available:
 
 ```
-pbjs.setConfig(
+oajs.setConfig(
     ...
     realTimeData: {
         auctionDelay: 5000,

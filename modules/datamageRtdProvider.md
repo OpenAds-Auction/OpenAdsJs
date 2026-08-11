@@ -35,7 +35,7 @@ DataMage automatically maps and provides the following targeting keys (when avai
 ## Prebid config
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     auctionDelay: 1000, // Gives the module time to fetch data before bids are sent, suggested minimum 1000
     dataProviders: [{
@@ -60,9 +60,9 @@ To ensure DataMage key-values are included in your GAM requests:
 
 1. Call `googletag.pubads().disableInitialLoad()` before your ad requests.
 2. Define your slots and call `googletag.enableServices()`.
-3. Run `pbjs.requestBids(...)`.
+3. Run `oajs.requestBids(...)`.
 4. Inside the `bidsBackHandler` callback:
-* Call `pbjs.setTargetingForGPTAsync()` (to set standard Prebid `hb_` pricing keys).
+* Call `oajs.setTargetingForGPTAsync()` (to set standard OpenAds `oa_` pricing keys).
 * Call `googletag.pubads().refresh()` to trigger the GAM request.
 
 
@@ -74,10 +74,10 @@ GAM will automatically combine the standard Prebid slot-level pricing keys with 
 ### Example:
 
 ```javascript
-pbjs.requestBids({
+oajs.requestBids({
     bidsBackHandler: function () {
         // Push standard header bidding keys to GPT
-        pbjs.setTargetingForGPTAsync();
+        oajs.setTargetingForGPTAsync();
 
         // Refresh the ad slots. Datamage page-level keys are already injected!
         googletag.cmd.push(function () {

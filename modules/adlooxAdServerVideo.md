@@ -38,19 +38,19 @@ To view an example of an Adloox integration look at the example provided in the 
 To use this, you *must* also integrate the [Adloox Analytics Adapter](./adlooxAnalyticsAdapter.md) (and optionally the Instream Video Ads Tracking module) as shown below:
 
     function sendAdserverRequest(bids, timedOut, auctionId) {
-      if (pbjs.initAdserverSet) return;
-      pbjs.initAdserverSet = true;
+      if (oajs.initAdserverSet) return;
+      oajs.initAdserverSet = true;
 
       // handle display tags as usual
       googletag.cmd.push(function() {
-        pbjs.setTargetingForGPTAsync && pbjs.setTargetingForGPTAsync(adUnits);
+        oajs.setTargetingForGPTAsync && oajs.setTargetingForGPTAsync(adUnits);
         googletag.pubads().refresh();
       });
 
       // handle the bids on the video adUnit
       var videoBids = bids[videoAdUnit.code];
       if (videoBids) {
-        var videoUrl = pbjs.adServers.gam.buildVideoUrl({
+        var videoUrl = oajs.adServers.gam.buildVideoUrl({
           adUnit: videoAdUnit,
           params: {
             iu: '/19968336/prebid_cache_video_adunit',
@@ -61,7 +61,7 @@ To use this, you *must* also integrate the [Adloox Analytics Adapter](./adlooxAn
             output: 'vast'
           }
         });
-        pbjs.adServers.adloox.buildVideoUrl({
+        oajs.adServers.adloox.buildVideoUrl({
           adUnit: videoAdUnit,
           url: videoUrl
         }, invokeVideoPlayer);
@@ -70,14 +70,14 @@ To use this, you *must* also integrate the [Adloox Analytics Adapter](./adlooxAn
 
 The helper function takes the form:
 
-    pbjs.adServers.adloox.buildVideoUrl(options, callback)
+    oajs.adServers.adloox.buildVideoUrl(options, callback)
 
 Where:
 
  * **`options`:** configuration object:
      * **`adUnit`:** ad unit that is being filled
-    * **`bid` [optional]:** if you override the hardcoded `pbjs.adServers.gam.buildVideoUrl(...)` logic that picks the first bid you *must* pass in the `bid` object you select
-    * **`url`:** VAST tag URL, typically the value returned by `pbjs.adServers.gam.buildVideoUrl(...)`
+    * **`bid` [optional]:** if you override the hardcoded `oajs.adServers.gam.buildVideoUrl(...)` logic that picks the first bid you *must* pass in the `bid` object you select
+    * **`url`:** VAST tag URL, typically the value returned by `oajs.adServers.gam.buildVideoUrl(...)`
      * **`wrap`:**
          * **`true` [default]:** VAST tag is be converted to an Adloox VAST wrapped tag
          * **`false`:** VAST tag URL is returned as is
@@ -89,4 +89,4 @@ Where:
              * use if during QAing you discover your video player does not supports Blob URLs; widely supported (including JW Player) so contact your player vendor to resolve this where possible for the best user and device experience
  * **`callback`:** function you use to pass the VAST tag URL to your video player
 
-**N.B.** call `pbjs.adServers.adloox.buildVideoUrl(...)` as close as possible to starting the ad to reduce impression discrepancies
+**N.B.** call `oajs.adServers.adloox.buildVideoUrl(...)` as close as possible to starting the ad to reduce impression discrepancies

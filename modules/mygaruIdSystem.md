@@ -13,7 +13,7 @@ Params configuration is not required.
 Also mygaru is async, in order to get ids for initial ad auctions you need to add auctionDelay param to userSync config.
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         auctionDelay: 100,
         userIds: [{

@@ -8,7 +8,7 @@ Maintainer: adam.prime@alum.utoronto.ca
 
 # Description
 - This module will trigger a BID_VIEWABLE event which other modules, adapters or publisher code can use to get a sense of viewability
-- You can check if this module is part of the final build and whether it is enabled or not by accessing ```pbjs.getConfig('bidViewabilityIO')```
+- You can check if this module is part of the final build and whether it is enabled or not by accessing ```oajs.getConfig('bidViewabilityIO')```
 - Viewability, as measured by this module is not perfect, nor should it be expected to be. 
 - The module does not require any specific ad server, or an adserver at all.
 
@@ -23,7 +23,7 @@ Maintainer: adam.prime@alum.utoronto.ca
 
 # Example of consuming BID_VIEWABLE event
 ```
-	pbjs.onEvent('bidViewable', function(bid){
+	oajs.onEvent('bidViewable', function(bid){
 		console.log('got bid details in bidViewable event', bid);
 	});
 
@@ -31,7 +31,7 @@ Maintainer: adam.prime@alum.utoronto.ca
 
 # Example of using config
 ```
-	pbjs.setConfig({
+	oajs.setConfig({
         bidViewabilityIO: {
             enabled: true,
         }

@@ -5,7 +5,7 @@ Product and Sales Inquiries: 1-855-898-0036
 
 ## Example configuration for publishers:
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'fabrickId',

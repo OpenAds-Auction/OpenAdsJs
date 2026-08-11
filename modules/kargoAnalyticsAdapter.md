@@ -13,7 +13,7 @@ Analytics adapter for Kargo. Contact support@kargo.com for information.
 The simplest way to enable the analytics adapter is this
 
 ```javascript
-pbjs.enableAnalytics([{
+oajs.enableAnalytics([{
   provider: 'kargo',
   options: {
       sampling: 100 // value out of 100

@@ -20,7 +20,7 @@ gulp build --modules=schain,priceFloors,currency,consentManagement,appnexusBidAd
 
 Then add the oxxion Rtd module to your prebid configuration :
 ```
-pbjs.setConfig(
+oajs.setConfig(
   ...
   realTimeData: {
     auctionDelay: 300,

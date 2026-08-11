@@ -11,7 +11,7 @@ Analytics adapter for scaleable.ai. Contact team@scaleable.ai for more informati
 # Implementation Code
 
 ```
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
   provider: 'scaleable',
   options: {
     site: '' // Contact Scaleable to receive your unique site id

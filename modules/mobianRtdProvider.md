@@ -23,7 +23,7 @@ The client will need to provide Mobian with all the domains that would be using 
 Below is Mobian's suggested default for configuration:
 
 ```js
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     dataProviders: [{
       name: 'mobianBrandSafety',

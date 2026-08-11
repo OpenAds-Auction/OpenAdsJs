@@ -8,7 +8,7 @@ Maintainer: header-bidding@pubmatic.com
 
 ## How to configure?
 ```
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
     provider: 'pubmatic',
     options: {
         "publisherId": 12345 // please contact PubMatic to get a publisherId for yourself

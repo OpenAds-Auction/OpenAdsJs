@@ -16,7 +16,7 @@ Anonymised’s Real-time Data Provider automatically obtains segment IDs from th
 ### Configuration
 
 ```javascript
- pbjs.setConfig({
+ oajs.setConfig({
    realTimeData: {
      dataProviders: [
        {

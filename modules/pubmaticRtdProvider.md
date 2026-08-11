@@ -27,7 +27,7 @@ gulp build --modules=priceFloors,rtdModule,pubmaticRtdProvider,pubmaticAnalytics
 {: .alert.alert-info :}
 Note: The PubMatic RTD module is dependent on the global real-time data module : `rtdModule`, price floor module : `priceFloors` and PubMatic Analytics Adapter : `pubmaticAnalyticsAdapter`.
 
-Step 4: Set configuration and enable PubMatic RTD Module using pbjs.setConfig.
+Step 4: Set configuration and enable PubMatic RTD Module using oajs.setConfig.
 
 ## Configuration
 
@@ -35,7 +35,7 @@ This module is configured as part of the `realTimeData.dataProviders`.  We recom
 
 ```js
 const AUCTION_DELAY = 250;
-pbjs.setConfig({
+oajs.setConfig({
     // rest of the config
     ...,
     realTimeData: {

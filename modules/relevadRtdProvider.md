@@ -28,7 +28,7 @@ Compile the Relevad RTD module into the Prebid.js package with
 Add Relevad RTD provider to your Prebid config. Here is an example:
 
 ```
-pbjs.setConfig(
+oajs.setConfig(
     ...
     realTimeData: {
       auctionDelay: 1000,
