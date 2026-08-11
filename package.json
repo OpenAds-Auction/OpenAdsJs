@@ -1,6 +1,6 @@
 {
   "name": "openads.js",
-  "version": "11.9.0",
+  "version": "11.10.0",
   "oaVersion": "1.11.0",
   "description": "Header Bidding Management Library",
   "main": "dist/src/prebid.public.ts",
@@ -76,7 +76,6 @@
     "assert": "^2.0.0",
     "babel-loader": "^8.4.1",
     "babel-plugin-istanbul": "^6.1.1",
-    "body-parser": "^1.20.5",
     "chai": "^4.5.0",
     "deep-equal": "^2.0.3",
     "eslint": "^9.31.0",
