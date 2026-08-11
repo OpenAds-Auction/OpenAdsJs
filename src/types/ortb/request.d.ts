@@ -6,6 +6,8 @@ import type { DSARequest } from "./ext/dsa.d.ts";
 import type { BidRequest, Imp } from 'iab-openrtb/v26';
 
 export interface ORTBRequest extends BidRequest {
+  source: BidRequest['source'];
+  user: BidRequest['user'];
   ext: Ext & {
     dsa?: DSARequest
   }
