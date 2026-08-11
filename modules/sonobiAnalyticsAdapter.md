@@ -13,7 +13,7 @@ Module that connects to Sonobi's Analytics service
 # Test Parameters
 ```
  
-                 pbjs.enableAnalytics({
+                 oajs.enableAnalytics({
                   provider: 'sonobi',
                      options: {
                   	     pubId: 'ffBB352',

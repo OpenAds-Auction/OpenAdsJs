@@ -65,7 +65,7 @@ Please find below list of parameters that could be used in configuring Intent IQ
 ### Configuration example
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: "intentIqId",

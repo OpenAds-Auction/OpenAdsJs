@@ -5,7 +5,7 @@ Refer:
 
 ## Sample code for dchain setConfig and dchain object
 ```
-pbjs.setConfig({
+oajs.setConfig({
   "dchain": {
     "validation": "strict"
   }

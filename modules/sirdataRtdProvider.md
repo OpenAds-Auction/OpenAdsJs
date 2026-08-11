@@ -30,7 +30,7 @@ Compile the Sirdata RTD module into your Prebid build:
 
 Add the Sirdata RTD provider to your Prebid config.
 
-`actualUrl` MUST be set with actual location of parent page if prebid.js is loaded in an iframe (e.g. hosted). It can be left blank ('') or removed otherwise.
+`actualUrl` MUST be set with actual location of parent page if openads.js is loaded in an iframe (e.g. hosted). It can be left blank ('') or removed otherwise.
 
 `partnerId` and `key` should be provided by your partnering SSP or get one and your dedicated taxonomy from Sirdata (<prebid@sirdata.com>). Segments ids (user-centric) and category ids (page-centric) will be provided salted and hashed : you can use them with a dedicated and private matching table.
 
@@ -39,7 +39,7 @@ Should you want to allow any SSP or a partner to curate your media and operate c
 #### Typical configuration
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     // ...
     realTimeData: {
         auctionDelay: 1000,
@@ -61,7 +61,7 @@ pbjs.setConfig({
 #### Advanced configuration
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     // ...
     realTimeData: {
         auctionDelay: 1000,
@@ -176,7 +176,7 @@ function overrideAppnexus (adUnit, segmentsArray, dataObject, bid) {
     }
 }
 
-pbjs.setConfig({
+oajs.setConfig({
     // ...
     realTimeData: {
         auctionDelay: 1000,

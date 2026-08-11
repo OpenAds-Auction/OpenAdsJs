@@ -20,7 +20,7 @@ First, make sure to add the Dynamic AdBoost submodule to your Prebid.js package 
 The following configuration parameters are available:
 
 ```
-pbjs.setConfig(
+oajs.setConfig(
     ...
     realTimeData: {
         auctionDelay: 2000,

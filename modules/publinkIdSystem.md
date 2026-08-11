@@ -14,7 +14,7 @@ Publink user id module
 
 ### Example configuration for Publink
 ```
-pbjs.setConfig({
+oajs.setConfig({
        userSync: {
            userIds: [{
                name: "publinkId",

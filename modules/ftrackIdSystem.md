@@ -25,7 +25,7 @@ Questions? Comments? Bugs? Praise? Please contact FlashTalking's Prebid Support 
 The following configuration parameters are available:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   userSync: {
     userIds: [{
       name: 'FTrack',
@@ -84,7 +84,7 @@ In its current state, Flashtalking’s FTrack Identity Framework User ID Module 
 
 ---
 
-### If you are using pbjs.getUserIdsAsEids():
+### If you are using oajs.getUserIdsAsEids():
 
 Please note that the `uids` value is a stringified object of the IDs so publishers will need to `JSON.parse()` the value in order to use it:
 

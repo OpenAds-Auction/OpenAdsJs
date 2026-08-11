@@ -35,7 +35,7 @@ Enable the Sharethrough Analytics Adapter in Prebid.js using the analytics provi
 #### Example Configuration
 
 ```js
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
   provider: 'sharethrough',
 });
 ```

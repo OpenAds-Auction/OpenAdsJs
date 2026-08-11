@@ -5,7 +5,7 @@ The [Adtelligent](https://adtelligent.com) ID system is a uniq per-session user 
 #### Adtelligent Id Sytem Configuration Example
  
 {% highlight javascript %}
- pbjs.setConfig({
+ oajs.setConfig({
      userSync: {
          userIds: [{
              name: 'adtelligent'
@@ -17,7 +17,7 @@ The [Adtelligent](https://adtelligent.com) ID system is a uniq per-session user 
 Example with a short storage for ~10 minutes and refresh in 5 minutes: 
 
 {% highlight javascript %}
-    pbjs.setConfig({
+    oajs.setConfig({
         userSync: {
             userIds: [{
                 name: 'adtelligent',

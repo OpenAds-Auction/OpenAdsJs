@@ -19,7 +19,7 @@ gulp build --modules=...,agmaAnalyticsAdapter...
 Configure the analytics module:
 
 ```javascript
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
     provider: 'agma',
     options: {
         code: 'provided-by-agma'    // change to the code you received from agma

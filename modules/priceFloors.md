@@ -2,7 +2,7 @@
 
 ### Setup
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   floors: {
     enabled: true, //defaults to true
     enforcement: {

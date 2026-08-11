@@ -7,7 +7,7 @@ Yahoo ConnectID user ID Module.
 ### Prebid Params
 
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'connectId',

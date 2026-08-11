@@ -41,7 +41,7 @@ gulp build --modules="rtdModule,raveltechRtdProvider,appnexusBidAdapter,..."
 ### Example Configuration
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         dataProviders: [{
             name: 'raveltech',

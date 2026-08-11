@@ -7,7 +7,7 @@ This module adds rewarded interest advertising token to the user ID module
 ### Prebid Params
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'rewardedInterestId',

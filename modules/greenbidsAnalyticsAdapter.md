@@ -14,7 +14,7 @@ Greenbids team. Please reach out to our team for more information [greenbids.ai]
 ### Example Configuration
 
 ```javascript
-    pbjs.enableAnalytics({
+    oajs.enableAnalytics({
         provider: 'greenbids',
         options: {
             pbuid: "greenbids-publisher-1" // please contact Greenbids to get a pbuid for yourself

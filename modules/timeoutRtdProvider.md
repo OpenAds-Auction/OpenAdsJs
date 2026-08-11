@@ -20,7 +20,7 @@ gulp build --modules=timeoutRtdProvider,rtdModule...
 
 ## Configuration
 The module is configured in the realTimeData.dataProviders object. The module will override 
-`bidderTimeout` in the pbjs config. 
+`bidderTimeout` in the oajs config. 
 
 ### Timeout Data Provider interface
 The timeout RTD module provides an interface of dynamically fetching timeout rules from 
@@ -28,7 +28,7 @@ a data provider just before the auction begins. The endpoint url is set in the c
 the example below, and the timeout data will be used when making bid requests.
  
 ```
-pbjs.setConfig({
+oajs.setConfig({
     ...
     "realTimeData": {
         "dataProviders": [{
@@ -115,7 +115,7 @@ and there are 3 ad units in the auction, all of which are banner, then the timeo
 
 Full example:  
 ```
-pbjs.setConfig({
+oajs.setConfig({
     ...
     "realTimeData": {
         "dataProviders": [{

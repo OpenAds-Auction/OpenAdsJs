@@ -29,10 +29,10 @@ gulp build --modules=cleanioRtdProvider,...
 
 # Configuration
 
-When built into prebid.js, this module can be configured through the following `pbjs.setConfig` call:
+When built into openads.js, this module can be configured through the following `oajs.setConfig` call:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         dataProviders: [{
             name: 'clean.io',

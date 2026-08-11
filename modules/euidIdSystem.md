@@ -37,7 +37,7 @@ Refer to [Normalization and Encoding](#normalization-and-encoding) for details o
 
 Configuration:
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'euid',
@@ -73,7 +73,7 @@ euid_pub_cookie={"advertising_token":"...advertising token...","refresh_token":"
 
 Configuration:
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'euid',
@@ -89,7 +89,7 @@ pbjs.setConfig({
 
 Configuration:
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'euid',
@@ -122,7 +122,7 @@ __euid_advertising_token=...advertising token...
 
 Configuration:
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'euid'
@@ -135,7 +135,7 @@ pbjs.setConfig({
 
 Configuration:
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'euid'

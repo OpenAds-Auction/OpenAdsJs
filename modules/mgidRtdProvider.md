@@ -25,7 +25,7 @@ This module is configured as part of the `realTimeData.dataProviders` object.
 #### Example
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         dataProviders: [{
             name: 'mgid',
@@ -48,4 +48,4 @@ To install the module, follow these instructions:
 
 #### Step 2: Set configuration
 
-Enable Mgid Real Time Module using `pbjs.setConfig`. Example is provided in Configuration section.
+Enable Mgid Real Time Module using `oajs.setConfig`. Example is provided in Configuration section.

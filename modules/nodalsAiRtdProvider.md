@@ -23,7 +23,7 @@ gulp build --modules=rtdModule,nodalsAiRtdProvider
 Update your Prebid configuration to enable the Nodals AI RTD module, as illustrated in the example below:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   ...,
   realTimeData: {
     auctionDelay: 100, // optional auction delay

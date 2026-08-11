@@ -7,7 +7,7 @@ Adquery QID Module. For assistance setting up your module please contact us at [
 Individual params may be set for the Adquery ID Submodule. At least one identifier must be set in the params.
 
 ```
-pbjs.setConfig({
+oajs.setConfig({
     usersync: {
         userIds: [{
             name: 'qid',

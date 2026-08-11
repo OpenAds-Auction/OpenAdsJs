@@ -16,7 +16,7 @@ gulp build --modules=rtdModule,permutiveRtdProvider
 You then need to enable the Permutive RTD in your Prebid configuration. Below is an example of the format:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   ...,
   realTimeData: {
     auctionDelay: 50, // optional auction delay

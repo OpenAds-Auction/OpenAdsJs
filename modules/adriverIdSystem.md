@@ -10,7 +10,7 @@ Adriver user identification system
 
 ## Example configuration for publishers:
 
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'adriverId'

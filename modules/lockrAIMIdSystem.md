@@ -19,7 +19,7 @@ If you are using Google oAuth (_as an example_), the onSignIn function will subs
 
 ```
 function onSignIn(googleUser) {
-   pbjs.setConfig({
+   oajs.setConfig({
       userSync: {
          userIds: [{
             name: 'lockrAIMId',
@@ -41,7 +41,7 @@ function statusChangeCallback(response) {
    console.log('statusChangeCallback');
    console.log(response);
    if(response.status === 'connected'){
-     pbjs.setConfig({
+     oajs.setConfig({
         userSync: {
            userIds: [{
               name: 'lockrAIMId',
@@ -126,7 +126,7 @@ function statusChangeCallback(response) {
 **lockr AIM Example**
 
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
        userIds: [{
           name: 'lockrAIMId',
@@ -143,14 +143,14 @@ _Note_: lockr’s AIM self-service interface empowers publishers with the abilit
 
 **Troubleshooting and Error handling:**
 
-1. Navigate to the domain where Prebid.js Library is integrated.
-2. Go to the 'Network' tab of your Developer Tools. Search for “prebid.js”
+1. Navigate to the domain where OpenAds.js Library is integrated.
+2. Go to the 'Network' tab of your Developer Tools. Search for “openads.js”
 3. In the application tab, you can confirm any activated Identity Provider (if client-side storage is turned on in AIM’s Identity Provider settings).
 4. Debugging:
    Enable the debug flag to true in the setConfig call:
 
 ```
-pbjs.setConfig({
+oajs.setConfig({
     debug: true,
     userSync: {
        userIds: [{

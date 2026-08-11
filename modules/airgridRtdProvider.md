@@ -29,10 +29,10 @@ Compile the AirGrid RTD module (`airgridRtdProvider`) into your Prebid build, al
 
 `gulp build --modules=rtdModule,airgridRtdProvider,appnexusBidAdapter`
 
-Next we configure the module, via `pbjs.setConfig`. See the **Parameter Descriptions** below for more detailed information of the configuration parameters. 
+Next we configure the module, via `oajs.setConfig`. See the **Parameter Descriptions** below for more detailed information of the configuration parameters. 
 
 ```js
-pbjs.setConfig(
+oajs.setConfig(
     ...
     realTimeData: {
         auctionDelay: 1000,

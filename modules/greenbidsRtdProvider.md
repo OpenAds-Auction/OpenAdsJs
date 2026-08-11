@@ -36,7 +36,7 @@ const greenbidsDataProvider = {
   }
 };
 
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     auctionDelay: 200,
     dataProviders: [greenbidsDataProvider]
@@ -62,4 +62,4 @@ See prebid Analytics modules -> Greenbids Analytics module
 
 #### Step 4: Set configuration
 
-Enable Greenbids Real Time Module using `pbjs.setConfig`. Example is provided in Configuration section.
+Enable Greenbids Real Time Module using `oajs.setConfig`. Example is provided in Configuration section.

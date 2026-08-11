@@ -17,7 +17,7 @@ gulp build --modules=lmpIdSystem,userId
 The following configuration parameters are available:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   userSync: {
     userIds: [{
       name: 'lmpid'

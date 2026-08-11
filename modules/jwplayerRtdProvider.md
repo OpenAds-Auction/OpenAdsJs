@@ -12,7 +12,7 @@ Publishers must register JW Player as a real time data provider by setting up a 
 following structure:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     ...,
     realTimeData: {
       dataProviders: [{
@@ -48,9 +48,9 @@ const adUnit = {
   }
 };
 
-pbjs.que.push(function() {
-    pbjs.addAdUnits([adUnit]);
-    pbjs.requestBids({
+oajs.que.push(function() {
+    oajs.addAdUnits([adUnit]);
+    oajs.requestBids({
         ...
     });
 });

@@ -25,7 +25,7 @@ i.e.
 The AdPlayer.Pro Video Provider requires the following configuration:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   video: {
     providers: [{
       divId: 'player', // required, this is the id of the div element where the player will be placed

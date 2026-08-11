@@ -26,7 +26,7 @@ Use `setConfig` to instruct Prebid.js to initialize the Experian RTD module, as 
 This module is configured as part of the `realTimeData.dataProviders`
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     auctionDelay: 300,
     dataProviders: [{

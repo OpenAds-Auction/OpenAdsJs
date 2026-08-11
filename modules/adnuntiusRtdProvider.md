@@ -15,9 +15,9 @@ gulp build --modules=adnuntiusRtdProvider,...
 ### Configuration
 
 ```
-var pbjs = pbjs || { que: [] }
-pbjs.que.push(function () {
-	pbjs.setConfig({
+var oajs = oajs || { que: [] }
+oajs.que.push(function () {
+	oajs.setConfig({
 		realTimeData: {
 			auctionDelay: 300,
 			dataProviders: [

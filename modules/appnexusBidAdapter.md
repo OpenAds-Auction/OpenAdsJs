@@ -117,7 +117,7 @@ var adUnits = [
      ]
    },
    // Banner adUnit in a App Webview
-   // Only use this for situations where prebid.js is in a webview of an App
+   // Only use this for situations where openads.js is in a webview of an App
    // See Prebid Mobile for displaying ads via an SDK
    {
      code: 'banner-div',

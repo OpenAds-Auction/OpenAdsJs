@@ -10,7 +10,7 @@ Teads user identification system. GDPR & CCPA compliant.
 
 ## Example configuration for publishers:
 
-    pbjs.setConfig({
+    oajs.setConfig({
         userSync: {
             userIds: [{
                 name: 'teadsId',

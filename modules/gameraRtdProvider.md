@@ -30,7 +30,7 @@ gulp build --modules=rtdModule,gameraRtdProvider
 Configure the module in your Prebid.js configuration:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         dataProviders: [{
             name: 'gamera',

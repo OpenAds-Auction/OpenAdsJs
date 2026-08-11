@@ -103,7 +103,7 @@ In summary, we recommend using `Delegate-CH` http-equiv as the preferred method 
 This module is configured as part of the `realTimeData.dataProviders`. We recommend setting `auctionDelay` to at least 250 ms and ensuring `waitForIt` is set to `true` for the `51Degrees` RTD provider.
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     debug: false, // turn on for testing, remove in production
     realTimeData: {
         auctionDelay: 250,

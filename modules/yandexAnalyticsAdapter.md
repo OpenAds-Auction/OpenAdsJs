@@ -27,7 +27,7 @@ Disclosure: The adapter utilizes the Metrica Tag build based on [github.com/yand
    Configure the Yandex Analytics Adapter in your Prebid.js setup. For optimal performance and ease of management, it is preferred to use a single counter. Add the following JavaScript snippet, replacing `123` with your actual counter ID:
 
    ```javascript
-   pbjs.enableAnalytics({
+   oajs.enableAnalytics({
      provider: "yandex",
      options: {
        // Replace 123 with your actual counter ID

@@ -25,7 +25,7 @@ It is recommended to keep the Prebid.js caching for this module short, since the
 communicates with Prebid.js is effectively a local cache anyway.
 
 ```
-pbjs.setConfig({
+oajs.setConfig({
   ...
   userSync: {
     userIds: [

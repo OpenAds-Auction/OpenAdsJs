@@ -31,7 +31,7 @@ configuration parameters. Please work with your BlueConic Prebid support team
 and segment configurations.
 
 ```
-pbjs.setConfig(
+oajs.setConfig(
     ...
     realTimeData: {
         auctionDelay: 1000,

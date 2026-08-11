@@ -46,7 +46,7 @@ To view an example of an Adloox integration look at the example provided in the 
 
 To use this, you *must* also integrate the [Adloox Analytics Adapter](./adlooxAnalyticsAdapter.md) as shown below:
 
-    pbjs.setConfig({
+    oajs.setConfig({
       ...
 
       realTimeData: {
@@ -69,7 +69,7 @@ To use this, you *must* also integrate the [Adloox Analytics Adapter](./adlooxAn
 
       ...
     });
-    pbjs.enableAnalytics({
+    oajs.enableAnalytics({
       provider: 'adloox',
       options: {
         client: 'adlooxtest',
@@ -93,7 +93,7 @@ You may use one of two ways to do achieve this:
 
  * for display inventory [using GPT](https://developers.google.com/publisher-tag/guides/get-started) you may configure Prebid.js to automatically use the [full ad unit path](https://developers.google.com/publisher-tag/reference#googletag.Slot_getAdUnitPath)
      1. include the [`gptPreAuction` module](https://docs.prebid.org/dev-docs/modules/gpt-pre-auction.html)
-     1. wrap both `pbjs.setConfig({...})` and `pbjs.enableAnalytics({...})` with `googletag.cmd.push(function() { ... })`
+     1. wrap both `oajs.setConfig({...})` and `oajs.enableAnalytics({...})` with `googletag.cmd.push(function() { ... })`
  * set `gpid` (or `pbadslot`) in the [first party data](https://docs.prebid.org/dev-docs/adunit-reference.html#first-party-data) variable `AdUnit.ortb2Imp.ext.gpid` (or `AdUnit.ortb2Imp.ext.data.pbadslot`) for all your ad units
 
 ## Timeouts
@@ -102,4 +102,4 @@ It is strongly recommended you increase any [failsafe timeout](https://docs.preb
 
 Adloox recommends you use the following (based on [examples provided on the Prebid.js website](https://docs.prebid.org/dev-docs/examples/basic-example.html))
 
-    FAILSAFE_TIMEOUT = AUCTION_DELAY + (3 * PREBID_TIMEOUT)
+    FAILSAFE_TIMEOUT = AUCTION_DELAY + (3 * OAJS_TIMEOUT)

@@ -27,7 +27,7 @@ Topics iframe implementation is the enhancements of existing module under topics
 Below are the configuration which can be used to configure and override the default config maintained in the module.
 
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         ...,
         topics: { 

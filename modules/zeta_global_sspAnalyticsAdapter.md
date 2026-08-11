@@ -12,7 +12,7 @@ Analytics Adapter which sends auctionEnd and adRenderSucceeded events to Zeta Gl
 
 ## How to configure
 ```
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
     provider: 'zeta_global_ssp',
     options: {
         sid: 111,

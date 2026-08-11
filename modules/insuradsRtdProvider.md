@@ -14,7 +14,7 @@ Compile the InsurAds RTD module into your Prebid build:
 Please visit https://insurads.com/ for more information.
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     ...
     realTimeData: {
         auctionDelay: 1000,

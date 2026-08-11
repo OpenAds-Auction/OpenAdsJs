@@ -15,7 +15,7 @@ gulp build --modules=userId,gemiusIdSystem
 You can configure this submodule in your `userSync.userIds[]` configuration:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'gemiusId',

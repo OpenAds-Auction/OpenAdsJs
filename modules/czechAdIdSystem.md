@@ -13,7 +13,7 @@ gulp build --modules=czechAdIdSystem
 The following configuration parameters are available:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'czechAdId'

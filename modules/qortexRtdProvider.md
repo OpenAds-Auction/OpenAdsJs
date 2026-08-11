@@ -31,7 +31,7 @@ When configuring Qortex as a data provider, refer to the template below to add t
 ### RTD Module Setup
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         auctionDelay: 1000,
         dataProviders: [{

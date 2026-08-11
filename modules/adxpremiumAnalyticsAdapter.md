@@ -27,8 +27,8 @@ AdxPremium Anaytics Adapter can be used as:
 Integration is as easy as adding the following lines of code:
 
 ```javascript
-pbjs.que.push(function () {
-    pbjs.enableAnalytics([{
+oajs.que.push(function () {
+    oajs.enableAnalytics([{
         provider: 'adxpremium',
         options: {
             pubID: 12345678

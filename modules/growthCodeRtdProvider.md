@@ -16,7 +16,7 @@ Compile the GrowthCode RTD module into your Prebid build:
 Please visit https://growthcode.io/ for more information.
 
 ```
-pbjs.setConfig(
+oajs.setConfig(
     ...
     realTimeData: {
          auctionDelay: 1000,

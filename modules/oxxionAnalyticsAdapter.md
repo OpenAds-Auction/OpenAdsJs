@@ -13,7 +13,7 @@ Oxxion helps you to understand how your prebid stack performs.
 
 Add the oxxion analytics adapter module to your prebid configuration :
 ```
-pbjs.enableAnalytics(
+oajs.enableAnalytics(
   ...
   {
     provider: 'oxxion',

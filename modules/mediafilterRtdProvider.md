@@ -24,7 +24,7 @@ gulp build --modules=mediafilterRtdProvider
 Add configuration entry to `realTimeData.dataProviders` for The Media Filter module.
 
 ```
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         dataProviders: [{
             name: 'mediafilter',

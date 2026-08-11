@@ -15,7 +15,7 @@ Contact admin@oolo.io for information.
 # Usage
 
 ```javascript
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
   provider: 'oolo',
   options: {
     pid: 12345 // id provided by oolo

@@ -30,7 +30,7 @@ By enabling this adapter, you agree to Intimate Merger's privacy policy at
 #### Example Configuration
 
 ```javascript
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
     provider: 'imAnalytics',
     options: {
         /* Optional: Customer ID */

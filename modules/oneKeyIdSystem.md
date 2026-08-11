@@ -33,7 +33,7 @@ Go to [onekey.community](https://onekey.community/) for more details.
 #### OneKey Exemple
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'oneKeyData'
@@ -70,7 +70,7 @@ Bidders will receive the data in the following format:
 }
 ```
 
-If the bidder elects to use pbjs.getUserIdsAsEids() then the format will be:
+If the bidder elects to use oajs.getUserIdsAsEids() then the format will be:
 
 ```json
 "user": {

@@ -15,7 +15,7 @@ of complex or frequently updated rendering logic. Compared to the approach taken
 - should perform marginally better: the creative only runs logic that is pertinent (for example, it sees native logic only on native bids);
 - avoids the problem of synchronizing deployments when the rendering logic is updated (see https://github.com/prebid/prebid-universal-creative/issues/187), since it's bundled together with the rest of Prebid;
 - is easier to embed directly in the creative (saving a network call), since the static "shell" is designed to change as infrequently as possible;
-- allows the same rendering logic to be used both in remote (cross-domain) and local (`pbjs.renderAd`) frames, since it's directly available to Prebid; 
+- allows the same rendering logic to be used both in remote (cross-domain) and local (`oajs.renderAd`) frames, since it's directly available to Prebid; 
 - requires Prebid.js - meaning it does not support AMP/App/Mobile (but it's still possible for something like PUC to run the same dynamic renderers
   when it receives them from Prebid, and fall back to separate AMP/App/Mobile logic otherwise).
 

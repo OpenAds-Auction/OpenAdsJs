@@ -18,7 +18,7 @@ Analytics adapter for Datawrkz — captures Prebid.js auction data and sends it 
 Enable the adapter using:
 
 ```js
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
   provider: 'datawrkzanalytics',
   options: {
     publisherId: 'YOUR_PUBLISHER_ID',

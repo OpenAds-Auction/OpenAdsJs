@@ -32,7 +32,7 @@ gulp build --modules=...,hadronAnalyticsAdapter
 The following configuration parameters are available:
 
 ```javascript
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
     provider: 'hadronAnalytics',
     options: {
         partnerId: 1234, // change to the Partner ID you got from Audigent

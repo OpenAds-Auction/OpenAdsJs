@@ -10,7 +10,7 @@ Analytics adapter for <a href="https://asteriobid.com/">AsterioBid</a>. Contact 
 # Test Parameters
 
 ```
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
     provider: 'asteriobid',
     options: {
         bundleId: '04bcf17b-9733-4675-9f67-d475f881ab78'
@@ -22,7 +22,7 @@ pbjs.enableAnalytics({
 # Advanced Parameters
 
 ```
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
     provider: 'asteriobid',
     options: {
         bundleId: '04bcf17b-9733-4675-9f67-d475f881ab78',

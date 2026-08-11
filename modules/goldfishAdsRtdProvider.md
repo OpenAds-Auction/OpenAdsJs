@@ -26,7 +26,7 @@ Use `setConfig` to instruct Prebid.js to initialize the Goldfish Ads RTD module,
 This module is configured as part of the `realTimeData.dataProviders`
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     auctionDelay: 300,
     dataProviders: [{

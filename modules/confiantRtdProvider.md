@@ -28,7 +28,7 @@ gulp build --modules=confiantRtdProvider,...
 Configuration of Confiant module is plain simple:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         dataProviders: [{
             name: 'confiant',

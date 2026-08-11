@@ -14,7 +14,7 @@
 ## Example
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     idImportLibrary: {
         target: 'username',
         url: 'https://example.com',

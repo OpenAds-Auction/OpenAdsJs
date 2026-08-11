@@ -6,7 +6,7 @@ For assistance setting up your module please contact us at platformteam@mobkoi.c
 
 Individual params may be set for the IDx Submodule.
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'mobkoiId',

@@ -17,7 +17,7 @@ When the module is included, it's automatically enabled and saves an id to both 
 Individual params may be set for the MediaWallah openLink User ID Submodule. At least accountId and partnerId must be set in the params.
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'mwOpenLinkId',

@@ -47,7 +47,7 @@ By default, using this submodule *does not require any prior communication with 
 besides just indicating that it should be loaded:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         dataProviders: [{
             name: 'humansecurity'
@@ -60,7 +60,7 @@ Other parameters can also be provided. For example, a client ID obtained from HU
 optionally be provided, or verbose output can be enabled for troubleshooting purposes:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         dataProviders: [{
             name: 'humansecurity',

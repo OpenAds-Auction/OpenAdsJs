@@ -27,7 +27,7 @@ To utilize the pubX.ai RTD module, add `realTimeData` with the parameters mentio
 
 ```js
 const AUCTION_DELAY = 100;
-pbjs.setConfig({
+oajs.setConfig({
 	// rest of the config
 	...,
 	realTimeData: {

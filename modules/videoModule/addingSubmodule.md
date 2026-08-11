@@ -510,7 +510,7 @@ No additional params.
 
 #### Update .submodules.json
 
-In prebid.js, add your new submodule to `.submodules.json` under the `videoModule` as such:
+In openads.js, add your new submodule to `.submodules.json` under the `videoModule` as such:
 {% highlight text %}
 ```
 {

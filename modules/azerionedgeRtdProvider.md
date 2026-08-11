@@ -36,10 +36,10 @@ along with the parent RTD Module (`rtdModule`):
 gulp build --modules=rtdModule,azerionedgeRtdProvider
 ```
 
-Set configuration via `pbjs.setConfig`.
+Set configuration via `oajs.setConfig`.
 
 ```js
-pbjs.setConfig(
+oajs.setConfig(
     ...
     realTimeData: {
         auctionDelay: 1000,

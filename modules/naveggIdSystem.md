@@ -6,7 +6,7 @@ For assistance setting up your module please contact us at [prebid@navegg.com](p
 
 Individual params may be set for the IDx Submodule.
 ```
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'naveggId',

@@ -22,10 +22,10 @@ gulp build --modules=medianetRtdProvider
 
 # Configurations
 
-2) Enable Media.net Real Time Module using `pbjs.setConfig`
+2) Enable Media.net Real Time Module using `oajs.setConfig`
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         dataProviders: [{
             name: 'medianet',

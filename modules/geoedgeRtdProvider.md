@@ -22,7 +22,7 @@ gulp build --modules=geoedgeRtdProvider,...
 This module is configured as part of the `realTimeData.dataProviders` object:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         dataProviders: [{
             name: 'geoedge',

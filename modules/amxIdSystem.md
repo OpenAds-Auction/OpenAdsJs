@@ -7,7 +7,7 @@ For help adding this module, please contact [info@amxdt.net](info@amxdt.net).
 You can configure this module in your `userSync.userIds[]` configuration:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   userSync: {
     userIds: [
       {

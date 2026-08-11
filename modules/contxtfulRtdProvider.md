@@ -12,7 +12,7 @@ To utilize this module, you need to register for an account with [Contxtful](htt
 
 ## Build Instructions
 
-To incorporate this module into your `prebid.js`, compile the module using the following command:
+To incorporate this module into your `openads.js`, compile the module using the following command:
 
 ```sh
 gulp build --modules=rtdModule,contxtfulRtdProvider,<other modules...>
@@ -39,12 +39,12 @@ gulp test --file "test/spec/modules/contxtfulRtdProvider_spec.js" --nolint
 
 ## Configuration
 
-Configure the `contxtfulRtdProvider` by passing the required settings through the `setConfig` function in `prebid.js`.
+Configure the `contxtfulRtdProvider` by passing the required settings through the `setConfig` function in `openads.js`.
 
 ```js
-import pbjs from 'prebid.js';
+import oajs from 'openads.js';
 
-pbjs.setConfig({
+oajs.setConfig({
   "realTimeData": {
     "auctionDelay": 1000,
     "dataProviders": [

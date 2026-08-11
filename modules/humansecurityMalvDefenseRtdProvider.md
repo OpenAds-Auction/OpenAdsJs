@@ -27,10 +27,10 @@ gulp build --modules="rtdModule,humansecurityMalvDefenseRtdProvider,..."
 
 This module is configured as part of the `realTimeData.dataProviders` object.
 
-When built into Prebid.js, this module can be configured through the following `pbjs.setConfig` call:
+When built into Prebid.js, this module can be configured through the following `oajs.setConfig` call:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         dataProviders: [{
             name: 'humansecurityMalvDefense',

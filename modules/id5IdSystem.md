@@ -19,7 +19,7 @@ gulp build --modules=id5IdSystem,userId
 The following configuration parameters are available:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   userSync: {
     userIds: [{
       name: 'id5Id',
@@ -75,7 +75,7 @@ pbjs.setConfig({
 
 Publishers may want to test the value of the ID5 ID with their downstream partners. While there are various ways to do this, A/B testing is a standard approach. Instead of publishers manually enabling or disabling the ID5 User ID Module based on their control group settings (which leads to fewer calls to ID5, reducing our ability to recognize the user), we have baked this in to our module directly.
 
-To turn on A/B Testing, simply edit the configuration (see above table) to enable it and set what percentage of users you would like to set for the control group. The control group is the set of user where an ID5 ID will not be exposed in to bid adapters or in the various user id functions available on the `pbjs` global. An additional value of `ext.abTestingControlGroup` will be set to `true` or `false` that can be used to inform reporting systems that the user was in the control group or not. It's important to note that the control group is user based, and not request based. In other words, from one page view to another, a user will always be in or out of the control group.
+To turn on A/B Testing, simply edit the configuration (see above table) to enable it and set what percentage of users you would like to set for the control group. The control group is the set of user where an ID5 ID will not be exposed in to bid adapters or in the various user id functions available on the `oajs` global. An additional value of `ext.abTestingControlGroup` will be set to `true` or `false` that can be used to inform reporting systems that the user was in the control group or not. It's important to note that the control group is user based, and not request based. In other words, from one page view to another, a user will always be in or out of the control group.
 
 ### A Note on Using Multiple Wrappers
 If you or your monetization partners are deploying multiple Prebid wrappers on your websites, you should make sure you add the ID5 ID User ID module to *every* wrapper. Only the bidders configured in the Prebid wrapper where the ID5 ID User ID module is installed and configured will be able to pick up the ID5 ID. Bidders from other Prebid instances will not be able to pick up the ID5 ID.
@@ -134,7 +134,7 @@ The id from `uidapi.com` will be available if the partner that is used in ID5 us
 TrueLinkId can be provided as a PPID - to use, it the `true-link-id5-sync.com` needs to be provided as a ppid source in prebid userSync configuration:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   userSync: {
     ppid: 'true-link-id5-sync.com',
     userIds: [],  //userIds modules should be configured here

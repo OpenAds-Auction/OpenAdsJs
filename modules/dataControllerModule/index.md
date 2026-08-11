@@ -19,7 +19,7 @@ Sub module object with the following keys:
 
 ```
 
-pbjs.setConfig({
+oajs.setConfig({
     dataController: {
        filterEIDwhenSDA: ['*']
        filterSDAwhenEID: ['id5-sync.com'] 
