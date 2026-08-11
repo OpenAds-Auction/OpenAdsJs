@@ -13,7 +13,7 @@ import { ajax } from '../src/ajax.js';
 import { US_GPP_SECTION_IDS } from '../libraries/mspa/usSections.js';
 import type { ORTBRequest } from '../src/types/ortb/request.d.ts';
 
-type Eid = NonNullable<NonNullable<ORTBRequest['user']>['eids']>[number];
+type Eid = ORTBRequest['user']['eids'][number];
 
 const MODULE_NAME = 'drawbridge';
 const HOOK_PRIORITY = 10;

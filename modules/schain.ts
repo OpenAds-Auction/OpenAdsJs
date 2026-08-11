@@ -4,7 +4,7 @@ import { normalizeFPD } from '../src/fpd/normalize.js';
 import type { ORTBRequest } from "../src/types/ortb/request";
 
 export type SchainConfig = {
-  config: NonNullable<ORTBRequest['source']>['schain'];
+  config: ORTBRequest['source']['schain'];
 }
 
 declare module '../src/config' {
