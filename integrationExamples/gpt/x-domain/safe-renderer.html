@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>SafeRenderer example (safeRenderer)</title>
 
-  <script src="../../../build/dev/prebid.js" async></script>
+  <script src="../../../build/dev/openads.js" async></script>
   <script
     async
     src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"
@@ -15,7 +15,7 @@
     window.googletag = window.googletag || { cmd: [] };
     googletag.cmd.push(function () {
       googletag
-        .defineSlot('/41758329/prebid-example', [[1, 1],[300, 250]], 'prebid-example')
+        .defineSlot('/19968336/prebid-example', [[1, 1],[300, 250]], 'prebid-example')
         .addService(googletag.pubads());
       googletag.pubads().enableSingleRequest();
       googletag.enableServices();
@@ -23,8 +23,8 @@
   </script>
 
   <script>
-    var pbjs = pbjs || {};
-    pbjs.que = pbjs.que || [];
+    var oajs = oajs || {};
+    oajs.que = oajs.que || [];
 
     const adUnitCode = 'prebid-example';
     const vastXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><VAST version=\"3.0\"><Ad><InLine><AdSystem>GDFP</AdSystem><AdTitle>Demo</AdTitle><Description><![CDATA[Demo]]></Description><Creatives><Creative><Linear ><Duration>00:00:11</Duration><VideoClicks><ClickThrough><![CDATA[https://adplayer.pro/]]></ClickThrough></VideoClicks><MediaFiles><MediaFile delivery=\"progressive\" width=\"640\" height=\"360\" type=\"video/mp4\" scalable=\"true\" maintainAspectRatio=\"true\"><![CDATA[https://static.adplayer.pro/video/demo_v2.mp4]]></MediaFile></MediaFiles></Linear></Creative></Creatives></InLine></Ad></VAST>"
@@ -59,13 +59,13 @@
       }
     ];
 
-    pbjs.que.push(function () {
-      pbjs.registerBidAdapter(null, 'testBidder', {
+    oajs.que.push(function () {
+      oajs.registerBidAdapter(null, 'testBidder', {
         supportedMediaTypes: ['banner', 'video', 'native'],
         isBidRequestValid: () => true
       });
 
-      pbjs.setConfig({
+      oajs.setConfig({
         allowTopWindowRenderers: false,
         debugging: {
           enabled: true,
@@ -93,21 +93,21 @@
         }
       });
 
-      pbjs.addAdUnits(adUnits);
-      pbjs.requestBids({
+      oajs.addAdUnits(adUnits);
+      oajs.requestBids({
         adUnitCodes: [adUnitCode],
         bidsBackHandler: sendAdserverRequest
       });
     });
 
     function sendAdserverRequest() {
-      if (pbjs.adserverRequestSent) return;
-      pbjs.adserverRequestSent = true;
+      if (oajs.adserverRequestSent) return;
+      oajs.adserverRequestSent = true;
 
       googletag.cmd.push(function () {
-        if (pbjs.libLoaded) {
-          pbjs.que.push(function () {
-            pbjs.setTargetingForGPTAsync([adUnitCode]);
+        if (oajs.libLoaded) {
+          oajs.que.push(function () {
+            oajs.setTargetingForGPTAsync([adUnitCode]);
             googletag.pubads().refresh();
           });
         } else {

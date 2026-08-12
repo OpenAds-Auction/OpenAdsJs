@@ -197,7 +197,7 @@ export interface TargetingControlsConfig {
   version?: false | string;
   /**
    * If true (the default), update GPT slots with partial targeting data at the beginning of each auction.
-   * Normally this has no effect, as it is overridden by full targeting data later (typically, when `pbjs.setTargetingForGPTASync()` is called after the auction is complete).
+   * Normally this has no effect, as it is overridden by full targeting data later (typically, when `oajs.setTargetingForGPTASync()` is called after the auction is complete).
    * The purpose of this update is to prevent accidental use of stale targeting data if slots are refreshed before then (e.g. on a failsafe timeout).
    */
   presetGPTTargeting?: boolean
