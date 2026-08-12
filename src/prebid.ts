@@ -1338,7 +1338,7 @@ addApiMethod('triggerBilling', triggerBilling);
  */
 function generateTID () {
   let tid = generateUUID();
-  tid = 'oajs' + tid.slice(4)
+  tid = 'oajs' + tid.slice(4);
   return tid;
 }
 addApiMethod('generateTID', generateTID);

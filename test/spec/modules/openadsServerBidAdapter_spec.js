@@ -601,63 +601,63 @@ describe('s2s configuration', () => {
   it('thetradedesk bidder param defaults are not set if no defaults configured', () => {
     expect(validateConfig(cfg1)[0].adapterOptions).to.not.exist;
 
-    cfg1.adapterOptions = { tester: { key: 'value' } }
-    const res = validateConfig(cfg1)[0]
+    cfg1.adapterOptions = { tester: { key: 'value' } };
+    const res = validateConfig(cfg1)[0];
     expect(res.adapterOptions).to.exist;
     expect(res.adapterOptions.tester).to.exist;
     expect(res.adapterOptions.tester).to.haveOwnProperty('key');
-    expect(res.adapterOptions.tester.key).to.be.equal('value')
+    expect(res.adapterOptions.tester.key).to.be.equal('value');
     expect(res.adapterOptions.thetradedesk).to.not.exist;
   });
   it('thetradedesk bidder param defaults are set if defaults configured', () => {
-    setTheTradeDeskParamDefaults('1', 'tester')
-    cfg2.adapterOptions = { tester: { key: 'value' } }
+    setTheTradeDeskParamDefaults('1', 'tester');
+    cfg2.adapterOptions = { tester: { key: 'value' } };
 
-    const res = validateConfig([cfg1, cfg2])
+    const res = validateConfig([cfg1, cfg2]);
     expect(res[0].adapterOptions).to.exist;
     expect(res[0].adapterOptions.thetradedesk).to.exist;
     expect(res[0].adapterOptions.thetradedesk).to.haveOwnProperty('publisherId');
-    expect(res[0].adapterOptions.thetradedesk.publisherId).to.be.equal('1')
+    expect(res[0].adapterOptions.thetradedesk.publisherId).to.be.equal('1');
     expect(res[0].adapterOptions.thetradedesk).to.haveOwnProperty('supplySourceId');
     expect(res[0].adapterOptions.thetradedesk.supplySourceId).to.be.equal('tester');
 
     expect(res[1].adapterOptions).to.exist;
     expect(res[1].adapterOptions.thetradedesk).to.exist;
     expect(res[1].adapterOptions.thetradedesk).to.haveOwnProperty('publisherId');
-    expect(res[1].adapterOptions.thetradedesk.publisherId).to.be.equal('1')
+    expect(res[1].adapterOptions.thetradedesk.publisherId).to.be.equal('1');
     expect(res[1].adapterOptions.thetradedesk).to.haveOwnProperty('supplySourceId');
     expect(res[1].adapterOptions.thetradedesk.supplySourceId).to.be.equal('tester');
     expect(res[1].adapterOptions.tester).to.exist;
     expect(res[1].adapterOptions.tester).to.haveOwnProperty('key');
-    expect(res[1].adapterOptions.tester.key).to.be.equal('value')
+    expect(res[1].adapterOptions.tester.key).to.be.equal('value');
   });
   it('thetradedesk bidder param defaults take precedence over publisher provided values', () => {
-    setTheTradeDeskParamDefaults('1', 'tester')
+    setTheTradeDeskParamDefaults('1', 'tester');
     cfg1.adapterOptions = {
       thetradedesk: {
         publisherId: '2',
         supplySourceId: 'tester2'
       }
-    }
+    };
 
-    const res = validateConfig(cfg1)[0]
+    const res = validateConfig(cfg1)[0];
     expect(res.adapterOptions).to.exist;
     expect(res.adapterOptions.thetradedesk).to.exist;
     expect(res.adapterOptions.thetradedesk).to.haveOwnProperty('publisherId');
-    expect(res.adapterOptions.thetradedesk.publisherId).to.be.equal('1')
+    expect(res.adapterOptions.thetradedesk.publisherId).to.be.equal('1');
     expect(res.adapterOptions.thetradedesk).to.haveOwnProperty('supplySourceId');
-    expect(res.adapterOptions.thetradedesk.supplySourceId).to.be.equal('tester')
+    expect(res.adapterOptions.thetradedesk.supplySourceId).to.be.equal('tester');
   });
   it('endpoint is always set to default value', () => {
-    let res = validateConfig(cfg1)[0]
+    let res = validateConfig(cfg1)[0];
     expect(res.endpoint).to.exist;
     expect(res.endpoint.noP1Consent).to.exist;
     expect(res.endpoint.noP1Consent).to.be.equal('https://openads.adsrvr.org/openrtb2/auction');
     expect(res.endpoint.p1Consent).to.exist;
     expect(res.endpoint.p1Consent).to.be.equal('https://openads.adsrvr.org/openrtb2/auction');
 
-    delete cfg1.endpoint
-    res = validateConfig(cfg1)[0]
+    delete cfg1.endpoint;
+    res = validateConfig(cfg1)[0];
     expect(res.endpoint).to.exist;
     expect(res.endpoint.noP1Consent).to.exist;
     expect(res.endpoint.noP1Consent).to.be.equal('https://openads.adsrvr.org/openrtb2/auction');
@@ -665,12 +665,12 @@ describe('s2s configuration', () => {
     expect(res.endpoint.p1Consent).to.be.equal('https://openads.adsrvr.org/openrtb2/auction');
   });
   it('syncEndpoint is not set to default value if not provided', () => {
-    let res = validateConfig(cfg1)[0]
+    let res = validateConfig(cfg1)[0];
     expect(res.syncEndpoint).to.not.exist;
   });
   it('syncEndpoint is set to default value', () => {
-    cfg1.syncEndpoint = "tester"
-    let res = validateConfig(cfg1)[0]
+    cfg1.syncEndpoint = "tester";
+    let res = validateConfig(cfg1)[0];
     expect(res.syncEndpoint).to.exist;
     expect(res.syncEndpoint.noP1Consent).to.exist;
     expect(res.syncEndpoint.noP1Consent).to.be.equal('https://openads.adsrvr.org/cookie_sync');
@@ -678,44 +678,44 @@ describe('s2s configuration', () => {
     expect(res.syncEndpoint.p1Consent).to.be.equal('https://openads.adsrvr.org/cookie_sync');
   });
   it('account is not set to default value if no default set', () => {
-    let res = validateConfig(cfg1)[0]
+    let res = validateConfig(cfg1)[0];
     expect(res.accountId).to.exist;
     expect(res.accountId).to.be.equal('123456');
   });
   it('account is set to default value', () => {
-    setTheTradeDeskParamDefaults('1', 'tester')
-    const res = validateConfig(cfg1)[0]
+    setTheTradeDeskParamDefaults('1', 'tester');
+    const res = validateConfig(cfg1)[0];
     expect(res.accountId).to.exist;
     expect(res.accountId).to.be.equal('tester');
   });
   it('bidders always includes thetradedesk', () => {
-    let res = validateConfig(cfg1)[0]
+    let res = validateConfig(cfg1)[0];
     expect(res.bidders.length).to.be.equal(2);
     expect(res.bidders[1]).to.be.equal('thetradedesk');
 
-    cfg1.bidders = 'bidderA'
-    res = validateConfig(cfg1)[0]
+    cfg1.bidders = 'bidderA';
+    res = validateConfig(cfg1)[0];
     expect(res.bidders.length).to.be.equal(2);
     expect(res.bidders[0]).to.be.equal('bidderA');
     expect(res.bidders[1]).to.be.equal('thetradedesk');
 
-    delete cfg1.bidders
-    res = validateConfig(cfg1)[0]
+    delete cfg1.bidders;
+    res = validateConfig(cfg1)[0];
     expect(res.bidders.length).to.be.equal(1);
     expect(res.bidders[0]).to.be.equal('thetradedesk');
 
-    cfg1.bidders = null
-    res = validateConfig(cfg1)[0]
+    cfg1.bidders = null;
+    res = validateConfig(cfg1)[0];
     expect(res.bidders.length).to.be.equal(1);
     expect(res.bidders[0]).to.be.equal('thetradedesk');
 
-    cfg1.bidders = 1
-    res = validateConfig(cfg1)[0]
+    cfg1.bidders = 1;
+    res = validateConfig(cfg1)[0];
     expect(res.bidders.length).to.be.equal(1);
     expect(res.bidders[0]).to.be.equal('thetradedesk');
 
-    cfg1.bidders = ['thetradedesk']
-    res = validateConfig(cfg1)[0]
+    cfg1.bidders = ['thetradedesk'];
+    res = validateConfig(cfg1)[0];
     expect(res.bidders.length).to.be.equal(1);
     expect(res.bidders[0]).to.be.equal('thetradedesk');
   });
@@ -3514,7 +3514,7 @@ describe('S2S Adapter', function () {
       CONFIG = original;
       adapter.callBids(REQUEST, BID_REQUESTS, addBidResponse, done, ajax);
       const responding = deepClone(nonbidResponse);
-      Object.assign(responding.ext.seatnonbid, [{ auctionId: 2 }])
+      Object.assign(responding.ext.seatnonbid, [{ auctionId: 2 }]);
       server.requests[0].respond(200, {}, JSON.stringify(responding));
       const event = events.emit.thirdCall.args;
       expect(event[0]).to.equal(EVENTS.PBS_ANALYTICS);
