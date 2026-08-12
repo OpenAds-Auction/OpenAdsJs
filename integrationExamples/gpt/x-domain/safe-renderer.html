@@ -15,7 +15,7 @@
     window.googletag = window.googletag || { cmd: [] };
     googletag.cmd.push(function () {
       googletag
-        .defineSlot('/19968336/prebid-example', [[1, 1],[300, 250]], 'prebid-example')
+        .defineSlot('/19968336/oajs-example', [[1, 1],[300, 250]], 'oajs-example')
         .addService(googletag.pubads());
       googletag.pubads().enableSingleRequest();
       googletag.enableServices();
@@ -26,7 +26,7 @@
     var oajs = oajs || {};
     oajs.que = oajs.que || [];
 
-    const adUnitCode = 'prebid-example';
+    const adUnitCode = 'oajs-example';
     const vastXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><VAST version=\"3.0\"><Ad><InLine><AdSystem>GDFP</AdSystem><AdTitle>Demo</AdTitle><Description><![CDATA[Demo]]></Description><Creatives><Creative><Linear ><Duration>00:00:11</Duration><VideoClicks><ClickThrough><![CDATA[https://adplayer.pro/]]></ClickThrough></VideoClicks><MediaFiles><MediaFile delivery=\"progressive\" width=\"640\" height=\"360\" type=\"video/mp4\" scalable=\"true\" maintainAspectRatio=\"true\"><![CDATA[https://static.adplayer.pro/video/demo_v2.mp4]]></MediaFile></MediaFiles></Linear></Creative></Creatives></InLine></Ad></VAST>"
 
     const adUnits = [
@@ -122,10 +122,10 @@
   <h1>SafeRenderer example</h1>
   <code>bid.safeRenderer.url</code>
 
-  <div id="prebid-example" style="min-width: 300px; min-height: 250px;">
+  <div id="oajs-example" style="min-width: 300px; min-height: 250px;">
     <script>
       googletag.cmd.push(function () {
-        googletag.display('prebid-example');
+        googletag.display('oajs-example');
       });
     </script>
   </div>
