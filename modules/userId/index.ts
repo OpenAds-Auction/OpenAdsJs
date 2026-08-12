@@ -62,7 +62,7 @@ import {
 } from '../../src/activities/params.js';
 import { beforeInitAuction } from '../../src/auction.js';
 
-// export so that consumers can `import {type UserIdConfig} from 'prebid.js/modules/userId'`
+// export so that consumers can `import {type UserIdConfig} from 'openads.js/modules/userId'`
 export { type UserIdConfig } from './spec.ts';
 
 const MODULE_NAME = 'User ID';
