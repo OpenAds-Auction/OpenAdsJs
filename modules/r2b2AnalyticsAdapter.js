@@ -185,10 +185,10 @@ function reportEvents (events) {
 function getStandardTargeting (obj) {
   if (obj) {
     return {
-      b: obj.hb_bidder || '',
-      sz: obj.hb_size || '',
-      pb: obj.hb_pb || '',
-      fmt: obj.hb_format || ''
+      b: obj.oa_bidder || '',
+      sz: obj.oa_size || '',
+      pb: obj.oa_pb || '',
+      fmt: obj.oa_format || ''
     }
   }
 }
@@ -448,7 +448,7 @@ function handleSetTargeting (args) {
   Object.keys(args).forEach((unit) => {
     if (Object.keys(args[unit]).length) {
       if (!adId) {
-        adId = args[unit].hb_adid
+        adId = args[unit].oa_adid
       }
       filteredTargetings[unit] = getStandardTargeting(args[unit]);
     }

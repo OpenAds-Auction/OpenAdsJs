@@ -167,14 +167,14 @@ const R2B2_AD_UNIT_2_BID = {
   'timeToRespond': 854,
   'size': '300x100',
   'adserverTargeting': {
-    'hb_bidder': 'r2b2',
-    'hb_adid': AD_UNIT_2_AD_ID,
-    'hb_pb': '0.20',
-    'hb_size': '300x100',
-    'hb_source': 'client',
-    'hb_format': 'banner',
-    'hb_adomain': '',
-    'hb_crid': '76190558'
+    'oa_bidder': 'r2b2',
+    'oa_adid': AD_UNIT_2_AD_ID,
+    'oa_pb': '0.20',
+    'oa_size': '300x100',
+    'oa_source': 'client',
+    'oa_format': 'banner',
+    'oa_adomain': '',
+    'oa_crid': '76190558'
   },
   'latestTargetedAuctionId': AUCTION_ID,
   'status': 1
