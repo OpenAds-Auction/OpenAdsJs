@@ -2,8 +2,6 @@ import 'src/prebid.js';
 import { getGlobal } from '../../src/prebidGlobal.js';
 
 import { getGlobalVarName } from '../../src/buildOptions.js';
-import { pbjsTestOnly } from "../helpers/pbjs-test-only.js";
-import { assert, expect } from "chai";
 
 describe('Publisher API _ AdUnits', function () {
   var assert = require('chai').assert;
