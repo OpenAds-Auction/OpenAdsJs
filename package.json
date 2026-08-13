@@ -1,6 +1,6 @@
 {
   "name": "openads.js",
-  "version": "11.20.0",
+  "version": "11.21.0",
   "oaVersion": "1.14.0",
   "description": "Header Bidding Management Library",
   "main": "dist/src/prebid.public.ts",
@@ -43,9 +43,7 @@
   ],
   "browserslist": [
     "> 0.25%",
-    "not IE 11",
-    "not dead",
-    "not op_mini all"
+    "not ios_saf 11"
   ],
   "keywords": [
     "advertising",

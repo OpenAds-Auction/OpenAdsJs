@@ -222,3 +222,15 @@ Detailed code coverage reporting can be generated explicitly with
 The results will be in
 
         ./build/coverage
+
+*Note*: Starting in June 2016, all pull requests to Prebid.js need to include tests with greater than 80% code coverage before they can be merged.  For more information, see [#421](https://github.com/prebid/Prebid.js/issues/421).
+
+For instructions on writing tests for Prebid.js, see [Testing Prebid.js](https://prebid.org/dev-docs/testing-prebid.html).
+
+### Supported Browsers
+
+Prebid.js is supported on IE11 and modern browsers until 5.x. 6.x+ transpiles to target >0.25%; not dead. 11.21+ removes not dead and adds not ios_saf 11.
+
+### Governance
+Review our governance model [here](https://github.com/prebid/Prebid.js/tree/master/governance.md).
+### END
