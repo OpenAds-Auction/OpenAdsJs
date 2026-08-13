@@ -294,7 +294,7 @@ export const spec = {
    */
   buildRequests: function (bidRequests, bidderRequest) {
     // separate video bids because the requests are structured differently
-    let requests = [];
+    let requests;
     const filteredHttpRequest = [];
     let filteredRequests;
 
