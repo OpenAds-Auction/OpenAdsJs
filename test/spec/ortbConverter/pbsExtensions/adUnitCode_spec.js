@@ -14,7 +14,7 @@ describe('pbjs -> ortb adunit code to imp[].ext.openads.adunitcode', () => {
           'adunitcode': 'mockAdUnit'
         }
       }
-    })
+    });
   });
 
   it('does not set adunitcode in ext.openads.adunitcode if adUnit is undefined', () => {

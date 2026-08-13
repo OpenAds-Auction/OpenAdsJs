@@ -43,9 +43,9 @@ export function getUserSyncs(syncOptions, serverResponses, gdprConsent, uspConse
       query.push(`gppString=${encodeURIComponent(gppConsent?.gppString)}`);
     }
     if (config.getConfig('coppa')) {
-      query.push('coppa=1')
+      query.push('coppa=1');
     }
-    const q = query.join('&')
+    const q = query.join('&');
     if (syncOptions.iframeEnabled) {
       syncs.push({
         type: 'iframe',

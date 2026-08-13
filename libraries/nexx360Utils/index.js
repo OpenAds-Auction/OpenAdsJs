@@ -130,12 +130,12 @@ export function createResponse(bid, respBody) {
 
   if (bid.ext.mediaType === OUTSTREAM) {
     response.renderer = createRenderer(bid, OUTSTREAM_RENDERER_URL);
-    if (bid.ext.divId) response.divId = bid.ext.divId
+    if (bid.ext.divId) response.divId = bid.ext.divId;
   };
 
   if (bid.ext.mediaType === NATIVE) {
     try {
-      response.native = { ortb: JSON.parse(bid.adm) }
+      response.native = { ortb: JSON.parse(bid.adm) };
     } catch (e) {}
   }
   return response;

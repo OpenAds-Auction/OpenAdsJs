@@ -2,7 +2,7 @@ import { deepAccess, isArray } from '../../src/utils.js';
 import { config } from '../../src/config.js';
 import { BANNER, VIDEO } from '../../src/mediaTypes.js';
 
-export const supportedMediaTypes = [VIDEO, BANNER]
+export const supportedMediaTypes = [VIDEO, BANNER];
 
 export function isBidRequestValid (bid) {
   return !!deepAccess(bid, 'params.aid');
@@ -28,8 +28,8 @@ export function getUserSyncsFn (syncOptions, serverResponses, syncsCache = {}) {
         syncs.push({
           type: type,
           url: uri
-        })
-      })
+        });
+      });
     }
   }
 
@@ -39,12 +39,12 @@ export function getUserSyncsFn (syncOptions, serverResponses, syncsCache = {}) {
         if (isArray(response.body)) {
           response.body.forEach(b => {
             addSyncs(b);
-          })
+          });
         } else {
-          addSyncs(response.body)
+          addSyncs(response.body);
         }
       }
-    })
+    });
   }
   return syncs;
 }

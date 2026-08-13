@@ -5,7 +5,7 @@ describe('PBS - ortb ext.openads.aliases', () => {
   let aliasRegistry, bidderRegistry;
 
   function setAliases(bidderRequest) {
-    const req = {}
+    const req = {};
     setRequestExtPrebidAliases(req, bidderRequest, {}, {
       am: {
         bidderRegistry,
@@ -35,7 +35,7 @@ describe('PBS - ortb ext.openads.aliases', () => {
         getSpec() {
           return {
             skipPbsAliasing: true
-          }
+          };
         }
       };
       expect(setAliases({ bidderCode: 'alias' })).to.eql({});
@@ -46,7 +46,7 @@ describe('PBS - ortb ext.openads.aliases', () => {
     aliasRegistry['alias'] = 'bidder';
     bidderRegistry['alias'] = {
       getSpec() {
-        return spec
+        return spec;
       }
     };
   }
@@ -60,7 +60,7 @@ describe('PBS - ortb ext.openads.aliases', () => {
           }
         }
       }
-    })
+    });
   });
 
   it('sets ext.openads.aliasgvlids.BIDDER if set on spec', () => {
@@ -76,7 +76,7 @@ describe('PBS - ortb ext.openads.aliases', () => {
           }
         }
       }
-    })
+    });
   });
 
   it('sets ext.openads.aliasgvlids.BIDDER if set on config', () => {
@@ -97,7 +97,7 @@ describe('PBS - ortb ext.openads.aliases', () => {
           }
         }
       }
-    })
+    });
   });
 
   it('prefers ext.openads.aliasgvlids.BIDDER set on config over spec', () => {
@@ -118,6 +118,6 @@ describe('PBS - ortb ext.openads.aliases', () => {
           }
         }
       }
-    })
+    });
   });
-})
+});

@@ -10,7 +10,7 @@ describe('Publisher API _ AdUnits', function () {
   var expect = require('chai').expect;
   var pbjsTestOnly = require('../helpers/pbjs-test-only.js').pbjsTestOnly;
 
-  var tid = getGlobal().generateTID()
+  var tid = getGlobal().generateTID();
 
   before(function () {
     var adUnits = [{
