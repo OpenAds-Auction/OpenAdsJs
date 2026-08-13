@@ -1413,8 +1413,9 @@ describe('auctionmanager.js', function () {
     describe('when auction timeout is 20', function () {
       let eventsEmitSpy, auctionDone, bidsBackCallback;
 
-      function respondToRequest(requestIndex) {
-        server.requests[requestIndex].respond(200, {}, 'response body');
+      function respondToRequest(discriminator) {
+        const request = typeof discriminator === 'function' ? server.requests.find(discriminator) : server.requests[discriminator];
+        request.respond(200, {}, 'response body');
       }
 
       function runAuction() {
@@ -1451,6 +1452,8 @@ describe('auctionmanager.js', function () {
 
       afterEach(function () {
         events.emit.restore();
+        config.resetConfig();
+        delete adapterManager.bidderRegistry.openadsServer;
       });
 
       it('resolves .end on timeout', () => {
@@ -1533,14 +1536,17 @@ describe('auctionmanager.js', function () {
       });
 
       it('should NOT emit BID_TIMEOUT for bidders that replied through S2S', () => {
-        adapterManager.registerBidAdapter(new OpenAdsServer(), 'pbs');
+        // openadsServerBidAdapter's setConfigDefaults() forces s2sConfig.adapter to
+        // 'openadsServer' (mutating the shared config object in place) regardless of
+        // what's configured here, so the adapter must be registered under that name.
+        adapterManager.registerBidAdapter(new OpenAdsServer(), 'openadsServer');
         config.setConfig({
           s2sConfig: {
             accountId: '1',
             enabled: true,
             defaultVendor: 'rubicon',
             bidders: ['mock-s2s-2'],
-            adapter: 'pbs',
+            adapter: 'openadsServer',
             endpoint: {
               p1Consent: 'https://prebid-server.rubiconproject.com/openrtb2/auction',
               noP1Consent: 'https://prebid-server.rubiconproject.com/openrtb2/auction',
@@ -1566,19 +1572,27 @@ describe('auctionmanager.js', function () {
           bids: [
             {
               bidder: 'mock-s2s-2',
-              bid_id: bids[1].requestId
+              // bids[0] is the 'mock-s2s-2' bid unshifted above; using any other index here
+              // leaves actualBidRequests.get('mock-s2s-2') unset, so setImpBidParams() throws
+              // reading .params off undefined and the whole S2S imp is silently dropped.
+              bid_id: bids[0].requestId
             }
           ]
         });
 
         const pm = runAuction().then(() => {
           const toBids = eventsEmitSpy.withArgs(EVENTS.BID_TIMEOUT).getCalls()[0].args[1];
+          // mock-s2s-2 replies through S2S (respondToRequest below) so it's excluded here;
+          // neither client bidder gets a response in this test, so both time out.
           expect(toBids.map(bid => bid.bidder)).to.eql([
-            'mock-s2s-2',
+            BIDDER_CODE,
             BIDDER_CODE1,
           ]);
         });
-        respondToRequest(1);
+        // upstream's own fixture points s2sConfig.endpoint at 'ib.adnxs.com/openrtb2/prebid' and matches
+        // on that; our fork's openadsServerBidAdapter forces the endpoint to its own production URL
+        // regardless of what's configured, so match on that instead.
+        respondToRequest(request => request.url.includes('openads.adsrvr.org/openrtb2/auction'));
         return pm;
       });
 
