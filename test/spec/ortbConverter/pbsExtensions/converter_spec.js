@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { buildPBSRequest, interpretPBSResponse } from '../../../../modules/prebidServerBidAdapter/ortbConverter.js';
+import { buildPBSRequest, interpretPBSResponse } from '../../../../modules/openadsServerBidAdapter/ortbConverter.js';
 import { config } from 'src/config.js';
 import * as redactor from 'src/activities/redactor.js';
 import { deepClone } from 'src/utils.js';
@@ -91,7 +91,7 @@ describe('PBS ortbConverter', () => {
   });
 
   describe('fromORTB', () => {
-    it('maps seatbid bid ext.prebid.meta.rendererUrl to bidResponse.safeRenderer', () => {
+    it('maps seatbid bid ext.openads.meta.rendererUrl to bidResponse.safeRenderer', () => {
       const rendererUrl = 'https://cdn.example/safe-renderer.js';
       const request = buildRequest();
       const { bids } = interpretSeatBid(request, {
@@ -101,7 +101,7 @@ describe('PBS ortbConverter', () => {
           impid: IMP_ID,
           price: 1.5,
           ext: {
-            prebid: {
+            openads: {
               meta: { rendererUrl },
             },
           },
@@ -132,7 +132,7 @@ describe('PBS ortbConverter', () => {
       });
     });
 
-    it('maps seatbid bid ext.prebid.events.win to win eventtrackers via pbsWinTrackers processor', () => {
+    it('maps seatbid bid ext.openads.events.win to win eventtrackers via pbsWinTrackers processor', () => {
       const request = buildRequest();
       const winUrl = 'https://pbs.example/win';
       const { bids } = interpretSeatBid(request, {
@@ -142,7 +142,7 @@ describe('PBS ortbConverter', () => {
           impid: IMP_ID,
           price: 1.5,
           ext: {
-            prebid: {
+            openads: {
               events: { win: winUrl },
             },
           },
@@ -158,9 +158,9 @@ describe('PBS ortbConverter', () => {
   });
 
   describe('toORTB', () => {
-    it('maps alias bidder codes to ext.prebid.aliases via extPrebidAliases processor', () => {
+    it('maps alias bidder codes to ext.openads.aliases via extPrebidAliases processor', () => {
       const request = buildRequest('beintoo');
-      expect(request.ext.prebid.aliases).to.deep.include({
+      expect(request.ext.openads.aliases).to.deep.include({
         beintoo: 'appnexus',
       });
     });
