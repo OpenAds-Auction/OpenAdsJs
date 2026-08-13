@@ -29,7 +29,7 @@ export const PBS_PROCESSORS = {
       fn: setRequestExtPrebidPageViewIds
     },
     extPrebidSafeRenderer: {
-      // sets ext.prebid.safeRenderer support flag
+      // sets ext.openads.safeRenderer support flag
       fn: setRequestExtPrebidSafeRenderer
     }
   },
@@ -85,7 +85,7 @@ export const PBS_PROCESSORS = {
       fn: addEventTrackers
     },
     safeRenderer: {
-      // sets bidResponse.safeRenderer from ext.prebid.meta.rendererUrl
+      // sets bidResponse.safeRenderer from ext.openads.meta.rendererUrl
       fn: setBidResponseSafeRenderer
     }
   },
