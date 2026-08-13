@@ -14,10 +14,10 @@
       async
       src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"
     ></script>
-    <script async src="../../build/dist/prebid.js"></script>
+    <script async src="../../build/dev/openads.js"></script>
     <script>
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
+      var oajs = oajs || {};
+      oajs.que = oajs.que || [];
 
       var googletag = googletag || {};
       googletag.cmd = googletag.cmd || [];
@@ -44,8 +44,8 @@
         googletag.pubads().disableInitialLoad();
       });
 
-      pbjs.que.push(function () {
-        pbjs.setConfig({
+      oajs.que.push(function () {
+        oajs.setConfig({
           debug: true,
           realTimeData: {
             auctionDelay: PREBID_TIMEOUT,
@@ -68,19 +68,19 @@
           },
         });
 
-        pbjs.addAdUnits(adUnits);
-        pbjs.requestBids({
+        oajs.addAdUnits(adUnits);
+        oajs.requestBids({
           bidsBackHandler: sendAdserverRequest,
           timeout: PREBID_TIMEOUT,
         });
       });
 
       function sendAdserverRequest() {
-        if (pbjs.adserverRequestSent) return;
-        pbjs.adserverRequestSent = true;
+        if (oajs.adserverRequestSent) return;
+        oajs.adserverRequestSent = true;
         googletag.cmd.push(function () {
-          pbjs.que.push(function () {
-            pbjs.setTargetingForGPTAsync();
+          oajs.que.push(function () {
+            oajs.setTargetingForGPTAsync();
             googletag.pubads().refresh();
           });
         });

@@ -33,10 +33,10 @@ gulp build --modules=rtdModule,stackupRtdProvider,appnexusBidAdapter
 
 ## Configuration
 
-Configure the module inside `realTimeData.dataProviders` via `pbjs.setConfig`.
+Configure the module inside `realTimeData.dataProviders` via `oajs.setConfig`.
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   realTimeData: {
     auctionDelay: 1000, // ms to wait for RTD modules before starting auction
     dataProviders: [
@@ -178,4 +178,4 @@ Start a static file server at the repo root on port 9999, then open:
 http://localhost:9999/integrationExamples/gpt/stackupRtdProvider_example.html
 ```
 
-The page runs a real GAM/GPT auction. With `debug: true` in `pbjs.setConfig` the Prebid.js debug console shows the enriched `ortb2` fragments (`site.content.data` and `user.data`) merged into each bid request.
+The page runs a real GAM/GPT auction. With `debug: true` in `oajs.setConfig` the OpenAds.js debug console shows the enriched `ortb2` fragments (`site.content.data` and `user.data`) merged into each bid request.
