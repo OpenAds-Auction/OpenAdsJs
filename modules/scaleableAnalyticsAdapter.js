@@ -604,13 +604,13 @@ function onBidViewable(bid) {
 }
 
 /**
- * Keep only the well-known hb_* targeting keys; drop high-cardinality publisher extras.
+ * Keep only the well-known oa_* targeting keys; drop high-cardinality publisher extras.
  * @param {Object} [t]
  * @returns {Object<string,string>|undefined}
  */
 function pruneAdserverTargeting(t) {
   if (!t || typeof t !== 'object') return undefined;
-  const keys = ['hb_bidder', 'hb_pb', 'hb_size', 'hb_deal', 'hb_format', 'hb_adid', 'hb_uuid', 'hb_cache_host'];
+  const keys = ['oa_bidder', 'oa_pb', 'oa_size', 'oa_deal', 'oa_format', 'oa_adid', 'oa_uuid', 'oa_cache_host'];
   const out = {};
   for (const k of keys) if (t[k] !== undefined) out[k] = t[k];
   return Object.keys(out).length ? out : undefined;
