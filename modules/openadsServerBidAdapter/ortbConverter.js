@@ -186,18 +186,18 @@ const PBS_CONVERTER = ortbConverter({
         mergeDeep(ortbRequest, context.s2sBidRequest.ortb2Fragments?.global);
 
         // also merge in s2sConfig.extOpenAds or s2sConfig.extPrebid
-        const extPrebidSet = context.s2sBidRequest.s2sConfig.extPrebid && typeof context.s2sBidRequest.s2sConfig.extPrebid === 'object'
-        const extOpenAdsSet = context.s2sBidRequest.s2sConfig.extOpenAds && typeof context.s2sBidRequest.s2sConfig.extOpenAds === 'object'
+        const extPrebidSet = context.s2sBidRequest.s2sConfig.extPrebid && typeof context.s2sBidRequest.s2sConfig.extPrebid === 'object';
+        const extOpenAdsSet = context.s2sBidRequest.s2sConfig.extOpenAds && typeof context.s2sBidRequest.s2sConfig.extOpenAds === 'object';
 
-        let extObj
+        let extObj;
         if (extOpenAdsSet) {
           if (extPrebidSet) {
-            logWarn("extOpenAds and extPrebid set in s2sConfig, extOpenAds takes precedence")
+            logWarn("extOpenAds and extPrebid set in s2sConfig, extOpenAds takes precedence");
           }
 
-          extObj = context.s2sBidRequest.s2sConfig.extOpenAds
+          extObj = context.s2sBidRequest.s2sConfig.extOpenAds;
         } else if (extPrebidSet) {
-          extObj = context.s2sBidRequest.s2sConfig.extPrebid
+          extObj = context.s2sBidRequest.s2sConfig.extPrebid;
         }
 
         if (extObj) {

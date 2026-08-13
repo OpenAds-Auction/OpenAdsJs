@@ -759,7 +759,7 @@ export const spec = {
     });
 
     const fledgeAuctionConfigs = responseObj.component_auction_config?.map(config => {
-      return { config, bidId: config.bidId }
+      return { config, bidId: config.bidId };
     });
 
     if (fledgeAuctionConfigs) {
@@ -1080,7 +1080,7 @@ function iterateOverSegmentData(target, char, segments) {
     if (segments.includes(taxonomy)) {
       target[`tg_${char}.tax${taxonomy}`] = topic.segment?.map(seg => seg.id).join(',');
     }
-  }
+  };
 }
 
 /**

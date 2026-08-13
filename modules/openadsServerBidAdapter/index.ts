@@ -56,7 +56,7 @@ let defaultTTDParamDefaults = {
     publisherId: defaultTTDPublisherId,
     supplySourceId: defaultTTDSupplySourceId
   }
-}
+};
 
 export function setTheTradeDeskParamDefaults(publisherId, supplySourceId) {
   defaultTTDPublisherId = publisherId;
@@ -67,7 +67,7 @@ export function setTheTradeDeskParamDefaults(publisherId, supplySourceId) {
       publisherId: defaultTTDPublisherId,
       supplySourceId: defaultTTDSupplySourceId
     }
-  }
+  };
 }
 
 type Endpoint = string | {
@@ -205,46 +205,46 @@ declare module '../../src/config' {
 }
 
 function setConfigDefaults(s2sConfig: S2SConfig) {
-  logInfo('setting s2sConfig.adapter to default value: openadsServer')
+  logInfo('setting s2sConfig.adapter to default value: openadsServer');
   s2sConfig.adapter = 'openadsServer';
 
-  logInfo(`setting s2sConfig.endpoint to default value: ${defaultEndpoint}`)
+  logInfo(`setting s2sConfig.endpoint to default value: ${defaultEndpoint}`);
   s2sConfig.endpoint = {
     noP1Consent: defaultEndpoint,
     p1Consent: defaultEndpoint
-  }
+  };
 
   if (s2sConfig.syncEndpoint) {
-    logInfo(`setting s2sConfig.syncEndpoint to default value: ${defaultSyncEndpoint}`)
+    logInfo(`setting s2sConfig.syncEndpoint to default value: ${defaultSyncEndpoint}`);
     s2sConfig.syncEndpoint = {
       noP1Consent: defaultSyncEndpoint,
       p1Consent: defaultSyncEndpoint
-    }
+    };
   }
 
   if (defaultTTDSupplySourceId !== '') {
-    logInfo(`setting s2sConfig.accountId to default value: ${defaultTTDSupplySourceId}`)
-    s2sConfig.accountId = defaultTTDSupplySourceId
+    logInfo(`setting s2sConfig.accountId to default value: ${defaultTTDSupplySourceId}`);
+    s2sConfig.accountId = defaultTTDSupplySourceId;
   }
 
   if (defaultTTDSupplySourceId !== '' && defaultTTDPublisherId !== '') {
-    logInfo(`merging s2sConfig.adapterOptions with ${JSON.stringify(defaultTTDParamDefaults)}`)
-    s2sConfig.adapterOptions = mergeDeep({}, s2sConfig.adapterOptions, defaultTTDParamDefaults)
+    logInfo(`merging s2sConfig.adapterOptions with ${JSON.stringify(defaultTTDParamDefaults)}`);
+    s2sConfig.adapterOptions = mergeDeep({}, s2sConfig.adapterOptions, defaultTTDParamDefaults);
   }
 
   if (typeof s2sConfig.bidders === 'string' && s2sConfig.bidders !== ttdServerBidAdapterCode) {
-    logInfo(`adding '${ttdServerBidAdapterCode}' to s2sConfig.bidders`)
-    s2sConfig.bidders = [s2sConfig.bidders, ttdServerBidAdapterCode]
+    logInfo(`adding '${ttdServerBidAdapterCode}' to s2sConfig.bidders`);
+    s2sConfig.bidders = [s2sConfig.bidders, ttdServerBidAdapterCode];
   } else if (s2sConfig.bidders === null || s2sConfig.bidders === undefined || !Array.isArray(s2sConfig.bidders)) {
-    logInfo(`setting s2sConfig.bidders to default value of ['${ttdServerBidAdapterCode}']`)
-    s2sConfig.bidders = [ttdServerBidAdapterCode]
+    logInfo(`setting s2sConfig.bidders to default value of ['${ttdServerBidAdapterCode}']`);
+    s2sConfig.bidders = [ttdServerBidAdapterCode];
   } else if (Array.isArray(s2sConfig.bidders) && !s2sConfig.bidders.includes(ttdServerBidAdapterCode)) {
-    logInfo(`adding '${ttdServerBidAdapterCode}' to s2sConfig.bidders`)
+    logInfo(`adding '${ttdServerBidAdapterCode}' to s2sConfig.bidders`);
 
     if (s2sConfig.bidders.length === 0) {
-      s2sConfig.bidders = [ttdServerBidAdapterCode]
+      s2sConfig.bidders = [ttdServerBidAdapterCode];
     } else {
-      s2sConfig.bidders.push(ttdServerBidAdapterCode)
+      s2sConfig.bidders.push(ttdServerBidAdapterCode);
     }
   }
 }
@@ -260,7 +260,7 @@ function validateConfigRequiredProps(s2sConfig: S2SConfig) {
 }
 
 function checkOpenAdsValueRestriction(s2sConfig: S2SConfig) {
-  const p1Consent = s2sConfig['endpoint']['p1Consent']
+  const p1Consent = s2sConfig['endpoint']['p1Consent'];
   if (p1Consent != null && !s2sConfig['endpoint']['p1Consent'].endsWith('.adsrvr.org/openrtb2/auction')) {
     logError('s2sConfig.endpoint should match "https://*.adsrvr.org/openrtb2/auction", but was set to ' + s2sConfig['endpoint']['p1Consent']);
   }
@@ -294,7 +294,7 @@ export function validateConfig(options: S2SConfig[]) {
   const activeBidders = new Set();
   return options.filter(s2sConfig => {
     formatUrlParams(s2sConfig);
-    setConfigDefaults(s2sConfig)
+    setConfigDefaults(s2sConfig);
 
     if (
       validateConfigRequiredProps(s2sConfig) &&
@@ -314,7 +314,7 @@ export function validateConfig(options: S2SConfig[]) {
       return true;
     } else {
       logWarn('openadsServer: s2s config is disabled', s2sConfig);
-      return false
+      return false;
     }
   });
 }
@@ -325,7 +325,7 @@ export function validateConfig(options: S2SConfig[]) {
 function setS2sConfig(options) {
   if (Array.isArray(options)) {
     logError('openadsServer: s2sConfig should only be an single s2sConfig object, not an array of s2sConfigs. s2sConfig not set.');
-    return
+    return;
   }
 
   options = validateConfig(options);
@@ -731,8 +731,8 @@ function getAnalyticsFlags(s2sConfig, response) {
   };
 }
 function getNonBidData(s2sConfig, response) {
-  var extOpenAdsAll = s2sConfig?.extOpenAds?.returnallbidstatus ?? false
-  var extPrebidAll = s2sConfig?.extPrebid?.returnallbidstatus ?? false
+  var extOpenAdsAll = s2sConfig?.extOpenAds?.returnallbidstatus ?? false;
+  var extPrebidAll = s2sConfig?.extPrebid?.returnallbidstatus ?? false;
   return (extOpenAdsAll || extPrebidAll) ? response?.ext?.seatnonbid : undefined;
 }
 
