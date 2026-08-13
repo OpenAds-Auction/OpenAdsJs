@@ -1,6 +1,9 @@
 import { getGlobalVarName } from '../../src/buildOptions.js';
 
-window[getGlobalVarName()] = (window[getGlobalVarName()] || {});
-window[getGlobalVarName()].installedModules = (window[getGlobalVarName()].installedModules || []);
-window[getGlobalVarName()].cmd = window[getGlobalVarName()].cmd || [];
-window[getGlobalVarName()].que = window[getGlobalVarName()].que || [];
+const globalVarName = getGlobalVarName();
+const oajsGlobal = window[globalVarName] = (window[globalVarName] || {});
+
+oajsGlobal.version = oajsGlobal.version || 'v$prebid.version$';
+oajsGlobal.installedModules = (oajsGlobal.installedModules || []);
+oajsGlobal.cmd = oajsGlobal.cmd || [];
+oajsGlobal.que = oajsGlobal.que || [];

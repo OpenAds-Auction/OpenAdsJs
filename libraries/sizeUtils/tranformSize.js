@@ -30,6 +30,36 @@ export function transformSizes(requestSizes) {
   return sizes;
 }
 
+/**
+ * get sizes for rtb (ORTB format with w/h)
+ * @param  {Array|Object} requestSizes
+ * @return {Object[]} [{w, h}]
+ */
+export function transformSizesOrtb(requestSizes) {
+  let sizes = [];
+  let sizeObj = {};
+
+  if (
+    utils.isArray(requestSizes) &&
+      requestSizes.length === 2 &&
+      !utils.isArray(requestSizes[0])
+  ) {
+    sizeObj.w = parseInt(requestSizes[0], 10);
+    sizeObj.h = parseInt(requestSizes[1], 10);
+    sizes.push(sizeObj);
+  } else if (typeof requestSizes === 'object') {
+    for (let i = 0; i < requestSizes.length; i++) {
+      let size = requestSizes[i];
+      sizeObj = {};
+      sizeObj.w = parseInt(size[0], 10);
+      sizeObj.h = parseInt(size[1], 10);
+      sizes.push(sizeObj);
+    }
+  }
+
+  return sizes;
+}
+
 export const normalAdSize = [
   { w: 300, h: 250 },
   { w: 300, h: 600 },
