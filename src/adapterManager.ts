@@ -449,7 +449,6 @@ function isAnalyticsAllowed(analyticsConfig) {
   return dep.isAllowed(ACTIVITY_REPORT_ANALYTICS, activityParams(MODULE_TYPE_ANALYTICS, analyticsConfig.provider, { [ACTIVITY_PARAM_ANL_CONFIG]: analyticsConfig }));
 }
 
-
 const adapterManager = {
   bidderRegistry: _bidderRegistry,
   analyticsRegistry: _analyticsRegistry,
