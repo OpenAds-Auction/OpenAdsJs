@@ -2378,17 +2378,20 @@ describe('adapterManager tests', function () {
         config.setConfig({
           s2sConfig: {
             enabled: true,
-            adapter: 'mockS2S',
+            // openadsServerBidAdapter's setConfigDefaults() forces s2sConfig.adapter to 'openadsServer'
+            // (mutating the shared config object in place) whenever that module is present in the test
+            // bundle, so the mock adapter must be registered under that name rather than a made-up one.
+            adapter: 'openadsServer',
             bidders: ['appnexus']
           }
         });
-        adapterManager.bidderRegistry.mockS2S = {
+        adapterManager.bidderRegistry.openadsServer = {
           callBids: sinon.stub()
         };
       });
       afterEach(() => {
         config.resetConfig();
-        delete adapterManager.bidderRegistry.mockS2S;
+        delete adapterManager.bidderRegistry.openadsServer;
       });
 
       it('should pass FPD', () => {
@@ -2403,7 +2406,7 @@ describe('adapterManager tests', function () {
           }]
         };
         adapterManager.callBids(adUnits, [req], sinon.stub(), sinon.stub(), { request: sinon.stub(), done: sinon.stub() }, 1000, sinon.stub(), ortb2Fragments);
-        sinon.assert.calledWith(adapterManager.bidderRegistry.mockS2S.callBids, sinon.match({
+        sinon.assert.calledWith(adapterManager.bidderRegistry.openadsServer.callBids, sinon.match({
           ortb2Fragments: sinon.match.same(ortb2Fragments)
         }));
       });
