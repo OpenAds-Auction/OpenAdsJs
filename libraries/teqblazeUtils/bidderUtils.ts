@@ -56,8 +56,7 @@ interface Placement {
   bidId: string;
   schain: unknown;
   bidfloor: number | undefined;
-  floors?: Record<string, number>;
-  adFormat?: typeof BANNER | typeof VIDEO | typeof NATIVE;
+  adFormat?: string;
   sizes?: Size | Size[];
   playerSize?: Size | Size[];
   minduration?: number;
@@ -116,55 +115,29 @@ const isBidResponseValid = (bid: any): boolean => {
   }
 };
 
-const toArray = (sizes: Size | Size[]): Size[] => {
-  if (Array.isArray(sizes[0])) {
-    return sizes as Size[];
-  }
-
-  return [sizes as Size];
-};
-
-const getFloors = (bid: BidRequest<BidderCode>, placement: Placement): { bidFloor: number; floors?: Record<string, number> } => {
-  const floors: Record<string, number> = {};
-
-  if (!bid.getFloor) {
-    return { bidFloor: 0 };
-  }
-
+const getBidFloor = (bid: BidRequest<BidderCode>): number => {
   try {
-    if (placement.adFormat === NATIVE) {
-      const bidFloor = bid.getFloor({ currency: 'USD', mediaType: NATIVE, size: '*' }).floor;
-      return { bidFloor: bidFloor ?? 0 };
-    }
+    const bidFloor = bid.getFloor({
+      currency: 'USD',
+      mediaType: '*',
+      size: '*',
+    });
 
-    const sizes: Size[] = toArray(placement.sizes || placement.playerSize);
-
-    for (let i = 0; i < sizes.length; i++) {
-      const size = sizes[i];
-      const floor = bid.getFloor({ currency: 'USD', mediaType: placement.adFormat, size }).floor;
-
-      if (floor) floors[`${size[0]}x${size[1]}`] = floor;
-    }
-
-    const keys = Object.keys(floors);
-
-    return {
-      bidFloor: keys.length ? floors[keys[0]] : 0,
-      floors: keys.length ? floors : undefined
-    };
-  } catch {
-    return { bidFloor: 0 };
+    return bidFloor?.floor;
+  } catch (err) {
+    return 0;
   }
 };
 
 const createBasePlacement = (bid: BidRequest<BidderCode>, bidderRequest: BaseBidderRequest<BidderCode>): Placement => {
   const { bidId, mediaTypes, transactionId, userIdAsEids, ortb2Imp } = bid;
   const schain = bidderRequest?.ortb2?.source?.ext?.schain || {};
+  const bidfloor = getBidFloor(bid);
 
   const placement: Placement = {
     bidId,
     schain,
-    bidfloor: 0
+    bidfloor
   };
 
   if (mediaTypes && mediaTypes[BANNER]) {
@@ -193,13 +166,6 @@ const createBasePlacement = (bid: BidRequest<BidderCode>, bidderRequest: BaseBid
   } else if (mediaTypes && mediaTypes[NATIVE]) {
     placement.native = mediaTypes[NATIVE];
     placement.adFormat = NATIVE;
-  }
-
-  const { bidFloor, floors } = getFloors(bid, placement);
-  placement.bidfloor = bidFloor;
-
-  if (floors) {
-    placement.floors = floors;
   }
 
   if (transactionId) {
