@@ -83,9 +83,11 @@ describe('permutiveRtdProvider', function () {
 
     describe('identity manager gating', function () {
       const idKey = 'permutive-oajs-id';
-      const idPayload = { providers: { id5id: { userId: 'abc', expiryTime: Date.now() + 10000 } } };
 
       beforeEach(function () {
+        // compute expiryTime fresh for each test, rather than once at suite
+        // registration time, so it can't lapse before this test actually runs
+        const idPayload = { providers: { id5id: { userId: 'abc', expiryTime: Date.now() + 10000 } } };
         permutiveIdStorage.setDataInLocalStorage(idKey, JSON.stringify(idPayload));
       });
 
