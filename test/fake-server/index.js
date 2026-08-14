@@ -5,7 +5,6 @@ const morgan = require('morgan');
 const path = require('path');
 const argv = require('yargs').argv;
 const appnexusHandler = require('./responders/appnexus.js');
-const tripleliftHandler = require('./responders/triplelift.js');
 const bundleMaker = require('./bundle.js');
 
 const PORT = argv.port || '4444';
@@ -33,10 +32,6 @@ app.get('/bundle', bundleMaker, (req, res) => {
 });
 
 app.post('/appnexus', appnexusHandler, (req, res) => {
-  res.send();
-});
-
-app.post('/triplelift', tripleliftHandler, (req, res) => {
   res.send();
 });
 

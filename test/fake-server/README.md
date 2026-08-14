@@ -60,7 +60,7 @@ module.exports = makeResponder('<bidder>');
 
 Pass `matchRequests(actualRequest, mockRequest)` to compare only the stable parts of the request, and `makeResponse(actualRequest, mockResponse)` to carry per-request values into the response. The `mock` argument is a deep copy in both cases, so a hook can mutate it without corrupting the loaded fixtures.
 
-`responders/appnexus.js` uses both: it drops `uuid` and `tid` before comparing, then copies each request's `uuid` into the response it returns. `responders/triplelift.js` only overrides matching, comparing `imp` alone with `tid` stripped, so that the volatile `ortb2` fields a fixture cannot predict are ignored.
+`responders/appnexus.js` uses both: it drops `uuid` and `tid` before comparing, then copies each request's `uuid` into the response it returns.
 
 ## How is the server initiated ?
 
