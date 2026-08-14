@@ -11,6 +11,11 @@ exports.config = {
   specs: [
     './test/spec/e2e/**/*.spec.js',
   ],
+  // tripleliftBidAdapter is not shipped in this fork (see 3140c2f0c); this
+  // spec bundles ?modules=tripleliftBidAdapter and can never pass here.
+  exclude: [
+    './test/spec/e2e/triplelift_banner/*.spec.js',
+  ],
   logLevel: 'info', // put option here: info | trace | debug | warn| error | silent
   bail: 1,
   waitforTimeout: 60000, // Default timeout for all waitFor* commands.
