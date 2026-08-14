@@ -14,8 +14,8 @@ setupTest({
   it('should load the TripleLift bidder and installed modules', async function () {
     const { bidder, installedModules } = await browser.execute(function () {
       return {
-        bidder: window.pbjs.adUnits[0].bids[0].bidder,
-        installedModules: window.pbjs.installedModules,
+        bidder: window.oajs.adUnits[0].bids[0].bidder,
+        installedModules: window.oajs.installedModules,
       };
     });
 
