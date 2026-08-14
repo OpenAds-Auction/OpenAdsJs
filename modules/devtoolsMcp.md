@@ -4,7 +4,7 @@ Runtime Prebid.js diagnostics exposed as Chrome DevTools third-party developer t
 
 ## Quick start (through an agent)
 
-You usually don't have to build or install anything. Point your agent's Chrome DevTools session at a page that runs Prebid, and Prebid pulls in these tools on demand whenever debugging is on — the page URL has `?pbjs_debug=true`, or the page calls `pbjs.setConfig({ debug: true })`.
+You usually don't have to build or install anything. Point your agent's Chrome DevTools session at a page that runs Prebid, and Prebid pulls in these tools on demand whenever debugging is on — the page URL has `?pbjs_debug=true`, or the page calls `oajs.setConfig({ debug: true })`.
 
 Once loaded, the tools appear under a group named **Prebid.js DevTools**, and the agent can discover and call them.
 
