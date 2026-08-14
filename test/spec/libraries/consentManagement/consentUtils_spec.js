@@ -1,8 +1,15 @@
 import { expect } from 'chai';
-import { hasVendorPurposeConsent } from '../../../../libraries/consentManagement/consentUtils.js';
+import { hasVendorPurposeConsent, setDefaultPurposeDeclaration, DEFAULT_PURPOSE_DECLARATION } from '../../../../libraries/consentManagement/consentUtils.js';
 
 describe('consentUtils', function () {
   const HOST_GVLID = '52';
+
+  beforeEach(function () {
+    // defaultPurposeDeclaration is module-level state normally set by tcfControl's
+    // setEnforcementConfig; set it explicitly so this test doesn't depend on that
+    // module having run first, which isn't guaranteed across chunked test runs.
+    setDefaultPurposeDeclaration(DEFAULT_PURPOSE_DECLARATION);
+  });
 
   function mockConsent({ purposeConsent = true, vendorConsent = true, restriction, gdprApplies = true } = {}) {
     const consent = {
