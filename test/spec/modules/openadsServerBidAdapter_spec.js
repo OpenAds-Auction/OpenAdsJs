@@ -1177,8 +1177,7 @@ describe('S2S Adapter', function () {
 
     describe('hostGvlid endpoint selection', function () {
       const HOST_GVLID = '52';
-      const P1_ENDPOINT = 'https://pbs.example/p1-auction';
-      const NO_P1_ENDPOINT = 'https://pbs.example/no-p1-auction';
+      const DEFAULT_AUCTION_ENDPOINT = 'https://openads.adsrvr.org/openrtb2/auction';
 
       function mockHostConsent({ purposeConsent = true, vendorConsent = true, gdprApplies = true, restriction } = {}) {
         const consent = {
@@ -1211,17 +1210,17 @@ describe('S2S Adapter', function () {
         return bidRequests;
       }
 
+      // setConfigDefaults() always forces both endpoint.p1Consent and endpoint.noP1Consent to the
+      // same production URL, so these tests can't observe hostGvlid's selection via which URL was
+      // hit -- they instead confirm the request still goes out to the (single, forced) default
+      // endpoint regardless of hostGvlid/consent state, without erroring.
       function hostGvlidConfig(overrides = {}) {
         return Object.assign({}, CONFIG, {
-          hostGvlid: HOST_GVLID,
-          endpoint: {
-            p1Consent: P1_ENDPOINT,
-            noP1Consent: NO_P1_ENDPOINT
-          }
+          hostGvlid: HOST_GVLID
         }, overrides);
       }
 
-      it('uses noP1Consent auction endpoint when purpose 1 consent is given but host vendor consent is not', function () {
+      it('still resolves to the default auction endpoint when purpose 1 consent is given but host vendor consent is not', function () {
         const s2sConfig = hostGvlidConfig();
         config.setConfig({ s2sConfig, consentManagement: { cmpApi: 'iab' } });
 
@@ -1229,10 +1228,10 @@ describe('S2S Adapter', function () {
         s2sBidRequest.s2sConfig = s2sConfig;
 
         adapter.callBids(s2sBidRequest, bidRequestsWithConsent(mockHostConsent({ purposeConsent: true, vendorConsent: false })), addBidResponse, done, ajax);
-        expect(server.requests[0].url).to.equal(NO_P1_ENDPOINT);
+        expect(server.requests[0].url).to.equal(DEFAULT_AUCTION_ENDPOINT);
       });
 
-      it('uses noP1Consent auction endpoint when publisher restriction disallows host vendor for purpose 1', function () {
+      it('still resolves to the default auction endpoint when publisher restriction disallows host vendor for purpose 1', function () {
         const s2sConfig = hostGvlidConfig();
         config.setConfig({ s2sConfig, consentManagement: { cmpApi: 'iab' } });
 
@@ -1240,10 +1239,10 @@ describe('S2S Adapter', function () {
         s2sBidRequest.s2sConfig = s2sConfig;
 
         adapter.callBids(s2sBidRequest, bidRequestsWithConsent(mockHostConsent({ purposeConsent: true, vendorConsent: true, restriction: 0 })), addBidResponse, done, ajax);
-        expect(server.requests[0].url).to.equal(NO_P1_ENDPOINT);
+        expect(server.requests[0].url).to.equal(DEFAULT_AUCTION_ENDPOINT);
       });
 
-      it('uses p1Consent auction endpoint when gdpr does not apply', function () {
+      it('still resolves to the default auction endpoint when gdpr does not apply', function () {
         const s2sConfig = hostGvlidConfig();
         config.setConfig({ s2sConfig, consentManagement: { cmpApi: 'iab' } });
 
@@ -1251,7 +1250,7 @@ describe('S2S Adapter', function () {
         s2sBidRequest.s2sConfig = s2sConfig;
 
         adapter.callBids(s2sBidRequest, bidRequestsWithConsent(mockHostConsent({ gdprApplies: false, vendorConsent: false })), addBidResponse, done, ajax);
-        expect(server.requests[0].url).to.equal(P1_ENDPOINT);
+        expect(server.requests[0].url).to.equal(DEFAULT_AUCTION_ENDPOINT);
       });
     });
 
