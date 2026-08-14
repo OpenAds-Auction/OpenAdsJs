@@ -35,7 +35,7 @@ The module works with no configuration. To supply a static signal or to opt into
 delaying auctions while the signal is read, use the `adChoices` config namespace:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
   adChoices: {
     // Optional: a statically supplied AdChoices Signal. Takes precedence over a
     // value read from the browser extension.
