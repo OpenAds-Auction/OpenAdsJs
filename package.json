@@ -20,8 +20,8 @@
   },
   "ttd": {
     "defaults": {
-      "supplySourceId": "OpenPathInternal",
-      "publisherId": "1"
+      "supplySourceId": "",
+      "publisherId": ""
     }
   },
   "scripts": {
