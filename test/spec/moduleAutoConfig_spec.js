@@ -15,7 +15,7 @@ describe('moduleAutoConfig', function () {
     pbjs.processQueue();
     await new Promise((resolve) => pbjs.que.push(resolve));
     const rtd = config.getConfig('realTimeData');
-    expect(rtd.dataProviders).to.deep.include({ name: 'humansecurity', params: { verbose: true } });
+    expect(rtd.dataProviders).to.deep.include({ name: 'humansecurity' });
   });
 
   it('does not touch realTimeData when the module is not installed', async function () {
