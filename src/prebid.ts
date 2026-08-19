@@ -26,6 +26,7 @@ import {
 } from './utils.js';
 import { listenMessagesFromCreative } from './secureCreatives.js';
 import { userSync } from './userSync.js';
+import './moduleAutoConfig.js';
 import { config } from './config.js';
 import { auctionManager } from './auctionManager.js';
 import { isBidUsable } from './targeting/filters.js';
