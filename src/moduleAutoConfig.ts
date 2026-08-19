@@ -8,7 +8,7 @@ oajs.que.push(function () {
   if (installed.includes('humansecurityRtdProvider')) {
     oajs.mergeConfig({
       realTimeData: {
-        dataProviders: [{ name: 'humansecurity', params: { verbose: true } }]
+        dataProviders: [{ name: 'humansecurity' }]
       }
     });
   }
