@@ -39,7 +39,8 @@
     "dist/src/prebid.public.js",
     "dist/src/public/**/*.js",
     "dist/src/modules/**/*.js",
-    "dist/src/metadata/**/*.js"
+    "dist/src/metadata/**/*.js",
+    "dist/src/src/moduleAutoConfig.js"
   ],
   "browserslist": [
     "> 0.25%",
