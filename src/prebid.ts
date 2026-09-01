@@ -71,7 +71,7 @@ import { getGlobalVarName } from "./buildOptions.ts";
 import { yieldAll } from "./utils/yield.ts";
 
 const pbjsInstance = getGlobal();
-const { triggerUserSyncs } = userSync;
+const { triggerUserSyncs, removeUserSyncs } = userSync;
 
 /* private variables */
 const { REQUEST_BIDS, SET_TARGETING } = EVENTS;
@@ -463,6 +463,7 @@ declare module './prebidGlobal' {
      * Re-trigger user syncs. Requires the `userSync.enableOverride` config to be set.
      */
     triggerUserSyncs: typeof triggerUserSyncs;
+    removeUserSyncs: () => number;
     getAdserverTargetingForAdUnitCodeStr: typeof getAdserverTargetingForAdUnitCodeStr;
     getHighestUnusedBidResponseForAdUnitCode: typeof getHighestUnusedBidResponseForAdUnitCode;
     getAdserverTargetingForAdUnitCode: typeof getAdserverTargetingForAdUnitCode;
@@ -507,6 +508,9 @@ declare module './prebidGlobal' {
 
 // Allow publishers who enable user sync override to trigger their sync
 addApiMethod('triggerUserSyncs', triggerUserSyncs);
+
+// Allow publishers to clean up sync iframes, e.g. on navigation in a single page application
+addApiMethod('removeUserSyncs', removeUserSyncs);
 
 /**
  * Return a query string with all available targeting parameters for the given ad unit.
