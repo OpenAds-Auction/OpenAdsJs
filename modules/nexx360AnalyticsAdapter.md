@@ -13,7 +13,7 @@ The Nexx360 Analytics Adapter collects Prebid.js auction data and sends it to th
 The Nexx360 Analytics adapter requires a publisher ID from Nexx360. Please contact Nexx360 to obtain your publisher credentials.
 
 ```javascript
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
   provider: 'nexx360',
   options: {
     publisherId: 'your-publisher-id',
@@ -51,7 +51,7 @@ The adapter tracks the following Prebid.js events:
 ## Basic Setup
 
 ```javascript
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
   provider: 'nexx360',
   options: {
     publisherId: 'your-publisher-id'
@@ -62,7 +62,7 @@ pbjs.enableAnalytics({
 ## Production Setup
 
 ```javascript
-pbjs.enableAnalytics({
+oajs.enableAnalytics({
   provider: 'nexx360',
   options: {
     publisherId: 'your-publisher-id',

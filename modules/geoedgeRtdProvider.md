@@ -59,7 +59,7 @@ With `outstream: true` the module instead wraps the bid's own `renderer.render` 
 monitoring client whether the creative may run:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         dataProviders: [{
             name: 'geoedge',

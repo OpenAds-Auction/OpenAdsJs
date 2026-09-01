@@ -34,7 +34,7 @@ const EVENT_TYPE_MAP: Record<string, string> = {
 
 // --- Types ---
 
-/** Publisher-facing options for `pbjs.enableAnalytics({provider: 'nexx360'})` */
+/** Publisher-facing options for `oajs.enableAnalytics({provider: 'nexx360'})` */
 export interface Nexx360AnalyticsOptions {
   /** Nexx360 publisher (account) ID. Required. */
   publisherId: string;

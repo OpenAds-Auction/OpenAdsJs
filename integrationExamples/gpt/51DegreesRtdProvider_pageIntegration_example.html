@@ -117,7 +117,7 @@
         }
     </script>
     <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
-    <script async src="../../build/dev/prebid.js"></script>
+    <script async src="../../build/dev/openads.js"></script>
     <meta charset="utf-8">
     <link rel="stylesheet" href="51DegreesRtdProvider_assets/examples-main.min.css">
     <script>
@@ -127,16 +127,16 @@
         var googletag = googletag || {};
         googletag.cmd = googletag.cmd || [];
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+        var oajs = oajs || {};
+        oajs.que = oajs.que || [];
 
         function initAdserver() {
-            if (pbjs.initAdserverSet) return;
+            if (oajs.initAdserverSet) return;
 
             googletag.cmd.push(function () {
-                if (pbjs.libLoaded) {
-                    pbjs.que.push(function () {
-                        pbjs.setTargetingForGPTAsync();
+                if (oajs.libLoaded) {
+                    oajs.que.push(function () {
+                        oajs.setTargetingForGPTAsync();
                         googletag.pubads().refresh();
                     });
                 } else {
@@ -144,10 +144,10 @@
                 }
             });
 
-            pbjs.initAdserverSet = true;
+            oajs.initAdserverSet = true;
         }
 
-        pbjs.que.push(function () {
+        oajs.que.push(function () {
             var adUnits = [{
                 code: 'div-banner-1',
                 mediaTypes: {
@@ -165,7 +165,7 @@
                 }]
             }];
 
-            pbjs.setConfig({
+            oajs.setConfig({
                 debug: true, // verbose logging
                 debugging: {
                     enabled: true, // activates the debugging-module bid interceptor
@@ -202,9 +202,9 @@
                 },
             });
 
-            pbjs.addAdUnits(adUnits);
+            oajs.addAdUnits(adUnits);
 
-            pbjs.onEvent('bidRequested', function (data) {
+            oajs.onEvent('bidRequested', function (data) {
                 try {
                     fod.complete(() => {
                         document.getElementById('enriched-51').style.display = 'block';
@@ -216,7 +216,7 @@
                 }
             });
 
-            pbjs.requestBids({
+            oajs.requestBids({
                 timeout: PREBID_TIMEOUT,
                 bidsBackHandler: function (bidResponses) {
                     initAdserver();
@@ -243,7 +243,7 @@
             googletag.enableServices();
         });
     </script>
-    <title>51Degrees RTD submodule on-page integration example - Prebid.js</title>
+    <title>51Degrees RTD submodule on-page integration example - OpenAds.js</title>
 </head>
 <body>
     <h2>51Degrees RTD submodule - on-page integration example</h2>

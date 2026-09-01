@@ -31,7 +31,7 @@ When the consent evidence changes mid-session, the module reloads its own script
 When the page already runs its own 51Degrees integration, the module detects it automatically (the integration's `window.fod` object) and consumes its result instead of loading a second copy of the script. No module params are needed in this mode:
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     realTimeData: {
         auctionDelay: 250,
         dataProviders: [

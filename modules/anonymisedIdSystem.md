@@ -33,7 +33,7 @@ gulp build --modules=userId,anonymisedIdSystem
 # Configuration
 
 ```javascript
-pbjs.setConfig({
+oajs.setConfig({
     userSync: {
         userIds: [{
             name: 'anonymisedId'
@@ -79,7 +79,7 @@ owns the identifier sent to **bidders**.
 ### Single-page applications
 
 `getId` is called when the User ID module initializes and is not re-run for subsequent auctions. If a
-user signs in after that point, call `pbjs.refreshUserIds({ submoduleNames: ['anonymisedId'] })` to
+user signs in after that point, call `oajs.refreshUserIds({ submoduleNames: ['anonymisedId'] })` to
 pick up the new identifier. Always pass `submoduleNames` - an unscoped refresh re-initializes every
 configured ID submodule, including those that make network requests.
 
