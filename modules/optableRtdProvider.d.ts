@@ -3,7 +3,7 @@ import type {} from './rtdModule/spec.js';
 import type { StartAuctionOptions } from '../src/prebid.ts';
 
 /**
- * Extra publisher data passed to `handleRtd` via `pbjs.setConfig({ optableRtdConfig })`.
+ * Extra publisher data passed to `handleRtd` via `oajs.setConfig({ optableRtdConfig })`.
  * Used for enrichment that should not be shared with other RTD providers or bidders.
  */
 export interface OptableRtdConfig {
