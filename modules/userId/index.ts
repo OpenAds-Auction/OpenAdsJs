@@ -53,6 +53,7 @@ import {
   ACTIVITY_PARAM_STORAGE_WRITE
 } from '../../src/activities/params.js';
 import { beforeInitAuction } from '../../src/auction.js';
+import { getGlobal } from '../../src/prebidGlobal.js'; // TEMP DEBUG (not for commit)
 
 const MODULE_NAME = 'User ID';
 const COOKIE = STORAGE_TYPE_COOKIES;
@@ -673,7 +674,22 @@ function getUserIds() {
  * Simple use case will be passing these UserIds to A9 wrapper solution
  */
 function getUserIdsAsEids(): ORTBRequest['user']['eids'] {
-  return getEids(initializedSubmodules.combined)
+  const eids = getEids(initializedSubmodules.combined);
+  // TEMP DEBUG (not for commit): who calls getUserIdsAsEids, and does window.pbjs exist?
+  /* eslint-disable no-console */
+  try {
+    const w = window as any;
+    console.warn('[oajs-debug] getUserIdsAsEids called', {
+      hasWindowPbjs: typeof w.pbjs !== 'undefined',
+      windowPbjsHasQue: Array.isArray(w.pbjs?.que),
+      pbjsGlobals: Array.isArray(w._pbjsGlobals) ? [...w._pbjsGlobals] : w._pbjsGlobals,
+      thisInstanceIsWindowPbjs: w.pbjs != null && w.pbjs === getGlobal(),
+      eidSources: (eids || []).map((e) => e.source),
+      stack: new Error().stack
+    });
+  } catch (e) {}
+  /* eslint-enable no-console */
+  return eids;
 }
 
 /**
