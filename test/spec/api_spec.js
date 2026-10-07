@@ -30,6 +30,43 @@ describe('Publisher API', function () {
     it('should have global pointer for PBJS global', function () {
       assert.isArray(window._pbjsGlobals);
     });
+
+    describe('PBJS global pointer ordering', function () {
+      const FOREIGN = '__otherPrebidGlobal';
+      let registry;
+
+      beforeEach(function () {
+        registry = window._pbjsGlobals;
+      });
+
+      afterEach(function () {
+        // splice is not wrapped, so this cleanup cannot re-trigger the reordering
+        let i;
+        while ((i = registry.indexOf(FOREIGN)) !== -1) registry.splice(i, 1);
+      });
+
+      it('should keep this instance last when another global registers afterwards', function () {
+        registry.push(FOREIGN);
+        assert.equal(registry[registry.length - 1], getGlobalVarName());
+        assert.isBelow(registry.indexOf(FOREIGN), registry.lastIndexOf(getGlobalVarName()));
+      });
+
+      it('should keep this instance last when several globals register in one push', function () {
+        registry.push(FOREIGN, FOREIGN);
+        assert.equal(registry[registry.length - 1], getGlobalVarName());
+      });
+
+      it('should return the new length from push', function () {
+        assert.equal(registry.push(FOREIGN), registry.length);
+      });
+
+      it('should not expose the push wrapper as an enumerable property', function () {
+        assert.notInclude(Object.keys(registry), 'push');
+        const keys = [];
+        for (const k in registry) keys.push(k);
+        assert.notInclude(keys, 'push');
+      });
+    });
   });
 
   describe('has function', function () {
